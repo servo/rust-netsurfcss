@@ -19,8 +19,12 @@ libnetsurfcss.dummy: netsurfcss.rc $(RUST_SRC)
 	$(RUSTC) $(RUSTFLAGS) $< -o $@
 	touch $@
 
+netsurfcss-test: netsurfcss.rc $(RUST_SRC)
+	$(RUSTC) $(RUSTFLAGS) $< -o $@ --test
+
 .PHONY: check
-check:
+check: netsurfcss-test
+	./netsurfcss-test
 
 .PHONY: clean
 clean:
