@@ -31,18 +31,20 @@ pub struct css_stylesheet_params {
     font_pw: *c_void
 }
 
+const CSS_STYLESHEET_PARAMS_VERSION_1: uint32_t = 1;
+
 type css_language_level = uint32_t;
 
-const CSS_LEVEL1: css_language_level = 0;
-const CSS_LEVEL2: css_language_level = 1;
-const CSS_LEVEL21: css_language_level = 2;
-const CSS_LEVEL3: css_language_level = 3;
+const CSS_LEVEL_1: css_language_level = 0;
+const CSS_LEVEL_2: css_language_level = 1;
+const CSS_LEVEL_21: css_language_level = 2;
+const CSS_LEVEL_3: css_language_level = 3;
 const CSS_LEVEL_DEFAULT: css_language_level = 2;
 
-type css_url_resolution_fn = extern fn(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_string) -> css_error;
-type css_import_notification_fn = extern fn(pw: *c_void, parent: *css_stylesheet, url: *lwc_string, media: *uint64_t) -> css_error;
-type css_color_resolution_fn = extern fn(pw: *c_void, name: *lwc_string, color: *css_color) -> css_error;
-type css_font_resolution_fn = extern fn(pw: *c_void, name: *lwc_string, system_font: *css_system_font) -> css_error;
+type css_url_resolution_fn = *u8; //extern fn(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_string) -> css_error;
+type css_import_notification_fn = *u8; //extern fn(pw: *c_void, parent: *css_stylesheet, url: *lwc_string, media: *uint64_t) -> css_error;
+type css_color_resolution_fn = *u8; //extern fn(pw: *c_void, name: *lwc_string, color: *css_color) -> css_error;
+type css_font_resolution_fn = *u8; //extern fn(pw: *c_void, name: *lwc_string, system_font: *css_system_font) -> css_error;
 
 enum css_error {
     CSS_OK = 0,
