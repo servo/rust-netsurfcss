@@ -36,7 +36,7 @@ pub impl css_language_level: ToHl<CssLanguageLevel> {
     }
 }
 
-pub impl<TResolvePw, TImportPw, TColorPw, TFontPw> CssStylesheetParams<TResolvePw, TImportPw, TColorPw, TFontPw>: AsLl<css_stylesheet_params> {
+pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
     pub fn as_ll<U>(&self, f: fn(&css_stylesheet_params) -> U) -> U {
         do str::as_c_str(self.charset) |charset| {
             do str::as_c_str(self.url) |url| {

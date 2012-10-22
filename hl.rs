@@ -26,7 +26,7 @@ pub enum CssLanguageLevel {
     CssLevelDefault = 99 // NB: This is not the same as the ll value
 }
 
-pub struct CssStylesheetParams<TResolvePw, TImportPw, TColorPw, TFontPw> {
+pub struct CssStylesheetParams {
     params_version: CssStylesheetParamsVersion,
     level: CssLanguageLevel,
     charset: ~str,
@@ -34,14 +34,10 @@ pub struct CssStylesheetParams<TResolvePw, TImportPw, TColorPw, TFontPw> {
     title: ~str,
     allow_quirks: bool,
     inline_style: bool,
-    resolve: Option<CssUrlResolutionFn<TResolvePw>>,
-    resolve_pw: Option<TResolvePw>,
-    import: Option<CssImportNotificationFn<TImportPw>>,
-    import_pw: Option<TImportPw>,
-    color: Option<CssColorResolutionFn<TColorPw>>,
-    color_pw: Option<TColorPw>,
-    font: Option<CssFontResolutionFn<TFontPw>>,
-    font_pw: Option<TFontPw>
+    resolve: Option<CssUrlResolutionFn>,
+    import: Option<CssImportNotificationFn>,
+    color: Option<CssColorResolutionFn>,
+    font: Option<CssFontResolutionFn>,
 }
 
 pub enum CssStylesheetParamsVersion {
@@ -49,10 +45,10 @@ pub enum CssStylesheetParamsVersion {
 }
 
 // FIXME: Need hl reprs of lwc_string
-pub type CssUrlResolutionFn<TResolvePw> = &fn(pw: &TResolvePw, base: &str, rel: &lwc_string, abs: & &lwc_string) -> CssError;
-pub type CssImportNotificationFn<TImportPw> = &fn(pw: &TImportPw, parent: &CssStylesheet, url: &lwc_string, media: &uint64_t) -> CssError;
-pub type CssColorResolutionFn<TColorPw> = &fn(pw: &TColorPw, name: &lwc_string, color: &CssColor) -> CssError;
-pub type CssFontResolutionFn<TFontPw> = &fn(pw: &TFontPw, name: &lwc_string, system_font: &CssSystemFont) -> CssError;
+pub type CssUrlResolutionFn = @fn(base: &str, rel: &lwc_string, abs: & &lwc_string) -> CssError;
+pub type CssImportNotificationFn = @fn(parent: &CssStylesheet, url: &lwc_string, media: &uint64_t) -> CssError;
+pub type CssColorResolutionFn = @fn(name: &lwc_string, color: &CssColor) -> CssError;
+pub type CssFontResolutionFn = @fn(name: &lwc_string, system_font: &CssSystemFont) -> CssError;
 
 pub struct CssColor { r: u8, g: u8, b: u8, a: u8 }
 
@@ -135,7 +131,7 @@ pub struct CssStylesheetRef {
     }
 }
 
-fn CssStylesheetCreate<TResolvePw, TImportPw, TColorPw, TFontPw>(params: &CssStylesheetParams<TResolvePw, TImportPw, TColorPw, TFontPw>) -> CssResult<CssStylesheetRef> {
+fn CssStylesheetCreate(params: &CssStylesheetParams) -> CssResult<CssStylesheetRef> {
     do params.as_ll |ll_params| {
         let mut sheet: *css_stylesheet = null();
         let code = css_stylesheet_create(
