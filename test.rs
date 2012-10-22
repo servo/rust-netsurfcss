@@ -9,7 +9,7 @@ mod example1 {
                     h4 { color: #321 }\
                     h4, h5 { color: #123456 }";
 
-        /*let params: CssStylesheetParams<(), (), (), ()> = CssStylesheetParams {
+        let params: CssStylesheetParams<(), (), (), ()> = CssStylesheetParams {
             params_version: CssStylesheetParamsVersion1,
             level: CssLevel21,
             charset: ~"UTF-8",
@@ -25,7 +25,9 @@ mod example1 {
             color_pw: None,
             font: None,
             font_pw: None
-        };*/
+        };
+
+        let sheet: CssResult<CssStylesheetRef> = CssStylesheetCreate(&params);
     }
 
     fn resolve_url(pw: &(), base: &str, rel: &lwc_string, abs: & &lwc_string) -> CssError {

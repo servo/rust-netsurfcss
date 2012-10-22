@@ -128,3 +128,14 @@ enum css_unit {
     CSS_UNIT_HZ = 0xe,
     CSS_UNIT_KHZ = 0xf
 }
+
+// (ptr: *c_void, size: size_t, pw: *c_void)
+type css_allocator_fn = *u8;
+
+extern {
+    fn css_stylesheet_create(params: *css_stylesheet_params,
+                             alloc: css_allocator_fn,
+                             alloc_pw: *c_void,
+                             stylesheet: *mut *css_stylesheet) -> css_error;
+    fn css_stylesheet_destroy(sheet: *css_stylesheet) -> css_error;
+}

@@ -1,5 +1,9 @@
 use core::libc::c_void;
 use ll::*;
+use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
+use cast::transmute;
+
+pub type CssStylesheet = c_void;
 
 pub enum CssError {
     CssOk = 0,
@@ -51,8 +55,6 @@ pub type CssColorResolutionFn<TColorPw> = &fn(pw: &TColorPw, name: &lwc_string, 
 pub type CssFontResolutionFn<TFontPw> = &fn(pw: &TFontPw, name: &lwc_string, system_font: &CssSystemFont) -> CssError;
 
 pub struct CssColor { r: u8, g: u8, b: u8, a: u8 }
-
-pub type CssStylesheet = c_void;
 
 pub struct CssSystemFont {
     style: CssFontStyle,
@@ -117,4 +119,37 @@ pub enum CssUnit {
     CssUnitS = 0xd,
     CssUnitHz = 0xe,
     CssUnitKhz = 0xf
+}
+
+
+
+
+
+type CssResult<T> = Result<T, CssError>;
+
+pub struct CssStylesheetRef {
+    priv sheet: *css_stylesheet,
+
+    drop {
+        css_stylesheet_destroy(self.sheet);
+    }
+}
+
+fn CssStylesheetCreate<TResolvePw, TImportPw, TColorPw, TFontPw>(params: &CssStylesheetParams<TResolvePw, TImportPw, TColorPw, TFontPw>) -> CssResult<CssStylesheetRef> {
+    do params.as_ll |ll_params| {
+        let mut sheet: *css_stylesheet = null();
+        let code = css_stylesheet_create(
+            to_unsafe_ptr(ll_params), null(), null(), to_mut_unsafe_ptr(&mut sheet));
+
+        match code {
+            CSS_OK => {
+                Ok(CssStylesheetRef {
+                    sheet: move sheet
+                })
+            }
+            _ => {
+                Err(unsafe { transmute(code) })
+            }
+        }
+    }
 }

@@ -5,6 +5,10 @@ pub trait ToLl<T> {
     fn to_ll(&self) -> T;
 }
 
+pub trait AsLl<T> {
+    fn as_ll<U>(&self, f: fn(&T) -> U) -> U;
+}
+
 pub trait ToHl<T> {
     fn to_hl(&self) -> T;
 }
@@ -32,3 +36,31 @@ pub impl css_language_level: ToHl<CssLanguageLevel> {
     }
 }
 
+pub impl<TResolvePw, TImportPw, TColorPw, TFontPw> CssStylesheetParams<TResolvePw, TImportPw, TColorPw, TFontPw>: AsLl<css_stylesheet_params> {
+    pub fn as_ll<U>(&self, f: fn(&css_stylesheet_params) -> U) -> U {
+        do str::as_c_str(self.charset) |charset| {
+            do str::as_c_str(self.url) |url| {
+                do str::as_c_str(self.title) |title| {
+                    let params = css_stylesheet_params {
+                        params_version: self.params_version as uint32_t,
+                        level: self.level.to_ll(),
+                        charset: charset,
+                        url: url,
+                        title: title,
+                        allow_quirks: self.allow_quirks,
+                        inline_style: self.inline_style,
+                        resolve: null(),
+                        resolve_pw: null(),
+                        import: null(),
+                        import_pw: null(),
+                        color: null(),
+                        color_pw: null(),
+                        font: null(),
+                        font_pw: null()
+                    };
+                    f(&params)
+                }
+            }
+        }
+    }
+}
