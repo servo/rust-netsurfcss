@@ -45,10 +45,10 @@ pub enum CssStylesheetParamsVersion {
 }
 
 // FIXME: Need hl reprs of lwc_string
-pub type CssUrlResolutionFn = @fn(base: &str, rel: &lwc_string, abs: & &lwc_string) -> CssError;
-pub type CssImportNotificationFn = @fn(parent: &CssStylesheet, url: &lwc_string, media: &uint64_t) -> CssError;
-pub type CssColorResolutionFn = @fn(name: &lwc_string, color: &CssColor) -> CssError;
-pub type CssFontResolutionFn = @fn(name: &lwc_string, system_font: &CssSystemFont) -> CssError;
+pub type CssUrlResolutionFn = ~fn(base: &str, rel: &lwc_string, abs: & &lwc_string) -> CssError;
+pub type CssImportNotificationFn = ~fn(parent: &CssStylesheet, url: &lwc_string, media: &uint64_t) -> CssError;
+pub type CssColorResolutionFn = ~fn(name: &lwc_string, color: &CssColor) -> CssError;
+pub type CssFontResolutionFn = ~fn(name: &lwc_string, system_font: &CssSystemFont) -> CssError;
 
 pub struct CssColor { r: u8, g: u8, b: u8, a: u8 }
 
