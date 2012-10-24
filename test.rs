@@ -37,7 +37,7 @@ mod example1 {
         debug!("count sheets: %?", select_ctx.count_sheets());*/
     }
 
-    fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> CssError {
+    fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {
         fail ~"resolving url";
     }
 }

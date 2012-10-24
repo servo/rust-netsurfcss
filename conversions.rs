@@ -13,10 +13,6 @@ pub trait ToHl<T> {
     fn to_hl(&self) -> T;
 }
 
-pub impl CssError: ToLl<css_error> {
-    fn to_ll(&self) -> css_error { unsafe { transmute(*self) } }
-}
-
 pub impl CssLanguageLevel: ToLl<css_language_level> {
     pub fn to_ll(&self) -> css_language_level {
         match *self {
@@ -74,6 +70,6 @@ extern fn resolve(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_strin
         let f: &CssUrlResolutionFn = transmute(pw);
 
         let base = str::raw::from_c_str(base);
-        (*f)(base, &*rel, & &**abs).to_ll()
+        (*f)(base, &*rel, & &**abs)
     }
 }
