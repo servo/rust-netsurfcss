@@ -32,9 +32,9 @@ mod example1 {
         debug!("stylesheet size: %?", sheet.size());
 
 
-        /*let select_ctx: CssSelectCtxRef = css_select_ctx_create();
-        select_ctx.append_sheet(move sheet, CssOriginAuthor, CssMediaAll);
-        debug!("count sheets: %?", select_ctx.count_sheets());*/
+        let select_ctx: CssSelectCtxRef = css_select_ctx_create();
+        select_ctx.append_sheet(move sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
+        debug!("count sheets: %?", select_ctx.count_sheets());
     }
 
     fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {

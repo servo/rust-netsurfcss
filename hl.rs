@@ -3,8 +3,10 @@ use core::libc::types::common::c99::{int32_t, uint64_t};
 use ll::errors::*;
 use ll::stylesheet::*;
 use ll::types::*;
+use ll::select::*;
 use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
 use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
+use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
 
@@ -64,11 +66,19 @@ fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
 
 type CssResult<T> = Result<T, css_error>;
 
+fn require_ok(code: css_error, what: &str) {
+    match code {
+        CSS_OK => (),
+        e => fail fmt!("CSS parsing failed while %s. code: %?", what, e)
+    }
+}
+
 pub struct CssStylesheetRef {
     priv params: CssStylesheetParams,
     priv sheet: *css_stylesheet,
 
     drop {
+        assert self.sheet.is_not_null();
         css_stylesheet_destroy(self.sheet);
     }
 }
@@ -86,13 +96,6 @@ fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheetRef {
         // Store the params to keep their pointers alive
         params: move params,
         sheet: sheet
-    }
-}
-
-fn require_ok(code: css_error, what: &str) {
-    match code {
-        CSS_OK => (),
-        e => fail fmt!("CSS parsing failed while %s. code: %?", what, e)
     }
 }
 
@@ -121,4 +124,33 @@ impl CssStylesheetRef {
 
 extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
     libc::realloc(ptr, len)
+}
+
+struct CssSelectCtxRef {
+    priv select_ctx: *css_select_ctx,
+
+    drop {
+        assert self.select_ctx.is_not_null();
+        css_select_ctx_destroy(self.select_ctx);
+    }
+}
+
+fn css_select_ctx_create() -> CssSelectCtxRef {
+    let mut select_ctx: *css_select_ctx = null();
+    let code = ll_css_select_ctx_create(realloc, null(), to_mut_unsafe_ptr(&mut select_ctx));
+    require_ok(code, "creating select context");
+
+    CssSelectCtxRef {
+        select_ctx: select_ctx
+    }
+}
+
+impl CssSelectCtxRef {
+    fn append_sheet(sheet: CssStylesheetRef, origin: css_origin, media: uint64_t) {
+        // FIXME
+    }
+    fn count_sheets() -> uint {
+        // FIXME
+        0
+    }
 }

@@ -54,6 +54,30 @@ mod types {
         CSS_UNIT_HZ = 0xe,
         CSS_UNIT_KHZ = 0xf
     }
+
+    enum css_origin {
+        CSS_ORIGIN_UA = 0,
+        CSS_ORIGIN_USER = 1,
+        CSS_ORIGIN_AUTHOR = 2
+    }
+
+    const CSS_MEDIA_AURAL: uint64_t = (1 << 0);
+    const CSS_MEDIA_BRAILLE: uint64_t = (1 << 1);
+    const CSS_MEDIA_EMBOSSED: uint64_t = (1 << 2);
+    const CSS_MEDIA_HANDHELD: uint64_t = (1 << 3);
+    const CSS_MEDIA_PRINT: uint64_t = (1 << 4);
+    const CSS_MEDIA_PROJECTION: uint64_t = (1 << 5);
+    const CSS_MEDIA_SCREEN: uint64_t = (1 << 6);
+    const CSS_MEDIA_SPEECH: uint64_t = (1 << 7);
+    const CSS_MEDIA_TTY: uint64_t = (1 << 8);
+    const CSS_MEDIA_TV: uint64_t = (1 << 9);
+    const CSS_MEDIA_ALL: uint64_t =
+        CSS_MEDIA_AURAL | CSS_MEDIA_BRAILLE |
+        CSS_MEDIA_EMBOSSED | CSS_MEDIA_HANDHELD |
+        CSS_MEDIA_PRINT | CSS_MEDIA_PROJECTION |
+        CSS_MEDIA_SCREEN | CSS_MEDIA_SPEECH |
+        CSS_MEDIA_TTY | CSS_MEDIA_TV;
+
 }
 
 mod errors {
@@ -164,5 +188,21 @@ mod stylesheet {
         fn css_stylesheet_size(sheet: *css_stylesheet, size: *mut size_t) -> css_error;
         fn css_stylesheet_append_data(sheet: *css_stylesheet, data: *const uint8_t, len: size_t) -> css_error;
         fn css_stylesheet_data_done(sheet: *css_stylesheet) -> css_error;
+    }
+}
+
+mod select {
+    use functypes::css_allocator_fn;
+    use errors::css_error;
+    use stylesheet::css_stylesheet;
+    use types::css_origin;
+
+    type css_select_ctx = c_void;
+
+    extern {
+        fn css_select_ctx_create(alloc: css_allocator_fn, pw: *c_void, result: *mut *css_select_ctx) -> css_error;
+        fn css_select_ctx_destroy(ctx: *css_select_ctx) -> css_error;
+        fn css_select_ctx_append_sheet(ctx: *css_select_ctx, sheet: *css_stylesheet, origin: css_origin, media: uint64_t) -> css_error;
+        fn css_select_ctx_count_sheets(ctx: *css_select_ctx, count: *mut uint32_t) -> css_error;
     }
 }
