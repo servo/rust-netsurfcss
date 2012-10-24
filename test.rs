@@ -23,13 +23,13 @@ mod example1 {
             font: None,
         };
 
-        let sheet: CssStylesheetRef = css_stylesheet_create(&params);
+        let sheet: CssStylesheetRef = css_stylesheet_create(move params);
         debug!("stylesheet: %?", sheet);
-        let size = sheet.size();
-        debug!("stylesheet size: %?", size);
+        debug!("stylesheet size: %?", sheet.size());
 
         sheet.append_data(str::to_bytes(data));
         sheet.data_done();
+        debug!("stylesheet size: %?", sheet.size());
     }
 
     fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> CssError {

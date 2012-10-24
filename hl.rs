@@ -129,6 +129,7 @@ fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
 type CssResult<T> = Result<T, CssError>;
 
 pub struct CssStylesheetRef {
+    priv params: CssStylesheetParams,
     priv sheet: *css_stylesheet,
 
     drop {
@@ -136,15 +137,19 @@ pub struct CssStylesheetRef {
     }
 }
 
-fn css_stylesheet_create(params: &CssStylesheetParams) -> CssStylesheetRef {
-    do params.as_ll |ll_params| {
+fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheetRef {
+    let sheet = do params.as_ll |ll_params| {
         let mut sheet: *css_stylesheet = null();
         let code = ll::css_stylesheet_create(
             to_unsafe_ptr(ll_params), realloc, null(), to_mut_unsafe_ptr(&mut sheet));
         require_ok(code, "creating stylesheet");
-        CssStylesheetRef {
-            sheet: sheet
-        }
+        sheet
+    };
+
+    CssStylesheetRef {
+        // Store the params to keep their pointers alive
+        params: move params,
+        sheet: sheet
     }
 }
 
