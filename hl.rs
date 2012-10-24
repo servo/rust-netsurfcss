@@ -1,7 +1,13 @@
 use core::libc::{c_void, size_t};
-use ll::*;
+use core::libc::types::common::c99::{int32_t, uint64_t};
+use ll::errors::*;
+use ll::stylesheet::*;
+use ll::types::*;
+use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
+
+use wapcaplet::ll::lwc_string;
 
 pub type CssStylesheet = c_void;
 
@@ -140,7 +146,7 @@ pub struct CssStylesheetRef {
 fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheetRef {
     let sheet = do params.as_ll |ll_params| {
         let mut sheet: *css_stylesheet = null();
-        let code = ll::css_stylesheet_create(
+        let code = ll_css_stylesheet_create(
             to_unsafe_ptr(ll_params), realloc, null(), to_mut_unsafe_ptr(&mut sheet));
         require_ok(code, "creating stylesheet");
         sheet
