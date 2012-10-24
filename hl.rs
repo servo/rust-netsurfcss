@@ -136,39 +136,45 @@ pub struct CssStylesheetRef {
     }
 }
 
-fn css_stylesheet_create(params: &CssStylesheetParams) -> CssResult<CssStylesheetRef> {
+fn css_stylesheet_create(params: &CssStylesheetParams) -> CssStylesheetRef {
     do params.as_ll |ll_params| {
         let mut sheet: *css_stylesheet = null();
         let code = ll::css_stylesheet_create(
             to_unsafe_ptr(ll_params), realloc, null(), to_mut_unsafe_ptr(&mut sheet));
-
-        match ll_result_to_rust_result(code, sheet) {
-            Ok(sheet) => Ok(CssStylesheetRef {
-                sheet: sheet
-            }),
-            Err(e) => Err(e)
+        require_ok(code, "creating stylesheet");
+        CssStylesheetRef {
+            sheet: sheet
         }
     }
 }
 
+fn require_ok(code: css_error, what: &str) {
+    match code {
+        CSS_OK => (),
+        e => fail fmt!("CSS parsing failed while %s. code: %?", what, e)
+    }
+}
+
 impl CssStylesheetRef {
-    fn size() -> CssResult<uint> {
+    fn size() -> uint {
         let mut size = 0;
         let code = css_stylesheet_size(self.sheet, to_mut_unsafe_ptr(&mut size));
-        do ll_result_to_rust_result(code, size).chain |size| {
-            Ok(size as uint)
+        require_ok(code, "getting stylesheet size");
+        return size as uint;
+    }
+
+    fn append_data(data: &[u8]) {
+        // FIXME: For some reason to_const_ptr isn't accessible
+        let code = css_stylesheet_append_data(self.sheet, unsafe { transmute(vec::raw::to_ptr(data)) }, data.len() as size_t);
+        match code {
+            CSS_NEEDDATA => { /* fine */ },
+            _ => require_ok(code, "appending styleshet data")
         }
     }
 
-    fn append_data(data: &[u8]) -> CssResult<()> {
-        // FIXME: For some reason to_const_ptr isn't accessible
-        let code = css_stylesheet_append_data(self.sheet, unsafe { transmute(vec::raw::to_ptr(data)) }, data.len() as size_t);
-        ll_result_to_rust_result(code, ())
-    }
-
-    fn data_done() -> CssResult<()> {
+    fn data_done() {
         let code = css_stylesheet_data_done(self.sheet);
-        ll_result_to_rust_result(code, ())
+        require_ok(code, "finishing parsing");
     }
 }
 

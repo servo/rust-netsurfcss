@@ -23,25 +23,16 @@ mod example1 {
             font: None,
         };
 
-        let sheet: CssResult<CssStylesheetRef> = css_stylesheet_create(&params);
+        let sheet: CssStylesheetRef = css_stylesheet_create(&params);
         debug!("stylesheet: %?", sheet);
-        assert sheet.is_ok();
-        let sheet = result::unwrap(move sheet);
-        let size: CssResult<uint> = sheet.size();
-        assert size.is_ok();
+        let size = sheet.size();
         debug!("stylesheet size: %?", size);
 
-        let res: CssResult<()> = sheet.append_data(str::to_bytes(data));
-        debug!("%?", res);
-        match res {
-            Err(CssNeedData) => (),
-            _ => fail
-        }
-        let res: CssResult<()> = sheet.data_done();
+        sheet.append_data(str::to_bytes(data));
+        sheet.data_done();
     }
 
-    fn resolve_url(base: &str, rel: &lwc_string, abs: & &lwc_string) -> CssError {
+    fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> CssError {
         fail ~"resolving url";
-        CssOk
     }
 }
