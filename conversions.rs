@@ -13,6 +13,10 @@ pub trait ToHl<T> {
     fn to_hl(&self) -> T;
 }
 
+pub impl CssError: ToLl<css_error> {
+    fn to_ll(&self) -> css_error { unsafe { transmute(*self) } }
+}
+
 pub impl CssLanguageLevel: ToLl<css_language_level> {
     pub fn to_ll(&self) -> css_language_level {
         match *self {
@@ -49,8 +53,8 @@ pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
                         title: title,
                         allow_quirks: self.allow_quirks,
                         inline_style: self.inline_style,
-                        resolve: null(),
-                        resolve_pw: null(),
+                        resolve: resolve,
+                        resolve_pw: unsafe { transmute(&self.resolve) },
                         import: null(),
                         import_pw: null(),
                         color: null(),
@@ -62,5 +66,14 @@ pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
                 }
             }
         }
+    }
+}
+
+extern fn resolve(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_string) -> css_error {
+    unsafe {
+        let f: &CssUrlResolutionFn = transmute(pw);
+
+        let base = str::raw::from_c_str(base);
+        (*f)(base, &*rel, & &**abs).to_ll()
     }
 }

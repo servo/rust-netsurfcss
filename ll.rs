@@ -1,5 +1,5 @@
-use core::libc::{c_char, c_void};
-use core::libc::types::common::c99::{int32_t, uint32_t, uint64_t};
+use core::libc::{c_char, c_void, size_t};
+use core::libc::types::common::c99::{int32_t, uint32_t, uint64_t, uint8_t};
 
 use wapcaplet::ll::lwc_string;
 
@@ -138,4 +138,7 @@ extern {
                              alloc_pw: *c_void,
                              stylesheet: *mut *css_stylesheet) -> css_error;
     fn css_stylesheet_destroy(sheet: *css_stylesheet) -> css_error;
+    fn css_stylesheet_size(sheet: *css_stylesheet, size: *mut size_t) -> css_error;
+    fn css_stylesheet_append_data(sheet: *css_stylesheet, data: *const uint8_t, len: size_t) -> css_error;
+    fn css_stylesheet_data_done(sheet: *css_stylesheet) -> css_error;
 }

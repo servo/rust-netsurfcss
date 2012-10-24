@@ -1,4 +1,4 @@
-use core::libc::c_void;
+use core::libc::{c_void, size_t};
 use ll::*;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
@@ -119,7 +119,12 @@ pub enum CssUnit {
 
 
 
-
+fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
+    match code {
+        CSS_OK => Ok(move val),
+        _ => Err(unsafe { transmute(code) })
+    }
+}
 
 type CssResult<T> = Result<T, CssError>;
 
@@ -131,21 +136,42 @@ pub struct CssStylesheetRef {
     }
 }
 
-fn CssStylesheetCreate(params: &CssStylesheetParams) -> CssResult<CssStylesheetRef> {
+fn css_stylesheet_create(params: &CssStylesheetParams) -> CssResult<CssStylesheetRef> {
     do params.as_ll |ll_params| {
         let mut sheet: *css_stylesheet = null();
-        let code = css_stylesheet_create(
-            to_unsafe_ptr(ll_params), null(), null(), to_mut_unsafe_ptr(&mut sheet));
+        let code = ll::css_stylesheet_create(
+            to_unsafe_ptr(ll_params), realloc, null(), to_mut_unsafe_ptr(&mut sheet));
 
-        match code {
-            CSS_OK => {
-                Ok(CssStylesheetRef {
-                    sheet: move sheet
-                })
-            }
-            _ => {
-                Err(unsafe { transmute(code) })
-            }
+        match ll_result_to_rust_result(code, sheet) {
+            Ok(sheet) => Ok(CssStylesheetRef {
+                sheet: sheet
+            }),
+            Err(e) => Err(e)
         }
     }
+}
+
+impl CssStylesheetRef {
+    fn size() -> CssResult<uint> {
+        let mut size = 0;
+        let code = css_stylesheet_size(self.sheet, to_mut_unsafe_ptr(&mut size));
+        do ll_result_to_rust_result(code, size).chain |size| {
+            Ok(size as uint)
+        }
+    }
+
+    fn append_data(data: &[u8]) -> CssResult<()> {
+        // FIXME: For some reason to_const_ptr isn't accessible
+        let code = css_stylesheet_append_data(self.sheet, unsafe { transmute(vec::raw::to_ptr(data)) }, data.len() as size_t);
+        ll_result_to_rust_result(code, ())
+    }
+
+    fn data_done() -> CssResult<()> {
+        let code = css_stylesheet_data_done(self.sheet);
+        ll_result_to_rust_result(code, ())
+    }
+}
+
+extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
+    libc::realloc(ptr, len)
 }
