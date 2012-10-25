@@ -89,6 +89,7 @@ fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheetRef {
         let code = ll_css_stylesheet_create(
             to_unsafe_ptr(ll_params), realloc, null(), to_mut_unsafe_ptr(&mut sheet));
         require_ok(code, "creating stylesheet");
+        assert sheet.is_not_null();
         sheet
     };
 
@@ -128,6 +129,9 @@ extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
 
 struct CssSelectCtxRef {
     priv select_ctx: *css_select_ctx,
+    // Whenever a sheet is added to the select ctx we will take ownership of it
+    // to ensure that it stays alive
+    priv mut sheets: ~[CssStylesheetRef],
 
     drop {
         assert self.select_ctx.is_not_null();
@@ -139,18 +143,25 @@ fn css_select_ctx_create() -> CssSelectCtxRef {
     let mut select_ctx: *css_select_ctx = null();
     let code = ll_css_select_ctx_create(realloc, null(), to_mut_unsafe_ptr(&mut select_ctx));
     require_ok(code, "creating select context");
+    assert select_ctx.is_not_null();
 
     CssSelectCtxRef {
-        select_ctx: select_ctx
+        select_ctx: select_ctx,
+        mut sheets: ~[]
     }
 }
 
 impl CssSelectCtxRef {
     fn append_sheet(sheet: CssStylesheetRef, origin: css_origin, media: uint64_t) {
-        // FIXME
+        let code = css_select_ctx_append_sheet(self.select_ctx, sheet.sheet, origin, media);
+        require_ok(code, "adding sheet to select ctx");
+
+        self.sheets.push(move sheet);
     }
     fn count_sheets() -> uint {
-        // FIXME
-        0
+        let mut count = 0;
+        let code = css_select_ctx_count_sheets(self.select_ctx, to_mut_unsafe_ptr(&mut count));
+        require_ok(code, "counting sheets");
+        return count as uint;
     }
 }

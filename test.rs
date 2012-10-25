@@ -33,8 +33,10 @@ mod example1 {
 
 
         let select_ctx: CssSelectCtxRef = css_select_ctx_create();
+        assert select_ctx.count_sheets() == 0;
         select_ctx.append_sheet(move sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
         debug!("count sheets: %?", select_ctx.count_sheets());
+        assert select_ctx.count_sheets() == 1;
     }
 
     fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {
