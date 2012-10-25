@@ -37,9 +37,27 @@ mod example1 {
         select_ctx.append_sheet(move sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert select_ctx.count_sheets() == 1;
+
+        for uint::range(1, 7) |hh| {
+            let element = fmt!("h%u", hh);
+            let element_name: LwcStringRef = from_rust_string(element);
+            /*let style: CssSelectResultsRef = select_ctx.select_style(element_name,
+                                                                     CSS_MEDIA_SCREEN,
+                                                                     None,
+                                                                     select_handler);
+            match style.computed_color(CSS_PSEUDO_ELEMENT_NONE) {
+                CssColorInherit => {
+                },
+                CssColorValue(color) => {
+                }
+            }*/
+        }
     }
 
     fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {
         fail ~"resolving url";
+    }
+
+    fn select_handler() {
     }
 }

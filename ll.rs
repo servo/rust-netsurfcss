@@ -78,6 +78,12 @@ mod types {
         CSS_MEDIA_SCREEN | CSS_MEDIA_SPEECH |
         CSS_MEDIA_TTY | CSS_MEDIA_TV;
 
+    type css_computed_style = c_void;
+
+    pub struct css_qname {
+        ns: *lwc_string,
+        name: *lwc_string
+    }
 }
 
 mod errors {
@@ -93,6 +99,11 @@ mod errors {
         CSS_IMPORTS_PENDING = 8,
         CSS_PROPERTY_NOT_SET = 9
     }
+}
+
+mod hint {
+    // FIXME: This is not an opaque type
+    type css_hint = c_void;
 }
 
 mod properties {
@@ -195,14 +206,73 @@ mod select {
     use functypes::css_allocator_fn;
     use errors::css_error;
     use stylesheet::css_stylesheet;
-    use types::css_origin;
+    use types::{css_origin, css_computed_style};
 
     type css_select_ctx = c_void;
+
+    pub enum css_pseudo_element {
+        CSS_PSEUDO_ELEMENT_NONE = 0,
+        CSS_PSEUDO_ELEMENT_FIRST_LINE = 1,
+        CSS_PSEUDO_ELEMENT_FIRST_LETTER = 2,
+        CSS_PSEUDO_ELEMENT_BEFORE = 3,
+        CSS_PESUDO_ELEMENT_AFTER = 4,
+        CSS_PSEUDO_ELEMENT_COUNT = 5
+    }
+
+    pub struct css_select_results {
+        alloc: css_allocator_fn,
+        pw: *c_void,
+        styles: [*css_computed_style * 5] // 5 == CSS_PSEUDO_ELEMENT_COUNT
+    }
+
+    pub type opaque_callback = *u8;
+
+    // See select.h for actual callback signatures
+    pub struct css_select_handler {
+        handler_version: uint32_t,
+        node_name: opaque_callback,
+        node_classes: opaque_callback,
+        node_id: opaque_callback,
+        named_ancestor_node: opaque_callback,
+        named_parent_node: opaque_callback,
+        named_sibling_node: opaque_callback,
+        named_generic_sibling_node: opaque_callback,
+        parent_node: opaque_callback,
+        sibling_node: opaque_callback,
+        node_has_name: opaque_callback,
+        node_has_class: opaque_callback,
+        node_has_id: opaque_callback,
+        node_has_attribute: opaque_callback,
+        node_has_attribute_equal: opaque_callback,
+        node_has_attribute_dashmatch: opaque_callback,
+        node_has_attribute_includes: opaque_callback,
+        node_has_attribute_prefix: opaque_callback,
+        node_has_attribute_suffix: opaque_callback,
+        node_has_attribute_substring: opaque_callback,
+        node_is_root: opaque_callback,
+        node_count_siblings: opaque_callback,
+        node_is_empty: opaque_callback,
+        node_is_link: opaque_callback,
+        node_is_visited: opaque_callback,
+        node_is_hover: opaque_callback,
+        node_is_active: opaque_callback,
+        node_is_focus: opaque_callback,
+        node_is_enabled: opaque_callback,
+        node_is_disabled: opaque_callback,
+        node_is_checked: opaque_callback,
+        node_is_target: opaque_callback,
+        node_is_lang: opaque_callback,
+        node_presentational_hint: opaque_callback,
+        ua_default_for_property: opaque_callback,
+        compute_font_size: opaque_callback
+    }
 
     extern {
         fn css_select_ctx_create(alloc: css_allocator_fn, pw: *c_void, result: *mut *css_select_ctx) -> css_error;
         fn css_select_ctx_destroy(ctx: *css_select_ctx) -> css_error;
         fn css_select_ctx_append_sheet(ctx: *css_select_ctx, sheet: *css_stylesheet, origin: css_origin, media: uint64_t) -> css_error;
         fn css_select_ctx_count_sheets(ctx: *css_select_ctx, count: *mut uint32_t) -> css_error;
+        fn css_select_style(ctx: *css_select_ctx, node: *c_void, media: uint64_t, inline_style: *css_stylesheet, handler: *css_select_handler, pw: *c_void, result: *mut *css_select_results) -> css_error;
+        fn css_select_results_destroy(results: *css_select_results) -> css_error;
     }
 }
