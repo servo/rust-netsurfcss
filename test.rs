@@ -38,26 +38,40 @@ mod example1 {
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert select_ctx.count_sheets() == 1;
 
-        for uint::range(1, 7) |hh| {
+        /*for uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
             let element_name: LwcStringRef = from_rust_string(element);
-            /*let style: CssSelectResultsRef = select_ctx.select_style(element_name,
+            let select_handler = SelectHandler { bogus: () };
+            let style: CssSelectResultsRef = select_ctx.select_style(&element_name,
                                                                      CSS_MEDIA_SCREEN,
                                                                      None,
-                                                                     select_handler);
+                                                                     &select_handler);
             match style.computed_color(CSS_PSEUDO_ELEMENT_NONE) {
                 CssColorInherit => {
                 },
                 CssColorValue(color) => {
                 }
-            }*/
-        }
+            }
+        }*/
     }
 
     fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {
         fail ~"resolving url";
     }
 
-    fn select_handler() {
+    struct SelectHandler {
+        bogus: ()
+    }
+
+    impl SelectHandler: CssSelectHandler<LwcStringRef> {
+        fn node_name(node: &LwcStringRef) -> CssQName {
+            debug!("HL node_name!");
+            debug!("SS %?", node.to_str());
+
+            CssQName {
+                ns: None,
+                name: node.clone()
+            }
+        }
     }
 }

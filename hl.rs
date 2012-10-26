@@ -60,6 +60,11 @@ pub mod properties {
     }
 }
 
+pub struct CssQName {
+    ns: Option<LwcStringRef>,
+    name: LwcStringRef
+}
+
 pub struct CssSystemFont {
     style: css_font_style_e,
     variant: css_font_variant_e,
@@ -183,19 +188,21 @@ impl CssSelectCtxRef {
     fn select_style<N, H: CssSelectHandler<N>>(node: &N, media: uint64_t,
                                                inline_style: Option<&CssStylesheetRef>,
                                                handler: &H) -> CssSelectResultsRef {
-        let raw_handler = build_raw_handler();
-        let mut results: *css_select_results = null();
-        let code = css_select_style(self.select_ctx,
-                                    unsafe { transmute(to_unsafe_ptr(node)) },
-                                    media,
-                                    null(), // FIXME,
-                                    to_unsafe_ptr(&raw_handler),
-                                    unsafe { transmute(to_unsafe_ptr(handler)) },
-                                    to_mut_unsafe_ptr(&mut results));
-        require_ok(code, "selecting style");
+        do with_untyped_handler(handler) |untyped_handler| {
+            let raw_handler = build_raw_handler();
+            let mut results: *css_select_results = null();
+            let code = css_select_style(self.select_ctx,
+                                        unsafe { transmute(to_unsafe_ptr(node)) },
+                                        media,
+                                        null(), // FIXME,
+                                        to_unsafe_ptr(&raw_handler),
+                                        unsafe { transmute(to_unsafe_ptr(untyped_handler)) },
+                                        to_mut_unsafe_ptr(&mut results));
+            require_ok(code, "selecting style");
 
-        CssSelectResultsRef {
-            results: results
+            CssSelectResultsRef {
+                results: results
+            }
         }
     }
 }
@@ -248,10 +255,14 @@ mod raw_handler {
         debug!("entering raw handler: %s", n);
         CSS_OK
     }
-    pub extern fn node_name(pw: *c_void, node: *c_void, qname: *css_qname) -> css_error {
-        enter("node_name")
+    priv fn ph(pw: *c_void) -> &UntypedHandler unsafe {
+        transmute(pw)
     }
-    pub extern fn node_classes(pw: *c_void, node: *c_void, classes: ***lwc_string, n_classes: *uint32_t) -> css_error {
+    pub extern fn node_name(pw: *c_void, node: *c_void, qname: *css_qname) -> css_error {
+        enter("node_name");
+        ph(pw).node_name(node, qname)
+    }
+    pub extern fn node_classes(pw: *c_void, node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error {
         enter("node_classes")
     }
     pub extern fn node_id(pw: *c_void, node: *c_void, id: **lwc_string) -> css_error {
@@ -355,8 +366,32 @@ mod raw_handler {
     }
 }
 
+struct UntypedHandler {
+    node_name: &fn(node: *c_void, qname: *css_qname) -> css_error
+}
+
+fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
+    unsafe {
+        let untyped_handler = UntypedHandler {
+            node_name: |node, qname| {
+                let hlqname = handler.node_name(transmute(node));
+                match hlqname.ns {
+                    Some(ns) => {
+                        (*qname).ns = ns.raw_reffed();
+                    }
+                    _ => ()
+                }
+                (*qname).name = hlqname.name.raw_reffed();
+                CSS_OK
+            }
+        };
+
+        f(&untyped_handler)
+    }
+}
+
 trait CssSelectHandler<N> {
-    
+    fn node_name(node: &N) -> CssQName;
 }
 
 struct CssSelectResultsRef {
