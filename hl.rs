@@ -413,6 +413,15 @@ mod select {
     use stylesheet::CssStylesheetRef;
     use properties::{CssProperty, CssColorProp};
 
+    enum CssPseudoElement {
+	CssPseudoElementNone         = 0,
+	CssPseudoElementFirstLine   = 1,
+	CssPseudoElementFirstLetter = 2,
+	CssPseudoElementBefore       = 3,
+	CssPseudoElementAfter        = 4,
+	CssPseudoElementCount	= 5
+    }
+
     struct CssSelectCtxRef {
         priv select_ctx: *css_select_ctx,
         // Whenever a sheet is added to the select ctx we will take ownership of it
@@ -475,9 +484,7 @@ mod select {
         }
     }
 
-    const CSS_SELECT_HANDLER_VERSION_1: uint32_t = 1;
-
-    fn build_raw_handler() -> css_select_handler {
+    priv fn build_raw_handler() -> css_select_handler {
         css_select_handler {
             handler_version: CSS_SELECT_HANDLER_VERSION_1,
             node_name: raw_handler::node_name,
@@ -518,7 +525,7 @@ mod select {
         }
     }
 
-    mod raw_handler {
+    priv mod raw_handler {
         priv fn enter(n: &str) -> css_error {
             debug!("entering raw handler: %s", n);
             CSS_OK
@@ -636,12 +643,12 @@ mod select {
         }
     }
 
-    struct UntypedHandler {
+    priv struct UntypedHandler {
         node_name: &fn(node: *c_void, qname: *css_qname) -> css_error,
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error
     }
 
-    fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
+    priv fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node, qname| {
@@ -667,12 +674,12 @@ mod select {
         }
     }
 
-    trait CssSelectHandler<N> {
+    pub trait CssSelectHandler<N> {
         fn node_name(node: &N) -> CssQName;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
 
-    struct CssSelectResultsRef {
+    pub struct CssSelectResultsRef {
         priv results: *css_select_results,
 
         drop {
@@ -683,7 +690,7 @@ mod select {
     }
 
     impl CssSelectResultsRef {
-        fn computed_color(_element: css_pseudo_element) -> CssColorProp {
+        fn computed_color(_element: CssPseudoElement) -> CssColorProp {
             fail
         }
     }

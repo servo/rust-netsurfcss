@@ -346,14 +346,14 @@ mod select {
 
     type css_select_ctx = c_void;
 
-    pub enum css_pseudo_element {
-        CSS_PSEUDO_ELEMENT_NONE = 0,
-        CSS_PSEUDO_ELEMENT_FIRST_LINE = 1,
-        CSS_PSEUDO_ELEMENT_FIRST_LETTER = 2,
-        CSS_PSEUDO_ELEMENT_BEFORE = 3,
-        CSS_PESUDO_ELEMENT_AFTER = 4,
-        CSS_PSEUDO_ELEMENT_COUNT = 5
-    }
+    type css_pseudo_element = c_enum;
+
+    const CSS_PSEUDO_ELEMENT_NONE: css_pseudo_element = 0;
+    const CSS_PSEUDO_ELEMENT_FIRST_LINE: css_pseudo_element = 1;
+    const CSS_PSEUDO_ELEMENT_FIRST_LETTER: css_pseudo_element = 2;
+    const CSS_PSEUDO_ELEMENT_BEFORE: css_pseudo_element = 3;
+    const CSS_PESUDO_ELEMENT_AFTER: css_pseudo_element = 4;
+    const CSS_PSEUDO_ELEMENT_COUNT: css_pseudo_element = 5;
 
     pub struct css_select_results {
         alloc: css_allocator_fn,
@@ -362,6 +362,8 @@ mod select {
     }
 
     pub type opaque_callback = *u8;
+
+    priv const CSS_SELECT_HANDLER_VERSION_1: uint32_t = 1;
 
     // See select.h for actual callback signatures
     pub struct css_select_handler {
