@@ -73,10 +73,5 @@ pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
 }
 
 extern fn resolve(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_string) -> css_error {
-    unsafe {
-        let f: &CssUrlResolutionFn = transmute(pw);
-
-        let base = str::raw::from_c_str(base);
-        (*f)(base, &*rel, & &**abs)
-    }
+    fail ~"css resolve function called";
 }

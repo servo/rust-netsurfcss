@@ -16,8 +16,6 @@ use properties::*;
 use wapcaplet::ll::lwc_string;
 use wapcaplet::hl::{LwcStringRef, from_rust_string};
 
-pub type CssStylesheet = c_void;
-
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     match code {
         CSS_OK => Ok(move val),
@@ -78,10 +76,10 @@ mod stylesheet {
     }
 
     // FIXME: Need hl reprs of lwc_string
-    pub type CssUrlResolutionFn = ~fn(base: &str, rel: &lwc_string, abs: & &lwc_string) -> css_error;
-    pub type CssImportNotificationFn = ~fn(parent: &CssStylesheet, url: &lwc_string, media: &uint64_t) -> css_error;
-    pub type CssColorResolutionFn = ~fn(name: &lwc_string, color: &CssColor) -> css_error;
-    pub type CssFontResolutionFn = ~fn(name: &lwc_string, system_font: &CssSystemFont) -> css_error;
+    pub type CssUrlResolutionFn = ~fn(base: &str, rel: &LwcStringRef) -> CssResult<LwcStringRef>;
+    pub type CssImportNotificationFn = ~fn(parent: &CssStylesheetRef, url: &LwcStringRef) -> CssResult<uint64_t>;
+    pub type CssColorResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssColor>;
+    pub type CssFontResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssSystemFont>;
 
     pub struct CssSystemFont {
         style: css_font_style_e,

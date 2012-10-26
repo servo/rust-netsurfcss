@@ -60,7 +60,7 @@ mod example1 {
         }
     }
 
-    fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {
+    fn resolve_url(_base: &str, _rel: &LwcStringRef) -> CssResult<LwcStringRef> {
         fail ~"resolving url";
     }
 
