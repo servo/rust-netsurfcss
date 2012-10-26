@@ -79,7 +79,7 @@ mod example1 {
             }
         }
 
-        fn ua_default_for_property(property: css_properties_e) -> CssHint {
+        fn ua_default_for_property(property: CssProperty) -> CssHint {
             match property {
                 _ => CssHintDefault
             }

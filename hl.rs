@@ -11,7 +11,6 @@ use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
-use properties::*;
 use conversions::c_enum_to_rust_enum;
 use errors::CssError;
 
@@ -168,18 +167,134 @@ pub mod properties {
 
     use types::CssColor;
 
+    enum CssProperty {
+        CssPropAzimuth			= 0x000,
+        CssPropBackgroundAttachment		= 0x001,
+        CssPropBackgroundColor		= 0x002,
+        CssPropBackgroundImage		= 0x003,
+        CssPropBackgroundPosition		= 0x004,
+        CssPropBackgroundRepeat		= 0x005,
+        CssPropBorderCollapse		= 0x006,
+        CssPropBorderSpacing			= 0x007,
+        CssPropBorderTopColor		= 0x008,
+        CssPropBorderRightColor		= 0x009,
+        CssPropBorderBottomColor		= 0x00a,
+        CssPropBorderLeftColor		= 0x00b,
+        CssPropBorderTopStyle		= 0x00c,
+        CssPropBorderRightStyle		= 0x00d,
+        CssPropBorderBottomStyle		= 0x00e,
+        CssPropBorderLeftStyle		= 0x00f,
+        CssPropBorderTopWidth		= 0x010,
+        CssPropBorderRightWidth		= 0x011,
+        CssPropBorderBottomWidth		= 0x012,
+        CssPropBorderLeftWidth		= 0x013,
+        CssPropBottom				= 0x014,
+        CssPropCaptionSide			= 0x015,
+        CssPropClear				= 0x016,
+        CssPropClip				= 0x017,
+        CssPropColor				= 0x018,
+        CssPropContent			= 0x019,
+        CssPropCounterIncrement		= 0x01a,
+        CssPropCounterReset			= 0x01b,
+        CssPropCueAfter			= 0x01c,
+        CssPropCueBefore			= 0x01d,
+        CssPropCursor				= 0x01e,
+        CssPropDirection			= 0x01f,
+        CssPropDisplay			= 0x020,
+        CssPropElevation			= 0x021,
+        CssPropEmptyCells			= 0x022,
+        CssPropFloat				= 0x023,
+        CssPropFontFamily			= 0x024,
+        CssPropFontSize			= 0x025,
+        CssPropFontStyle			= 0x026,
+        CssPropFontVariant			= 0x027,
+        CssPropFontWeight			= 0x028,
+        CssPropHeight				= 0x029,
+        CssPropLeft				= 0x02a,
+        CssPropLetterSpacing			= 0x02b,
+        CssPropLineHeight			= 0x02c,
+        CssPropListStyleImage		= 0x02d,
+        CssPropListStylePosition		= 0x02e,
+        CssPropListStyleType		= 0x02f,
+        CssPropMarginTop			= 0x030,
+        CssPropMarginRight			= 0x031,
+        CssPropMarginBottom			= 0x032,
+        CssPropMarginLeft			= 0x033,
+        CssPropMaxHeight			= 0x034,
+        CssPropMaxWidth			= 0x035,
+        CssPropMinHeight			= 0x036,
+        CssPropMinWidth			= 0x037,
+        CssPropOrphans,
+        CssPropOutlineColor			= 0x039,
+        CssPropOutlineStyle			= 0x03a,
+        CssPropOutlineWidth			= 0x03b,
+        CssPropOverflow			= 0x03c,
+        CssPropPaddingTop			= 0x03d,
+        CssPropPaddingRight			= 0x03e,
+        CssPropPaddingBottom			= 0x03f,
+        CssPropPaddingLeft			= 0x040,
+        CssPropPageBreakAfter		= 0x041,
+        CssPropPageBreakBefore		= 0x042,
+        CssPropPageBreakInside		= 0x043,
+        CssPropPauseAfter			= 0x044,
+        CssPropPauseBefore			= 0x045,
+        CssPropPitchRange			= 0x046,
+        CssPropPitch				= 0x047,
+        CssPropPlayDuring			= 0x048,
+        CssPropPosition			= 0x049,
+        CssPropQuotes				= 0x04a,
+        CssPropRichness			= 0x04b,
+        CssPropRight				= 0x04c,
+        CssPropSpeakHeader			= 0x04d,
+        CssPropSpeakNumeral			= 0x04e,
+        CssPropSpeakPunctuation		= 0x04f,
+        CssPropSpeak				= 0x050,
+        CssPropSpeechRate			= 0x051,
+        CssPropStress				= 0x052,
+        CssPropTableLayout			= 0x053,
+        CssPropTextAlign			= 0x054,
+        CssPropTextDecoration		= 0x055,
+        CssPropTextIndent			= 0x056,
+        CssPropTextTransform			= 0x057,
+        CssPropTop				= 0x058,
+        CssPropUnicodeBidi			= 0x059,
+        CssPropVerticalAlign			= 0x05a,
+        CssPropVisibility			= 0x05b,
+        CssPropVoiceFamily			= 0x05c,
+        CssPropVolume				= 0x05d,
+        CssPropWhiteSpace			= 0x05e,
+        CssPropWidows				= 0x05f,
+        CssPropWidth				= 0x060,
+        CssPropWordSpacing			= 0x061,
+        CssPropZIndex			= 0x062,
+        CssPropOpacity			= 0x063,
+        CssPropBreakAfter			= 0x064,
+        CssPropBreakBefore			= 0x065,
+        CssPropBreakInside			= 0x066,
+        CssPropColumnCount			= 0x067,
+        CssPropColumnFill			= 0x068,
+        CssPropColumnGap			= 0x069,
+        CssPropColumnRuleColor		= 0x06a,
+        CssPropColumnRuleStyle		= 0x06b,
+        CssPropColumnRuleWidth		= 0x06c,
+        CssPropColumnSpan			= 0x06d,
+        CssPropClomumnWidth			= 0x06e,
+    }
+
     // Similar to css_color_e
     pub enum CssColorProp {
         CssColorInherit,
         CssColorValue(CssColor)
     }
 
-    fn property_from_uint(property: uint32_t) -> css_properties_e {
+    fn property_from_uint(property: uint32_t) -> CssProperty {
         unsafe { transmute(property as uint) }
     }
 }
 
 pub mod hint {
+
+    use properties::*;
 
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
@@ -189,21 +304,21 @@ pub mod hint {
     }
 
     impl CssHint {
-        fn write_to_ll(&self, property: css_properties_e, llhint: &mut css_hint) -> css_error {
+        fn write_to_ll(&self, property: CssProperty, llhint: &mut css_hint) -> css_error {
             match (property, self) {
-                (CSS_PROP_FONT_FAMILY, &CssHintFontFamily(_, css_font_family_e)) => {
+                (CssPropFontFamily, &CssHintFontFamily(_, css_font_family_e)) => {
                     // The css_hint cast to its' 'strings' union field, which is what
                     // the CSS_PROPERTY_FONT_FAMILY hint wants
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null(); // FIXME
                     set_css_hint_status(llhint, css_font_family_e as uint8_t);
                 }
-                (CSS_PROP_FONT_FAMILY, &CssHintDefault) => {
+                (CssPropFontFamily, &CssHintDefault) => {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null();
                     set_css_hint_status(llhint, CSS_FONT_FAMILY_SANS_SERIF as uint8_t);
                 }
-                (CSS_PROP_QUOTES, &CssHintDefault) => {
+                (CssPropQuotes, &CssHintDefault) => {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null();
                     set_css_hint_status(llhint, CSS_QUOTES_NONE as uint8_t);
@@ -244,6 +359,7 @@ mod select {
 
     use types::CssQName;
     use stylesheet::CssStylesheetRef;
+    use properties::{CssProperty, CssColorProp};
 
     struct CssSelectCtxRef {
         priv select_ctx: *css_select_ctx,
@@ -501,7 +617,7 @@ mod select {
 
     trait CssSelectHandler<N> {
         fn node_name(node: &N) -> CssQName;
-        fn ua_default_for_property(property: css_properties_e) -> hint::CssHint;
+        fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
 
     struct CssSelectResultsRef {
