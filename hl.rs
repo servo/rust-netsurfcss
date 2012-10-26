@@ -1,10 +1,11 @@
 use core::libc::{c_void, size_t};
-use core::libc::types::common::c99::{uint32_t, int32_t, uint64_t};
+use core::libc::types::common::c99::{uint32_t, int32_t, uint64_t, uint8_t};
 use ll::errors::*;
 use ll::stylesheet::*;
 use ll::types::*;
 use ll::select::*;
 use ll::hint::*;
+use ll::properties::*;
 use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
 use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
@@ -57,6 +58,48 @@ pub mod properties {
     pub enum CssColorProp {
         CssColorInherit,
         CssColorValue(CssColor)
+    }
+
+    fn property_from_uint(property: uint32_t) -> css_properties_e {
+        unsafe { transmute(property as uint) }
+    }
+}
+
+pub mod hint {
+
+    // An interpretation of the delightful css_hint union
+    pub enum CssHint {
+        CssHintFontFamily(~[LwcStringRef], css_font_family_e),
+        CssHintUnknown
+    }
+
+    impl CssHint {
+        fn write_to_ll(&self, property: css_properties_e, llhint: &mut css_hint) -> css_error {
+            match (property, self) {
+                (CSS_PROP_FONT_FAMILY, &CssHintFontFamily(_, css_font_family_e)) => {
+                    // The css_hint cast to its' 'strings' union field, which is what
+                    // the CSS_PROPERTY_FONT_FAMILY hint wants
+                    let strings: &mut **lwc_string = hint_data_field(llhint);
+                    *strings = null(); // FIXME
+                    set_css_hint_status(llhint, css_font_family_e as uint8_t);
+                    CSS_OK
+                }
+                (_, &CssHintUnknown) => {
+                    fail fmt!("unknown css hint %?", property);
+                }
+                (_, _) => {
+                    fail fmt!("incorrectly handled property hint: %?, %?", property, self);
+                }
+            }
+        }
+    }
+
+    fn set_css_hint_status(llhint: &mut css_hint, status: uint8_t) {
+        // FIXME
+    }
+
+    priv fn hint_data_field<T>(llhint: &mut css_hint) -> &mut T {
+        unsafe { transmute(llhint) }
     }
 }
 
@@ -356,10 +399,12 @@ mod raw_handler {
         enter("node_is_lang")
     }
     pub extern fn node_presentational_hint(pw: *c_void, node: *c_void, property: uint32_t, hint: *css_hint) -> css_error {
-        enter("node_presentational_hint")
+        enter("node_presentational_hint");
+        CSS_PROPERTY_NOT_SET
     }
-    pub extern fn ua_default_for_property(pw: *c_void, property: uint32_t, hint: *css_hint) -> css_error {
-        enter("ua_default_for_property")
+    pub extern fn ua_default_for_property(pw: *c_void, property: uint32_t, hint: *mut css_hint) -> css_error {
+        enter("ua_default_for_property");
+        ph(pw).ua_default_for_property(property, hint)
     }
     pub extern fn compute_font_size(pw: *c_void, parent: *css_hint, size: *css_hint) -> css_error {
         enter("compute_font_size")
@@ -367,7 +412,8 @@ mod raw_handler {
 }
 
 struct UntypedHandler {
-    node_name: &fn(node: *c_void, qname: *css_qname) -> css_error
+    node_name: &fn(node: *c_void, qname: *css_qname) -> css_error,
+    ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error
 }
 
 fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
@@ -383,6 +429,12 @@ fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&Untype
                 }
                 (*qname).name = hlqname.name.raw_reffed();
                 CSS_OK
+            },
+            ua_default_for_property: |property, hint| {
+                use properties::property_from_uint;
+                let hlproperty = property_from_uint(property);
+                let hlhint = handler.ua_default_for_property(hlproperty);
+                hlhint.write_to_ll(hlproperty, &mut *hint)
             }
         };
 
@@ -392,6 +444,7 @@ fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&Untype
 
 trait CssSelectHandler<N> {
     fn node_name(node: &N) -> CssQName;
+    fn ua_default_for_property(property: css_properties_e) -> hint::CssHint;
 }
 
 struct CssSelectResultsRef {

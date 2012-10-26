@@ -1,5 +1,7 @@
 use wapcaplet::ll::lwc_string;
 use hl::*;
+use hl::hint::*;
+use ll::properties::*;
 
 // Based off of libcss's examples/example1.c
 mod example1 {
@@ -38,11 +40,11 @@ mod example1 {
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert select_ctx.count_sheets() == 1;
 
-        /*for uint::range(1, 7) |hh| {
+        for uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
             let element_name: LwcStringRef = from_rust_string(element);
             let select_handler = SelectHandler { bogus: () };
-            let style: CssSelectResultsRef = select_ctx.select_style(&element_name,
+            /*let style: CssSelectResultsRef = select_ctx.select_style(&element_name,
                                                                      CSS_MEDIA_SCREEN,
                                                                      None,
                                                                      &select_handler);
@@ -51,8 +53,8 @@ mod example1 {
                 },
                 CssColorValue(color) => {
                 }
-            }
-        }*/
+            }*/
+        }
     }
 
     fn resolve_url(_base: &str, _rel: &lwc_string, _abs: & &lwc_string) -> css_error {
@@ -71,6 +73,13 @@ mod example1 {
             CssQName {
                 ns: None,
                 name: node.clone()
+            }
+        }
+
+        fn ua_default_for_property(property: css_properties_e) -> CssHint {
+            match property {
+                CSS_PROP_FONT_FAMILY => CssHintFontFamily(~[], CSS_FONT_FAMILY_SANS_SERIF),
+                _ => CssHintUnknown
             }
         }
     }
