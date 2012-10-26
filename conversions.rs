@@ -72,6 +72,6 @@ pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
     }
 }
 
-extern fn resolve(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_string) -> css_error {
+extern fn resolve(_pw: *c_void, _base: *c_char, _rel: *lwc_string, _abs: **lwc_string) -> css_error {
     fail ~"css resolve function called";
 }

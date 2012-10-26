@@ -269,7 +269,7 @@ mod select {
         }
 
         fn select_style<N, H: CssSelectHandler<N>>(node: &N, media: uint64_t,
-                                                   inline_style: Option<&CssStylesheetRef>,
+                                                   _inline_style: Option<&CssStylesheetRef>,
                                                    handler: &H) -> CssSelectResultsRef {
             do with_untyped_handler(handler) |untyped_handler| {
                 let raw_handler = build_raw_handler();
@@ -345,100 +345,100 @@ mod select {
             enter("node_name");
             ph(pw).node_name(node, qname)
         }
-        pub extern fn node_classes(pw: *c_void, node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error {
+        pub extern fn node_classes(_pw: *c_void, _node: *c_void, _classes: *mut **lwc_string, _n_classes: *mut uint32_t) -> css_error {
             enter("node_classes")
         }
-        pub extern fn node_id(pw: *c_void, node: *c_void, id: **lwc_string) -> css_error {
+        pub extern fn node_id(_pw: *c_void, _node: *c_void, _id: **lwc_string) -> css_error {
             enter("node_id")
         }
-        pub extern fn named_ancestor_node(pw: *c_void, node: *c_void, qname: *css_qname, parent: **c_void) -> css_error {
+        pub extern fn named_ancestor_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
             enter("named_ancestor_node")
         }
-        pub extern fn named_parent_node(pw: *c_void, node: *c_void, qname: *css_qname, parent: **c_void) -> css_error {
+        pub extern fn named_parent_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
             enter("named_parent_node")
         }
-        pub extern fn named_sibling_node(pw: *c_void, node: *c_void, qname: *css_qname, sibling: **c_void) -> css_error {
+        pub extern fn named_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
             enter("named_sibling_node")
         }
-        pub extern fn named_generic_sibling_node(pw: *c_void, node: *c_void, qname: *css_qname, sibling: **c_void) -> css_error {
+        pub extern fn named_generic_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
             enter("named_generic_sibling_node")
         }
-        pub extern fn parent_node(pw: *c_void, node: *c_void, parent: **c_void) -> css_error {
+        pub extern fn parent_node(_pw: *c_void, _node: *c_void, _parent: **c_void) -> css_error {
             enter("parent_node")
         }
-        pub extern fn sibling_node(pw: *c_void, node: *c_void, sibling: **c_void) -> css_error {
+        pub extern fn sibling_node(_pw: *c_void, _node: *c_void, _sibling: **c_void) -> css_error {
             enter("sibling_node")
         }
-        pub extern fn node_has_name(pw: *c_void, node: *c_void, qname: *css_qname, match_: *bool) -> css_error {
+        pub extern fn node_has_name(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
             enter("node_has_name")
         }
-        pub extern fn node_has_class(pw: *c_void, node: *c_void, name: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_class(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_class")
         }
-        pub extern fn node_has_id(pw: *c_void, node: *c_void, name: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_id(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_id")
         }
-        pub extern fn node_has_attribute(pw: *c_void, node: *c_void, qname: *css_qname, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
             enter("node_has_attribute")
         }
-        pub extern fn node_has_attribute_equal(pw: *c_void, node: *c_void, qname: *css_qname, value: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_equal(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_attribute_equal")
         }
-        pub extern fn node_has_attribute_dashmatch(pw: *c_void, node: *c_void, qname: *css_qname, value: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_dashmatch(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_attribute_dashmatch")
         }
-        pub extern fn node_has_attribute_includes(pw: *c_void, node: *c_void, qname: *css_qname, value: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_includes(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_attribute_includes")
         }
-        pub extern fn node_has_attribute_prefix(pw: *c_void, node: *c_void, qname: *css_qname, value: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_prefix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_attribute_prefix")
         }
-        pub extern fn node_has_attribute_suffix(pw: *c_void, node: *c_void, qname: *css_qname, value: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_suffix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_attribute_suffix")
         }
-        pub extern fn node_has_attribute_substring(pw: *c_void, node: *c_void, qname: *css_qname, value: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_substring(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             enter("node_has_attribute_substring")
         }
-        pub extern fn node_is_root(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_root(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_root")
         }
-        pub extern fn node_count_siblings(pw: *c_void, node: *c_void, same_name: bool, after: bool, count: *int32_t) -> css_error {
+        pub extern fn node_count_siblings(_pw: *c_void, _node: *c_void, _same_name: bool, _after: bool, _count: *int32_t) -> css_error {
             enter("node_count_siblings")
         }
-        pub extern fn node_is_empty(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_empty(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_empty")
         }
-        pub extern fn node_is_link(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_link(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_link")
         }
-        pub extern fn node_is_visited(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_visited(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_visited")
         }
-        pub extern fn node_is_hover(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_hover(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_hover")
         }
-        pub extern fn node_is_active(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_active(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_active")
         }
-        pub extern fn node_is_focus(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_focus(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_focus")
         }
-        pub extern fn node_is_enabled(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_enabled(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_enabled")
         }
-        pub extern fn node_is_disabled(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_disabled(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_disabled")
         }
-        pub extern fn node_is_checked(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_checked(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_checked")
         }
-        pub extern fn node_is_target(pw: *c_void, node: *c_void, match_: *bool) -> css_error {
+        pub extern fn node_is_target(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             enter("node_is_target")
         }
-        pub extern fn node_is_lang(pw: *c_void, node: *c_void, lang: *lwc_string, match_: *bool) -> css_error {
+        pub extern fn node_is_lang(_pw: *c_void, _node: *c_void, _lang: *lwc_string, _match_: *bool) -> css_error {
             enter("node_is_lang")
         }
-        pub extern fn node_presentational_hint(pw: *c_void, node: *c_void, property: uint32_t, hint: *css_hint) -> css_error {
+        pub extern fn node_presentational_hint(_pw: *c_void, _node: *c_void, _property: uint32_t, _hint: *css_hint) -> css_error {
             enter("node_presentational_hint");
             CSS_PROPERTY_NOT_SET
         }
@@ -446,7 +446,7 @@ mod select {
             enter("ua_default_for_property");
             ph(pw).ua_default_for_property(property, hint)
         }
-        pub extern fn compute_font_size(pw: *c_void, parent: *css_hint, size: *css_hint) -> css_error {
+        pub extern fn compute_font_size(_pw: *c_void, _parent: *css_hint, _size: *css_hint) -> css_error {
             enter("compute_font_size")
         }
     }
@@ -498,7 +498,7 @@ mod select {
     }
 
     impl CssSelectResultsRef {
-        fn computed_color(element: css_pseudo_element) -> CssColorProp {
+        fn computed_color(_element: css_pseudo_element) -> CssColorProp {
             fail
         }
     }
