@@ -227,52 +227,51 @@ mod properties {
     const CSS_PROP_COLUMN_SPAN: css_properties_e			= 0x06d;
     const CSS_PROP_COLUMN_WIDTH: css_properties_e			= 0x06e;
 
-    enum css_font_style_e {
-        CSS_FONT_STYLE_INHERIT = 0,
-        CSS_FONT_STYLE_NORMAL = 1,
-        CSS_FONT_STYLE_ITALIC = 2,
-        CSS_FONT_STYLE_OBLIQUE = 3
-    }
+    type css_font_style_e = c_enum;
 
-    enum css_font_variant_e {
-        CSS_FONT_VARIANT_INHERIT = 0,
-        CSS_FONT_VARIANT_NORMAL = 1,
-        CSS_FONT_VARIANT_SMALL_CAPS = 2
-    }
+    const CSS_FONT_STYLE_INHERIT: css_font_style_e = 0;
+    const CSS_FONT_STYLE_NORMAL: css_font_style_e = 1;
+    const CSS_FONT_STYLE_ITALIC: css_font_style_e = 2;
+    const CSS_FONT_STYLE_OBLIQUE: css_font_style_e = 3;
 
-    enum css_font_weight_e {
-        CSS_FONT_WEIGHT_INHERIT = 0x0,
-        CSS_FONT_WEIGHT_NORMAL = 0x1,
-        CSS_FONT_WEIGHT_BOLD = 0x2,
-        CSS_FONT_WEIGHT_BOLDER = 0x3,
-        CSS_FONT_WEIGHT_LIGHTER = 0x4,
-        CSS_FONT_WEIGHT_100 = 0x5,
-        CSS_FONT_WEIGHT_200 = 0x6,
-        CSS_FONT_WEIGHT_300 = 0x7,
-        CSS_FONT_WEIGHT_400 = 0x8,
-        CSS_FONT_WEIGHT_500 = 0x9,
-        CSS_FONT_WEIGHT_600 = 0xa,
-        CSS_FONT_WEIGHT_700 = 0xb,
-        CSS_FONT_WEIGHT_800 = 0xc,
-        CSS_FONT_WEIGHT_900 = 0xd,
-    }
+    type css_font_variant_e = c_enum;
 
-    enum css_font_family_e {
-	CSS_FONT_FAMILY_INHERIT			= 0x0,
-	CSS_FONT_FAMILY_SERIF			= 0x1,
-	CSS_FONT_FAMILY_SANS_SERIF		= 0x2,
-	CSS_FONT_FAMILY_CURSIVE			= 0x3,
-	CSS_FONT_FAMILY_FANTASY			= 0x4,
-	CSS_FONT_FAMILY_MONOSPACE		= 0x5
-    }
+    const CSS_FONT_VARIANT_INHERIT: css_font_variant_e = 0;
+    const CSS_FONT_VARIANT_NORMAL: css_font_variant_e = 1;
+    const CSS_FONT_VARIANT_SMALL_CAPS: css_font_variant_e = 2;
 
-    enum css_quotes_e {
-	CSS_QUOTES_INHERIT			= 0x0,
-	/* Consult pointer in struct to determine which */
-        // FIXME: These two have the same value in C...
-	//CSS_QUOTES_STRING			= 0x1,
-	CSS_QUOTES_NONE				= 0x1
-    }
+    type css_font_weight_e = c_enum;
+
+    const CSS_FONT_WEIGHT_INHERIT: css_font_weight_e = 0x0;
+    const CSS_FONT_WEIGHT_NORMAL: css_font_weight_e = 0x1;
+    const CSS_FONT_WEIGHT_BOLD: css_font_weight_e = 0x2;
+    const CSS_FONT_WEIGHT_BOLDER: css_font_weight_e = 0x3;
+    const CSS_FONT_WEIGHT_LIGHTER: css_font_weight_e = 0x4;
+    const CSS_FONT_WEIGHT_100: css_font_weight_e = 0x5;
+    const CSS_FONT_WEIGHT_200: css_font_weight_e = 0x6;
+    const CSS_FONT_WEIGHT_300: css_font_weight_e = 0x7;
+    const CSS_FONT_WEIGHT_400: css_font_weight_e = 0x8;
+    const CSS_FONT_WEIGHT_500: css_font_weight_e = 0x9;
+    const CSS_FONT_WEIGHT_600: css_font_weight_e = 0xa;
+    const CSS_FONT_WEIGHT_700: css_font_weight_e = 0xb;
+    const CSS_FONT_WEIGHT_800: css_font_weight_e = 0xc;
+    const CSS_FONT_WEIGHT_900: css_font_weight_e = 0xd;
+
+    type css_font_family_e = c_enum;
+
+    const CSS_FONT_FAMILY_INHERIT: css_font_family_e			= 0x0;
+    const CSS_FONT_FAMILY_SERIF: css_font_family_e			= 0x1;
+    const CSS_FONT_FAMILY_SANS_SERIF: css_font_family_e		= 0x2;
+    const CSS_FONT_FAMILY_CURSIVE: css_font_family_e			= 0x3;
+    const CSS_FONT_FAMILY_FANTASY: css_font_family_e			= 0x4;
+    const CSS_FONT_FAMILY_MONOSPACE: css_font_family_e		= 0x5;
+
+    type css_quotes_e = c_enum;
+
+    const CSS_QUOTES_INHERIT: css_quotes_e			= 0x0;
+    /* Consult pointer in struct to determine which */
+    const CSS_QUOTES_STRING: css_quotes_e			= 0x1;
+    const CSS_QUOTES_NONE: css_quotes_e				= 0x1;
 
 }
 

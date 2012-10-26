@@ -6,7 +6,6 @@ use ll::types::*;
 use ll::select::*;
 use ll::hint::*;
 use ll::properties::*;
-use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
 use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
@@ -39,11 +38,13 @@ extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
 
 mod types {
     pub enum CssLanguageLevel {
-        CssLevel1 = 0,
-        CssLevel2 = 1,
-        CssLevel21 = 2,
-        CssLevel3 = 3,
-        CssLevelDefault = 99 // NB: This is not the same as the ll value
+        CssLevel1,
+        CssLevel2,
+        CssLevel21,
+        CssLevel3,
+        CssLevelDefault, // NB: This is not the same as the ll value
+        // NB: Sentinal variant to prevent the naive transmute conversion from working
+        CssLevelNotACLikeEnum(uint)
     }
 
     pub struct CssColor { r: u8, g: u8, b: u8, a: u8 }
@@ -71,6 +72,7 @@ mod errors {
 }
 
 mod stylesheet {
+    use properties::{CssFontStyle, CssFontVariant, CssFontWeight};
     use types::{CssLanguageLevel, CssColor};
 
     pub struct CssStylesheetParams {
@@ -98,9 +100,9 @@ mod stylesheet {
     pub type CssFontResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssSystemFont>;
 
     pub struct CssSystemFont {
-        style: css_font_style_e,
-        variant: css_font_variant_e,
-        weight: css_font_weight_e,
+        style: CssFontStyle,
+        variant: CssFontVariant,
+        weight: CssFontWeight,
         size: css_size,
         line_height: css_size,
         family: ~str
@@ -281,14 +283,64 @@ pub mod properties {
         CssPropClomumnWidth			= 0x06e,
     }
 
+    fn property_from_uint(property: uint32_t) -> CssProperty {
+        unsafe { transmute(property as uint) }
+    }
+
     // Similar to css_color_e
     pub enum CssColorProp {
         CssColorInherit,
         CssColorValue(CssColor)
     }
 
-    fn property_from_uint(property: uint32_t) -> CssProperty {
-        unsafe { transmute(property as uint) }
+    pub enum CssFontStyle {
+	CssFontStyleInherit			= 0x0,
+	CssFontStyleNormal			= 0x1,
+	CssFontStyleItalic			= 0x2,
+	CssFontStyleOblique			= 0x3
+    }
+
+    pub enum CssFontFamily {
+	CssFontFamilyInherit			= 0x0,
+	/* Named fonts exist if pointer is non-NULL */
+	CssFontFamilySerif			= 0x1,
+	CssFontFamilySansSerif		= 0x2,
+	CssFontFamilyCursive			= 0x3,
+	CssFontFamilyFantasy			= 0x4,
+	CssFontFamilyMonospace		= 0x5
+    }
+
+    pub enum CssFontVariant {
+        CssFontVariantInherit = 0,
+        CssFontVariantNormal = 1,
+        CssFontVariantSmallCaps = 2,
+    }
+
+    enum CssFontWeight {
+	CssFontWeightInherit			= 0x0,
+        CssFontWeightNormal			= 0x1,
+        CssFontWeightBold			= 0x2,
+        CssFontWeightBolder			= 0x3,
+        CssFontWeightLighter			= 0x4,
+        CssFontWeight100			= 0x5,
+        CssFontWeight200			= 0x6,
+        CssFontWeight300			= 0x7,
+        CssFontWeight400			= 0x8,
+        CssFontWeight500			= 0x9,
+        CssFontWeight600			= 0xa,
+        CssFontWeight700			= 0xb,
+        CssFontWeight800			= 0xc,
+        CssFontWeight900			= 0xd
+    }
+
+    // NB: This is not identical to css_quotes_e
+    pub enum CssQuotes {
+	CssQuotesInherit,
+        CssQuotesString,
+        CssQuotesNone,
+        // Sentinal value to give this enum a non-word size, so the
+        // naive unsafe conversion to ll fails
+        CssQuotesNotACLikeEnum(uint)
     }
 }
 
@@ -298,7 +350,7 @@ pub mod hint {
 
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
-        CssHintFontFamily(~[LwcStringRef], css_font_family_e),
+        CssHintFontFamily(~[LwcStringRef], CssFontFamily),
         CssHintDefault,
         CssHintUnknown
     }
@@ -306,12 +358,12 @@ pub mod hint {
     impl CssHint {
         fn write_to_ll(&self, property: CssProperty, llhint: &mut css_hint) -> css_error {
             match (property, self) {
-                (CssPropFontFamily, &CssHintFontFamily(_, css_font_family_e)) => {
+                (CssPropFontFamily, &CssHintFontFamily(_, family)) => {
                     // The css_hint cast to its' 'strings' union field, which is what
                     // the CSS_PROPERTY_FONT_FAMILY hint wants
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null(); // FIXME
-                    set_css_hint_status(llhint, css_font_family_e as uint8_t);
+                    set_css_hint_status(llhint, family.to_ll() as uint8_t);
                 }
                 (CssPropFontFamily, &CssHintDefault) => {
                     let strings: &mut **lwc_string = hint_data_field(llhint);

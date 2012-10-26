@@ -10,6 +10,8 @@ use ll::stylesheet::*;
 use hl::stylesheet::*;
 use ll::errors::*;
 use hl::errors::*;
+use ll::properties::*;
+use hl::properties::*;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -26,7 +28,8 @@ pub impl CssLanguageLevel: ToLl<css_language_level> {
             CssLevel2 => CSS_LEVEL_2,
             CssLevel21 => CSS_LEVEL_21,
             CssLevel3 => CSS_LEVEL_3,
-            CssLevelDefault => CSS_LEVEL_DEFAULT
+            CssLevelDefault => CSS_LEVEL_DEFAULT,
+            CssLevelNotACLikeEnum(*) => fail
         }
     }
 }
@@ -34,6 +37,12 @@ pub impl CssLanguageLevel: ToLl<css_language_level> {
 pub impl CssError: ToLl<css_error> {
     pub fn to_ll(&self) -> css_error {
         *self as css_error
+    }
+}
+
+pub impl CssFontFamily: ToLl<css_font_family_e> {
+    pub fn to_ll(&self) -> css_font_family_e {
+        *self as css_font_family_e
     }
 }
 
