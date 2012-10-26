@@ -273,6 +273,10 @@ mod properties {
     const CSS_QUOTES_STRING: css_quotes_e			= 0x1;
     const CSS_QUOTES_NONE: css_quotes_e				= 0x1;
 
+    type css_color_e = c_enum;
+
+    const CSS_COLOR_INHERIT: css_color_e = 0x0;
+    const CSS_COLOR_COLOR: css_color_e = 0x1;
 }
 
 mod stylesheet {

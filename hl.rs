@@ -47,7 +47,7 @@ mod types {
         CssLevelNotACLikeEnum(uint)
     }
 
-    pub struct CssColor { r: u8, g: u8, b: u8, a: u8 }
+    pub struct CssColor { a: u8, r: u8, g: u8, b: u8 }
 
     pub struct CssQName {
         ns: Option<LwcStringRef>,
@@ -358,13 +358,6 @@ pub mod hint {
     impl CssHint {
         fn write_to_ll(&self, property: CssProperty, llhint: &mut css_hint) -> css_error {
             match (property, self) {
-                (CssPropFontFamily, &CssHintFontFamily(_, family)) => {
-                    // The css_hint cast to its' 'strings' union field, which is what
-                    // the CSS_PROPERTY_FONT_FAMILY hint wants
-                    let strings: &mut **lwc_string = hint_data_field(llhint);
-                    *strings = null(); // FIXME
-                    set_css_hint_status(llhint, family.to_ll() as uint8_t);
-                }
                 (CssPropFontFamily, &CssHintDefault) => {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null();
@@ -374,6 +367,11 @@ pub mod hint {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null();
                     set_css_hint_status(llhint, CSS_QUOTES_NONE as uint8_t);
+                }
+                (CssPropColor, &CssHintDefault) => {
+                    let color: &mut css_color = hint_data_field(llhint);
+                    *color = CssColor { a: 255, r: 0, g: 0, b: 0 }.to_ll();
+                    set_css_hint_status(llhint, CSS_COLOR_COLOR as uint8_t);
                 }
                 (_, &CssHintUnknown) => {
                     fail fmt!("unknown css hint %?", property);

@@ -46,6 +46,13 @@ pub impl CssFontFamily: ToLl<css_font_family_e> {
     }
 }
 
+pub impl CssColor: ToLl<css_color> {
+    pub fn to_ll(&self) -> css_color {
+        assert sys::size_of::<CssColor>() == sys::size_of::<css_color>();
+        unsafe { transmute(*self) }
+    }
+}
+
 pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
     // Sanity check that this is actually a 'c-like' (har) enum
     assert sys::size_of::<T>() == sys::size_of::<rust_enum>();
