@@ -1,5 +1,12 @@
-use ll::*;
-use hl::*;
+use wapcaplet::ll::lwc_string;
+use core::libc::{c_void, c_char};
+use core::libc::types::common::c99::{uint32_t};
+use cast::transmute;
+use core::ptr::null;
+use ll::types::*;
+use hl::types::*;
+use ll::stylesheet::*;
+use hl::stylesheet::*;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
