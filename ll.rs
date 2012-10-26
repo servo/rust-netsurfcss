@@ -263,6 +263,14 @@ mod properties {
 	CSS_FONT_FAMILY_MONOSPACE		= 0x5
     }
 
+    enum css_quotes_e {
+	CSS_QUOTES_INHERIT			= 0x0,
+	/* Consult pointer in struct to determine which */
+        // FIXME: These two have the same value in C...
+	//CSS_QUOTES_STRING			= 0x1,
+	CSS_QUOTES_NONE				= 0x1
+    }
+
 }
 
 mod stylesheet {

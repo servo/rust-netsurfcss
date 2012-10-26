@@ -78,8 +78,7 @@ mod example1 {
 
         fn ua_default_for_property(property: css_properties_e) -> CssHint {
             match property {
-                CSS_PROP_FONT_FAMILY => CssHintFontFamily(~[], CSS_FONT_FAMILY_SANS_SERIF),
-                _ => CssHintUnknown
+                _ => CssHintDefault
             }
         }
     }

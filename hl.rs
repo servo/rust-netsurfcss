@@ -70,6 +70,7 @@ pub mod hint {
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
         CssHintFontFamily(~[LwcStringRef], css_font_family_e),
+        CssHintDefault,
         CssHintUnknown
     }
 
@@ -82,7 +83,16 @@ pub mod hint {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
                     *strings = null(); // FIXME
                     set_css_hint_status(llhint, css_font_family_e as uint8_t);
-                    CSS_OK
+                }
+                (CSS_PROP_FONT_FAMILY, &CssHintDefault) => {
+                    let strings: &mut **lwc_string = hint_data_field(llhint);
+                    *strings = null();
+                    set_css_hint_status(llhint, CSS_FONT_FAMILY_SANS_SERIF as uint8_t);
+                }
+                (CSS_PROP_QUOTES, &CssHintDefault) => {
+                    let strings: &mut **lwc_string = hint_data_field(llhint);
+                    *strings = null();
+                    set_css_hint_status(llhint, CSS_QUOTES_NONE as uint8_t);
                 }
                 (_, &CssHintUnknown) => {
                     fail fmt!("unknown css hint %?", property);
@@ -91,11 +101,24 @@ pub mod hint {
                     fail fmt!("incorrectly handled property hint: %?, %?", property, self);
                 }
             }
+
+            return CSS_OK;
         }
     }
 
-    fn set_css_hint_status(llhint: &mut css_hint, status: uint8_t) {
-        // FIXME
+    fn set_css_hint_status(llhint: &mut css_hint, status: uint8_t) unsafe {
+        // So gnarly. The status field is a uint8_t that comes after a union type.
+        // We're just going to calculate it's address and write it
+        let llhint_bytes: *mut uint8_t = to_mut_unsafe_ptr(transmute(llhint));
+        let status_field: *mut uint8_t = ptr::mut_offset(llhint_bytes, status_field_offset());
+
+        *status_field = status;
+
+        #[cfg(target_arch = "x86_64")]
+        fn status_field_offset() -> uint { 16 }
+
+        #[cfg(target_arch = "x86")]
+        fn status_field_offset() -> uint { 16 }
     }
 
     priv fn hint_data_field<T>(llhint: &mut css_hint) -> &mut T {
