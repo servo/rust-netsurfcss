@@ -410,6 +410,7 @@ mod select {
     use types::CssQName;
     use stylesheet::CssStylesheetRef;
     use properties::{CssProperty, CssColorProp};
+    use computed::CssComputedStyleRef;
 
     enum CssPseudoElement {
 	CssPseudoElementNone         = 0,
@@ -688,9 +689,43 @@ mod select {
     }
 
     impl CssSelectResultsRef {
-        fn computed_color(_element: CssPseudoElement) -> CssColorProp {
-            fail
+        fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyleRef/&self {
+            let element = element.to_ll();
+            let llstyle = unsafe { *self.results }.styles[element];
+            assert llstyle.is_not_null();
+
+            CssComputedStyleRef {
+                result_backref: self,
+                computed_style: llstyle
+            }
         }
     }
 
+}
+
+mod computed {
+    use select::CssSelectResultsRef;
+    use properties::*;
+    use ll::properties::*;
+    use ll::computed::css_computed_color;
+    use conversions::ll_color_to_hl_color;
+
+    pub struct CssComputedStyleRef {
+        // A borrowed back reference to ensure this outlives the results
+        result_backref: &CssSelectResultsRef,
+        computed_style: *css_computed_style,
+    }
+
+    impl CssComputedStyleRef {
+        fn color() -> CssColorProp {
+            let mut llcolor = 0;
+            let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
+
+            if type_ == CSS_COLOR_INHERIT as uint8_t {
+                CssColorInherit
+            } else {
+                CssColorValue(ll_color_to_hl_color(llcolor))
+            }
+        }
+    }
 }

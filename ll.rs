@@ -418,3 +418,13 @@ mod select {
         fn css_select_results_destroy(results: *css_select_results) -> css_error;
     }
 }
+
+mod computed {
+    use types::css_color;
+
+    pub type css_computed_style = c_void;
+
+    extern {
+        fn css_computed_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+    }
+}

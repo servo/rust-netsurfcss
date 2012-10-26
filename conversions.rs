@@ -12,6 +12,8 @@ use ll::errors::*;
 use hl::errors::*;
 use ll::properties::*;
 use hl::properties::*;
+use ll::select::*;
+use hl::select::*;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -50,6 +52,17 @@ pub impl CssColor: ToLl<css_color> {
     pub fn to_ll(&self) -> css_color {
         assert sys::size_of::<CssColor>() == sys::size_of::<css_color>();
         unsafe { transmute(*self) }
+    }
+}
+
+pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
+    assert sys::size_of::<CssColor>() == sys::size_of::<css_color>();
+    unsafe { transmute(color) }
+}
+
+pub impl CssPseudoElement: ToLl<css_pseudo_element> {
+    pub fn to_ll(&self) -> css_pseudo_element {
+        *self as css_pseudo_element
     }
 }
 

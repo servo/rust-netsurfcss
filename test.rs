@@ -51,12 +51,17 @@ mod example1 {
                                                                      CSS_MEDIA_SCREEN,
                                                                      None,
                                                                      &select_handler);
-            /*match style.computed_color(CssPseudoElementNone) {
+
+            let computed: CssComputedStyleRef = style.computed_style(CssPseudoElementNone);
+
+            match computed.color() {
                 CssColorInherit => {
+                    debug!("color of h%u is 'inherit'", hh);
                 },
-                CssColorValue(*) => {
+                CssColorValue(color) => {
+                    debug!("color of h%u is %x", hh, color.to_ll() as uint);
                 }
-            }*/
+            }
         }
     }
 
