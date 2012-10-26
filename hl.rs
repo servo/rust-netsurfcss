@@ -12,22 +12,24 @@ use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
 use properties::*;
+use conversions::c_enum_to_rust_enum;
+use errors::CssError;
 
 use wapcaplet::ll::lwc_string;
 use wapcaplet::hl::{LwcStringRef, from_rust_string};
 
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     match code {
-        CSS_OK => Ok(move val),
-        _ => Err(unsafe { transmute(code) })
+        e if e == CSS_OK => Ok(move val),
+        _ => Err(c_enum_to_rust_enum(code))
     }
 }
 
-type CssResult<T> = Result<T, css_error>;
+type CssResult<T> = Result<T, CssError>;
 
 fn require_ok(code: css_error, what: &str) {
     match code {
-        CSS_OK => (),
+        e if e == CSS_OK => (),
         e => fail fmt!("CSS parsing failed while %s. code: %?", what, e)
     }
 }
@@ -52,6 +54,21 @@ mod types {
         name: LwcStringRef
     }
 
+}
+
+mod errors {
+    enum CssError {
+	CssOk               = 0,
+	CssNoMem            = 1,
+	CssBadParm          = 2,
+	CssInvalid          = 3,
+	CssFileNotFound     = 4,
+	CssNeedData         = 5,
+	CssBadCharset       = 6,
+	CssEof              = 7,
+	CssImportsPending   = 8,
+	CssPropertyNotSet   = 9
+    }
 }
 
 mod stylesheet {
@@ -130,7 +147,7 @@ mod stylesheet {
             // FIXME: For some reason to_const_ptr isn't accessible
             let code = css_stylesheet_append_data(self.sheet, unsafe { transmute(vec::raw::to_ptr(data)) }, data.len() as size_t);
             match code {
-                CSS_NEEDDATA => { /* fine */ },
+                e if e == CSS_NEEDDATA => { /* fine */ },
                 _ => require_ok(code, "appending styleshet data")
             }
         }

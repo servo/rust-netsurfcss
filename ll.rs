@@ -20,6 +20,10 @@ pub extern mod linking { }
 #[link_args="-L../libcss -lcss -L../libparserutils -lparserutils -L../libwapcaplet -lwapcaplet"]
 pub extern mod linking { }
 
+// Generally true
+type c_enum = uint32_t;
+type rust_enum = uint;
+
 mod functypes {
     // (ptr: *c_void, size: size_t, pw: *c_void)
     type css_allocator_fn = *u8;
@@ -36,30 +40,30 @@ mod types {
 
     type css_color = uint32_t;
 
-    enum css_unit {
-        CSS_UNIT_PX = 0x0,
-        CSS_UNIT_EX = 0x1,
-        CSS_UNIT_EM = 0x2,
-        CSS_UNIT_IN = 0x3,
-        CSS_UNIT_CM = 0x4,
-        CSS_UNIT_MM = 0x5,
-        CSS_UNIT_PT = 0x6,
-        CSS_UNIT_PC = 0x7,
-        CSS_UNIT_PCT = 0x8,
-        CSS_UNIT_DEG= 0x9,
-        CSS_UNIT_GRAD = 0xa,
-        CSS_UNIT_RAD = 0xb,
-        CSS_UNIT_MS = 0xc,
-        CSS_UNIT_S = 0xd,
-        CSS_UNIT_HZ = 0xe,
-        CSS_UNIT_KHZ = 0xf
-    }
+    type css_unit = c_enum;
 
-    enum css_origin {
-        CSS_ORIGIN_UA = 0,
-        CSS_ORIGIN_USER = 1,
-        CSS_ORIGIN_AUTHOR = 2
-    }
+    const CSS_UNIT_PX: css_unit = 0x0;
+    const CSS_UNIT_EX: css_unit = 0x1;
+    const CSS_UNIT_EM: css_unit = 0x2;
+    const CSS_UNIT_IN: css_unit = 0x3;
+    const CSS_UNIT_CM: css_unit = 0x4;
+    const CSS_UNIT_MM: css_unit = 0x5;
+    const CSS_UNIT_PT: css_unit = 0x6;
+    const CSS_UNIT_PC: css_unit = 0x7;
+    const CSS_UNIT_PCT: css_unit = 0x8;
+    const CSS_UNIT_DEG: css_unit = 0x9;
+    const CSS_UNIT_GRAD: css_unit = 0xa;
+    const CSS_UNIT_RAD: css_unit = 0xb;
+    const CSS_UNIT_MS: css_unit = 0xc;
+    const CSS_UNIT_S: css_unit = 0xd;
+    const CSS_UNIT_HZ: css_unit = 0xe;
+    const CSS_UNIT_KHZ: css_unit = 0xf;
+
+    type css_origin = c_enum;
+
+    const CSS_ORIGIN_UA: css_origin = 0;
+    const CSS_ORIGIN_USER: css_origin = 1;
+    const CSS_ORIGIN_AUTHOR: css_origin = 2;
 
     const CSS_MEDIA_AURAL: uint64_t = (1 << 0);
     const CSS_MEDIA_BRAILLE: uint64_t = (1 << 1);
@@ -87,18 +91,19 @@ mod types {
 }
 
 mod errors {
-    enum css_error {
-        CSS_OK = 0,
-        CSS_NOMEM = 1,
-        CSS_BADPARM = 2,
-        CSS_INVALID = 3,
-        CSS_FILENOTFOUND = 4,
-        CSS_NEEDDATA = 5,
-        CSS_BADCHARSET = 6,
-        CSS_EOF = 7,
-        CSS_IMPORTS_PENDING = 8,
-        CSS_PROPERTY_NOT_SET = 9
-    }
+
+    type css_error = c_enum;
+
+    const CSS_OK: css_error = 0;
+    const CSS_NOMEM: css_error = 1;
+    const CSS_BADPARM: css_error = 2;
+    const CSS_INVALID: css_error = 3;
+    const CSS_FILENOTFOUND: css_error = 4;
+    const CSS_NEEDDATA: css_error = 5;
+    const CSS_BADCHARSET: css_error = 6;
+    const CSS_EOF: css_error = 7;
+    const CSS_IMPORTS_PENDING: css_error = 8;
+    const CSS_PROPERTY_NOT_SET: css_error = 9;
 }
 
 mod hint {

@@ -3,10 +3,13 @@ use core::libc::{c_void, c_char};
 use core::libc::types::common::c99::{uint32_t};
 use cast::transmute;
 use core::ptr::null;
+use ll::{c_enum, rust_enum};
 use ll::types::*;
 use hl::types::*;
 use ll::stylesheet::*;
 use hl::stylesheet::*;
+use ll::errors::*;
+use hl::errors::*;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -14,10 +17,6 @@ pub trait ToLl<T> {
 
 pub trait AsLl<T> {
     fn as_ll<U>(&self, f: fn(&T) -> U) -> U;
-}
-
-pub trait ToHl<T> {
-    fn to_hl(&self) -> T;
 }
 
 pub impl CssLanguageLevel: ToLl<css_language_level> {
@@ -32,15 +31,16 @@ pub impl CssLanguageLevel: ToLl<css_language_level> {
     }
 }
 
-pub impl css_language_level: ToHl<CssLanguageLevel> {
-    pub fn to_hl(&self) -> CssLanguageLevel {
-        if *self == CSS_LEVEL_1 { CssLevel1 }
-        else if *self == CSS_LEVEL_2 { CssLevel2 }
-        else if *self == CSS_LEVEL_21 { CssLevel21 }
-        else if *self == CSS_LEVEL_3 { CssLevel3 }
-        else if *self == CSS_LEVEL_DEFAULT { CssLevelDefault }
-        else { fail }
+pub impl CssError: ToLl<css_error> {
+    pub fn to_ll(&self) -> css_error {
+        *self as css_error
     }
+}
+
+pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
+    // Sanity check that this is actually a 'c-like' (har) enum
+    assert sys::size_of::<T>() == sys::size_of::<rust_enum>();
+    unsafe { transmute(val as rust_enum) }
 }
 
 pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
