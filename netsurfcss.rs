@@ -524,9 +524,11 @@ mod select {
     }
 
     priv mod raw_handler {
-        priv fn enter(n: &str) -> css_error {
+        priv fn unimpl(n: &str) -> ! {
+            fail fmt!("unimplemented css callback handler: %s", n)
+        }
+        priv fn enter(n: &str) {
             debug!("entering raw handler: %s", n);
-            CSS_OK
         }
         priv fn ph(pw: *c_void) -> &UntypedHandler unsafe {
             transmute(pw)
@@ -535,98 +537,101 @@ mod select {
             enter("node_name");
             ph(pw).node_name(node, qname)
         }
-        pub extern fn node_classes(_pw: *c_void, _node: *c_void, _classes: *mut **lwc_string, _n_classes: *mut uint32_t) -> css_error {
-            enter("node_classes")
+        pub extern fn node_classes(pw: *c_void, node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error {
+            enter("node_classes");
+            ph(pw).node_classes(node, classes, n_classes)
         }
-        pub extern fn node_id(_pw: *c_void, _node: *c_void, _id: **lwc_string) -> css_error {
-            enter("node_id")
+        pub extern fn node_id(pw: *c_void, node: *c_void, id: *mut *lwc_string) -> css_error {
+            enter("node_id");
+            ph(pw).node_id(node, id)
         }
         pub extern fn named_ancestor_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
-            enter("named_ancestor_node")
+            unimpl("named_ancestor_node")
         }
         pub extern fn named_parent_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
-            enter("named_parent_node")
+            unimpl("named_parent_node")
         }
         pub extern fn named_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
-            enter("named_sibling_node")
+            unimpl("named_sibling_node")
         }
         pub extern fn named_generic_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
-            enter("named_generic_sibling_node")
+            unimpl("named_generic_sibling_node")
         }
-        pub extern fn parent_node(_pw: *c_void, _node: *c_void, _parent: **c_void) -> css_error {
-            enter("parent_node")
+        pub extern fn parent_node(pw: *c_void, node: *c_void, parent: *mut *c_void) -> css_error {
+            enter("parent_node");
+            ph(pw).parent_node(node, parent)
         }
         pub extern fn sibling_node(_pw: *c_void, _node: *c_void, _sibling: **c_void) -> css_error {
-            enter("sibling_node")
+            unimpl("sibling_node")
         }
         pub extern fn node_has_name(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
-            enter("node_has_name")
+            unimpl("node_has_name")
         }
         pub extern fn node_has_class(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_class")
+            unimpl("node_has_class")
         }
         pub extern fn node_has_id(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_id")
+            unimpl("node_has_id")
         }
         pub extern fn node_has_attribute(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
-            enter("node_has_attribute")
+            unimpl("node_has_attribute")
         }
         pub extern fn node_has_attribute_equal(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_attribute_equal")
+            unimpl("node_has_attribute_equal")
         }
         pub extern fn node_has_attribute_dashmatch(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_attribute_dashmatch")
+            unimpl("node_has_attribute_dashmatch")
         }
         pub extern fn node_has_attribute_includes(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_attribute_includes")
+            unimpl("node_has_attribute_includes")
         }
         pub extern fn node_has_attribute_prefix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_attribute_prefix")
+            unimpl("node_has_attribute_prefix")
         }
         pub extern fn node_has_attribute_suffix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_attribute_suffix")
+            unimpl("node_has_attribute_suffix")
         }
         pub extern fn node_has_attribute_substring(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_has_attribute_substring")
+            unimpl("node_has_attribute_substring")
         }
         pub extern fn node_is_root(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_root")
+            unimpl("node_is_root")
         }
         pub extern fn node_count_siblings(_pw: *c_void, _node: *c_void, _same_name: bool, _after: bool, _count: *int32_t) -> css_error {
-            enter("node_count_siblings")
+            unimpl("node_count_siblings")
         }
         pub extern fn node_is_empty(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_empty")
+            unimpl("node_is_empty")
         }
         pub extern fn node_is_link(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_link")
+            unimpl("node_is_link")
         }
         pub extern fn node_is_visited(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_visited")
+            unimpl("node_is_visited")
         }
         pub extern fn node_is_hover(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_hover")
+            unimpl("node_is_hover")
         }
         pub extern fn node_is_active(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_active")
+            unimpl("node_is_active")
         }
         pub extern fn node_is_focus(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_focus")
+            unimpl("node_is_focus")
         }
         pub extern fn node_is_enabled(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_enabled")
+            unimpl("node_is_enabled")
         }
         pub extern fn node_is_disabled(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_disabled")
+            unimpl("node_is_disabled")
         }
         pub extern fn node_is_checked(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_checked")
+            unimpl("node_is_checked")
         }
         pub extern fn node_is_target(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            enter("node_is_target")
+            unimpl("node_is_target")
         }
         pub extern fn node_is_lang(_pw: *c_void, _node: *c_void, _lang: *lwc_string, _match_: *bool) -> css_error {
-            enter("node_is_lang")
+            unimpl("node_is_lang")
         }
         pub extern fn node_presentational_hint(_pw: *c_void, _node: *c_void, _property: uint32_t, _hint: *css_hint) -> css_error {
             enter("node_presentational_hint");
@@ -637,20 +642,26 @@ mod select {
             ph(pw).ua_default_for_property(property, hint)
         }
         pub extern fn compute_font_size(_pw: *c_void, _parent: *css_hint, _size: *css_hint) -> css_error {
-            enter("compute_font_size")
+            enter("compute_font_size");
+            // FIXME
+            CSS_OK
         }
     }
 
     priv struct UntypedHandler {
         node_name: &fn(node: *c_void, qname: *css_qname) -> css_error,
-        ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error
+        node_classes: &fn(node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error,
+        node_id: &fn(node: *c_void, id: *mut *lwc_string) -> css_error,
+        parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
+        ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
     priv fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
-                node_name: |node, qname| {
-                    let hlqname = handler.node_name(transmute(node));
+                node_name: |node: *c_void, qname: *css_qname| -> css_error {
+                    let hlnode: &N = transmute(node);
+                    let hlqname = handler.node_name(hlnode);
                     match hlqname.ns {
                         Some(ns) => {
                             (*qname).ns = ns.raw_reffed();
@@ -660,12 +671,34 @@ mod select {
                     (*qname).name = hlqname.name.raw_reffed();
                     CSS_OK
                 },
-                ua_default_for_property: |property, hint| {
+                node_classes: |_node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t| -> css_error {
+                    // FIXME
+                    *classes = null();
+                    *n_classes = 0;
+                    CSS_OK
+                },
+                node_id: |_node: *c_void, id: *mut *lwc_string| -> css_error {
+                    // FIXME
+                    *id = null();
+                    CSS_OK
+                },
+                parent_node: |_node: *c_void, parent: *mut *c_void| -> css_error {
+                    /*let hlnode: &N = transmute(node);
+                    let hlparent: Option<&N> = handler.parent_node(hlnode);
+                    match hlparent {
+                        Some(p) => *parent = transmute(p),
+                        None => *parent = null()
+                    }*/
+                    // FIXME
+                    *parent = null();
+                    CSS_OK
+                },
+                ua_default_for_property: |property: uint32_t, hint: *mut css_hint| -> css_error {
                     use properties::property_from_uint;
                     let hlproperty = property_from_uint(property);
                     let hlhint = handler.ua_default_for_property(hlproperty);
                     hlhint.write_to_ll(hlproperty, &mut *hint)
-                }
+                },
             };
 
             f(&untyped_handler)
@@ -674,6 +707,7 @@ mod select {
 
     pub trait CssSelectHandler<N> {
         fn node_name(node: &N) -> CssQName;
+        //fn parent_node(node: &a/N) -> Option<&a/N>;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
 

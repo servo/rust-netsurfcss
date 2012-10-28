@@ -83,6 +83,10 @@ mod example1 {
             }
         }
 
+        /*fn parent_node(_node: &a/LwcString) -> Option<&a/LwcString> {
+            None
+        }*/
+
         fn ua_default_for_property(property: CssProperty) -> CssHint {
             match property {
                 _ => CssHintDefault
