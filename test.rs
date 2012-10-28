@@ -1,10 +1,9 @@
 use wapcaplet::ll::lwc_string;
 use ll::properties::*;
-use hl::*;
-use hl::types::*;
-use hl::hint::*;
-use hl::select::*;
-use hl::stylesheet::*;
+use types::*;
+use hint::*;
+use select::*;
+use stylesheet::*;
 
 // Based off of libcss's examples/example1.c
 mod example1 {

@@ -5,15 +5,15 @@ use cast::transmute;
 use core::ptr::null;
 use ll::{c_enum, rust_enum};
 use ll::types::*;
-use hl::types::*;
+use types::*;
 use ll::stylesheet::*;
-use hl::stylesheet::*;
+use stylesheet::*;
 use ll::errors::*;
-use hl::errors::*;
+use errors::*;
 use ll::properties::*;
-use hl::properties::*;
+use properties::*;
 use ll::select::*;
-use hl::select::*;
+use select::*;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;

@@ -6,6 +6,5 @@ extern mod std;
 extern mod wapcaplet;
 
 pub mod ll;
-pub mod hl;
 pub mod conversions;
 pub mod test;
