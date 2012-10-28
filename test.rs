@@ -27,7 +27,7 @@ mod example1 {
             font: None,
         };
 
-        let sheet: CssStylesheetRef = css_stylesheet_create(move params);
+        let sheet: CssStylesheet = css_stylesheet_create(move params);
         debug!("stylesheet: %?", sheet);
         debug!("stylesheet size: %?", sheet.size());
 
@@ -36,7 +36,7 @@ mod example1 {
         debug!("stylesheet size: %?", sheet.size());
 
 
-        let select_ctx: CssSelectCtxRef = css_select_ctx_create();
+        let select_ctx: CssSelectCtx = css_select_ctx_create();
         assert select_ctx.count_sheets() == 0;
         select_ctx.append_sheet(move sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
         debug!("count sheets: %?", select_ctx.count_sheets());

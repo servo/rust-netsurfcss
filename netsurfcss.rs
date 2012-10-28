@@ -95,7 +95,7 @@ mod stylesheet {
 
     // FIXME: Need hl reprs of lwc_string
     pub type CssUrlResolutionFn = ~fn(base: &str, rel: &LwcStringRef) -> CssResult<LwcStringRef>;
-    pub type CssImportNotificationFn = ~fn(parent: &CssStylesheetRef, url: &LwcStringRef) -> CssResult<uint64_t>;
+    pub type CssImportNotificationFn = ~fn(parent: &CssStylesheet, url: &LwcStringRef) -> CssResult<uint64_t>;
     pub type CssColorResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssColor>;
     pub type CssFontResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssSystemFont>;
 
@@ -108,7 +108,7 @@ mod stylesheet {
         family: ~str
     }
 
-    pub struct CssStylesheetRef {
+    pub struct CssStylesheet {
         priv params: CssStylesheetParams,
         priv sheet: *css_stylesheet,
 
@@ -119,7 +119,7 @@ mod stylesheet {
         }
     }
 
-    fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheetRef {
+    fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheet {
         let sheet = do params.as_ll |ll_params| {
             let mut sheet: *css_stylesheet = null();
             let code = ll_css_stylesheet_create(
@@ -129,14 +129,14 @@ mod stylesheet {
             sheet
         };
 
-        CssStylesheetRef {
+        CssStylesheet {
             // Store the params to keep their pointers alive
             params: move params,
             sheet: sheet
         }
     }
 
-    impl CssStylesheetRef {
+    impl CssStylesheet {
         fn size() -> uint {
             let mut size = 0;
             let code = css_stylesheet_size(self.sheet, to_mut_unsafe_ptr(&mut size));
@@ -408,7 +408,7 @@ pub mod hint {
 mod select {
 
     use types::CssQName;
-    use stylesheet::CssStylesheetRef;
+    use stylesheet::CssStylesheet;
     use properties::{CssProperty, CssColorProp};
     use computed::CssComputedStyleRef;
 
@@ -421,11 +421,11 @@ mod select {
 	CssPseudoElementCount	= 5
     }
 
-    struct CssSelectCtxRef {
+    struct CssSelectCtx {
         priv select_ctx: *css_select_ctx,
         // Whenever a sheet is added to the select ctx we will take ownership of it
         // to ensure that it stays alive
-        priv mut sheets: ~[CssStylesheetRef],
+        priv mut sheets: ~[CssStylesheet],
 
         drop {
             assert self.select_ctx.is_not_null();
@@ -434,20 +434,20 @@ mod select {
         }
     }
 
-    fn css_select_ctx_create() -> CssSelectCtxRef {
+    fn css_select_ctx_create() -> CssSelectCtx {
         let mut select_ctx: *css_select_ctx = null();
         let code = ll_css_select_ctx_create(realloc, null(), to_mut_unsafe_ptr(&mut select_ctx));
         require_ok(code, "creating select context");
         assert select_ctx.is_not_null();
 
-        CssSelectCtxRef {
+        CssSelectCtx {
             select_ctx: select_ctx,
             mut sheets: ~[]
         }
     }
 
-    impl CssSelectCtxRef {
-        fn append_sheet(sheet: CssStylesheetRef, origin: css_origin, media: uint64_t) {
+    impl CssSelectCtx {
+        fn append_sheet(sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
             let code = css_select_ctx_append_sheet(self.select_ctx, sheet.ll_sheet(), origin, media);
             require_ok(code, "adding sheet to select ctx");
 
@@ -462,7 +462,7 @@ mod select {
         }
 
         fn select_style<N, H: CssSelectHandler<N>>(node: &N, media: uint64_t,
-                                                   _inline_style: Option<&CssStylesheetRef>,
+                                                   _inline_style: Option<&CssStylesheet>,
                                                    handler: &H) -> CssSelectResultsRef {
             do with_untyped_handler(handler) |untyped_handler| {
                 let raw_handler = build_raw_handler();
