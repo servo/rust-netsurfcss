@@ -409,7 +409,7 @@ mod select {
     use types::CssQName;
     use stylesheet::CssStylesheet;
     use properties::{CssProperty, CssColorProp};
-    use computed::CssComputedStyleRef;
+    use computed::CssComputedStyle;
 
     enum CssPseudoElement {
 	CssPseudoElementNone         = 0,
@@ -462,7 +462,7 @@ mod select {
 
         fn select_style<N, H: CssSelectHandler<N>>(node: &N, media: uint64_t,
                                                    _inline_style: Option<&CssStylesheet>,
-                                                   handler: &H) -> CssSelectResultsRef {
+                                                   handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
                 let raw_handler = build_raw_handler();
                 let mut results: *css_select_results = null();
@@ -475,7 +475,7 @@ mod select {
                                             to_mut_unsafe_ptr(&mut results));
                 require_ok(code, "selecting style");
 
-                CssSelectResultsRef {
+                CssSelectResults {
                     results: results
                 }
             }
@@ -677,7 +677,7 @@ mod select {
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
 
-    pub struct CssSelectResultsRef {
+    pub struct CssSelectResults {
         priv results: *css_select_results,
 
         drop {
@@ -687,13 +687,13 @@ mod select {
         }
     }
 
-    impl CssSelectResultsRef {
-        fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyleRef/&self {
+    impl CssSelectResults {
+        fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyle/&self {
             let element = element.to_ll();
             let llstyle = unsafe { *self.results }.styles[element];
             assert llstyle.is_not_null();
 
-            CssComputedStyleRef {
+            CssComputedStyle {
                 result_backref: self,
                 computed_style: llstyle
             }
@@ -703,19 +703,19 @@ mod select {
 }
 
 mod computed {
-    use select::CssSelectResultsRef;
+    use select::CssSelectResults;
     use properties::*;
     use ll::properties::*;
     use ll::computed::css_computed_color;
     use conversions::ll_color_to_hl_color;
 
-    pub struct CssComputedStyleRef {
+    pub struct CssComputedStyle {
         // A borrowed back reference to ensure this outlives the results
-        result_backref: &CssSelectResultsRef,
+        result_backref: &CssSelectResults,
         computed_style: *css_computed_style,
     }
 
-    impl CssComputedStyleRef {
+    impl CssComputedStyle {
         fn color() -> CssColorProp {
             let mut llcolor = 0;
             let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));

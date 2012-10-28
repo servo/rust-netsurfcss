@@ -46,12 +46,12 @@ mod example1 {
             let element = fmt!("h%u", hh);
             let element_name: LwcString = from_rust_string(element);
             let select_handler = SelectHandler { bogus: () };
-            let style: CssSelectResultsRef = select_ctx.select_style(&element_name,
+            let style: CssSelectResults = select_ctx.select_style(&element_name,
                                                                      CSS_MEDIA_SCREEN,
                                                                      None,
                                                                      &select_handler);
 
-            let computed: CssComputedStyleRef = style.computed_style(CssPseudoElementNone);
+            let computed: CssComputedStyle = style.computed_style(CssPseudoElementNone);
 
             match computed.color() {
                 CssColorInherit => {
