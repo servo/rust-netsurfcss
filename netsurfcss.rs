@@ -14,7 +14,7 @@ use conversions::c_enum_to_rust_enum;
 use errors::CssError;
 
 use wapcaplet::ll::lwc_string;
-use wapcaplet::hl::{LwcStringRef, from_rust_string};
+use wapcaplet::{LwcString, from_rust_string};
 
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     match code {
@@ -50,8 +50,8 @@ mod types {
     pub struct CssColor { a: u8, r: u8, g: u8, b: u8 }
 
     pub struct CssQName {
-        ns: Option<LwcStringRef>,
-        name: LwcStringRef
+        ns: Option<LwcString>,
+        name: LwcString
     }
 
 }
@@ -93,11 +93,10 @@ mod stylesheet {
         CssStylesheetParamsVersion1 = 1
     }
 
-    // FIXME: Need hl reprs of lwc_string
-    pub type CssUrlResolutionFn = ~fn(base: &str, rel: &LwcStringRef) -> CssResult<LwcStringRef>;
-    pub type CssImportNotificationFn = ~fn(parent: &CssStylesheet, url: &LwcStringRef) -> CssResult<uint64_t>;
-    pub type CssColorResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssColor>;
-    pub type CssFontResolutionFn = ~fn(name: &LwcStringRef) -> CssResult<CssSystemFont>;
+    pub type CssUrlResolutionFn = ~fn(base: &str, rel: &LwcString) -> CssResult<LwcString>;
+    pub type CssImportNotificationFn = ~fn(parent: &CssStylesheet, url: &LwcString) -> CssResult<uint64_t>;
+    pub type CssColorResolutionFn = ~fn(name: &LwcString) -> CssResult<CssColor>;
+    pub type CssFontResolutionFn = ~fn(name: &LwcString) -> CssResult<CssSystemFont>;
 
     pub struct CssSystemFont {
         style: CssFontStyle,
@@ -350,7 +349,7 @@ pub mod hint {
 
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
-        CssHintFontFamily(~[LwcStringRef], CssFontFamily),
+        CssHintFontFamily(~[LwcString], CssFontFamily),
         CssHintDefault,
         CssHintUnknown
     }

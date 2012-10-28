@@ -44,7 +44,7 @@ mod example1 {
 
         for uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
-            let element_name: LwcStringRef = from_rust_string(element);
+            let element_name: LwcString = from_rust_string(element);
             let select_handler = SelectHandler { bogus: () };
             let style: CssSelectResultsRef = select_ctx.select_style(&element_name,
                                                                      CSS_MEDIA_SCREEN,
@@ -64,7 +64,7 @@ mod example1 {
         }
     }
 
-    fn resolve_url(_base: &str, _rel: &LwcStringRef) -> CssResult<LwcStringRef> {
+    fn resolve_url(_base: &str, _rel: &LwcString) -> CssResult<LwcString> {
         fail ~"resolving url";
     }
 
@@ -72,8 +72,8 @@ mod example1 {
         bogus: ()
     }
 
-    impl SelectHandler: CssSelectHandler<LwcStringRef> {
-        fn node_name(node: &LwcStringRef) -> CssQName {
+    impl SelectHandler: CssSelectHandler<LwcString> {
+        fn node_name(node: &LwcString) -> CssQName {
             debug!("HL node_name!");
             debug!("SS %?", node.to_str());
 
