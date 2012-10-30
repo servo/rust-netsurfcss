@@ -36,7 +36,7 @@ extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
     libc::realloc(ptr, len)
 }
 
-mod types {
+pub mod types {
     pub enum CssLanguageLevel {
         CssLevel1,
         CssLevel2,
@@ -56,7 +56,7 @@ mod types {
 
 }
 
-mod errors {
+pub mod errors {
     enum CssError {
 	CssOk               = 0,
 	CssNoMem            = 1,
@@ -71,7 +71,7 @@ mod errors {
     }
 }
 
-mod stylesheet {
+pub mod stylesheet {
     use properties::{CssFontStyle, CssFontVariant, CssFontWeight};
     use types::{CssLanguageLevel, CssColor};
 
@@ -404,7 +404,7 @@ pub mod hint {
     }
 }
 
-mod select {
+pub mod select {
 
     use types::CssQName;
     use stylesheet::CssStylesheet;
@@ -736,7 +736,7 @@ mod select {
 
 }
 
-mod computed {
+pub mod computed {
     use select::CssSelectResults;
     use properties::*;
     use ll::properties::*;
