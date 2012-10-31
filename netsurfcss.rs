@@ -107,8 +107,8 @@ pub mod stylesheet {
         family: ~str
     }
 
+    // Note that this must behave as if it is freezable
     pub struct CssStylesheet {
-        priv params: CssStylesheetParams,
         priv sheet: *css_stylesheet,
 
         drop {
@@ -118,7 +118,7 @@ pub mod stylesheet {
         }
     }
 
-    fn css_stylesheet_create(params: CssStylesheetParams) -> CssStylesheet {
+    pub fn css_stylesheet_create(params: &CssStylesheetParams) -> CssStylesheet {
         let sheet = do params.as_ll |ll_params| {
             let mut sheet: *css_stylesheet = null();
             let code = ll_css_stylesheet_create(
@@ -129,21 +129,19 @@ pub mod stylesheet {
         };
 
         CssStylesheet {
-            // Store the params to keep their pointers alive
-            params: move params,
             sheet: sheet
         }
     }
 
     impl CssStylesheet {
-        fn size() -> uint {
+        fn size(&self) -> uint {
             let mut size = 0;
             let code = css_stylesheet_size(self.sheet, to_mut_unsafe_ptr(&mut size));
             require_ok(code, "getting stylesheet size");
             return size as uint;
         }
 
-        fn append_data(data: &[u8]) {
+        fn append_data(&mut self, data: &[u8]) {
             // FIXME: For some reason to_const_ptr isn't accessible
             let code = css_stylesheet_append_data(self.sheet, unsafe { transmute(vec::raw::to_ptr(data)) }, data.len() as size_t);
             match code {
@@ -152,7 +150,7 @@ pub mod stylesheet {
             }
         }
 
-        fn data_done() {
+        fn data_done(&mut self) {
             let code = css_stylesheet_data_done(self.sheet);
             require_ok(code, "finishing parsing");
         }

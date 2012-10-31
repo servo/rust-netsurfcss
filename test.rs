@@ -27,7 +27,7 @@ mod example1 {
             font: None,
         };
 
-        let sheet: CssStylesheet = css_stylesheet_create(move params);
+        let sheet: CssStylesheet = css_stylesheet_create(&params);
         debug!("stylesheet: %?", sheet);
         debug!("stylesheet size: %?", sheet.size());
 
@@ -92,5 +92,31 @@ mod example1 {
                 _ => CssHintDefault
             }
         }
+    }
+}
+
+#[test]
+fn test_arc() {
+    use std::arc::ARC;
+
+    let params: CssStylesheetParams = CssStylesheetParams {
+        params_version: CssStylesheetParamsVersion1,
+        level: CssLevel21,
+        charset: ~"UTF-8",
+        url: ~"foo",
+        title: ~"foo",
+        allow_quirks: false,
+        inline_style: false,
+        resolve: Some(resolve_url),
+        import: None,
+        color: None,
+        font: None,
+    };
+
+    let sheet: CssStylesheet = css_stylesheet_create(&params);
+    let _arc = ARC(move sheet);
+
+    fn resolve_url(_base: &str, _rel: &LwcString) -> CssResult<LwcString> {
+        fail ~"resolving url";
     }
 }
