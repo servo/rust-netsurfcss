@@ -25,7 +25,7 @@ fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
 
 type CssResult<T> = Result<T, CssError>;
 
-fn require_ok(code: css_error, what: &str) {
+pure fn require_ok(code: css_error, what: &str) {
     match code {
         e if e == CSS_OK => (),
         e => fail fmt!("CSS parsing failed while %s. code: %?", what, e)
@@ -409,7 +409,7 @@ pub mod select {
     use properties::{CssProperty, CssColorProp};
     use computed::CssComputedStyle;
 
-    enum CssPseudoElement {
+    pub enum CssPseudoElement {
 	CssPseudoElementNone         = 0,
 	CssPseudoElementFirstLine   = 1,
 	CssPseudoElementFirstLetter = 2,
@@ -418,7 +418,7 @@ pub mod select {
 	CssPseudoElementCount	= 5
     }
 
-    struct CssSelectCtx {
+    pub struct CssSelectCtx {
         priv select_ctx: *css_select_ctx,
         // Whenever a sheet is added to the select ctx we will take ownership of it
         // to ensure that it stays alive
@@ -431,7 +431,7 @@ pub mod select {
         }
     }
 
-    fn css_select_ctx_create() -> CssSelectCtx {
+    pub fn css_select_ctx_create() -> CssSelectCtx {
         let mut select_ctx: *css_select_ctx = null();
         let code = ll_css_select_ctx_create(realloc, null(), to_mut_unsafe_ptr(&mut select_ctx));
         require_ok(code, "creating select context");
@@ -444,21 +444,21 @@ pub mod select {
     }
 
     impl CssSelectCtx {
-        fn append_sheet(sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
+        fn append_sheet(&mut self, sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
             let code = css_select_ctx_append_sheet(self.select_ctx, sheet.ll_sheet(), origin, media);
             require_ok(code, "adding sheet to select ctx");
 
             self.sheets.push(move sheet);
         }
 
-        fn count_sheets() -> uint {
+        fn count_sheets(&self) -> uint {
             let mut count = 0;
             let code = css_select_ctx_count_sheets(self.select_ctx, to_mut_unsafe_ptr(&mut count));
             require_ok(code, "counting sheets");
             return count as uint;
         }
 
-        fn select_style<N, H: CssSelectHandler<N>>(node: &N, media: uint64_t,
+        fn select_style<N, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
                                                    _inline_style: Option<&CssStylesheet>,
                                                    handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
