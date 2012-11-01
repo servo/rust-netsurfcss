@@ -55,6 +55,24 @@ pub mod types {
         name: LwcString
     }
 
+    pub enum CssUnit {
+        CssUnitPx(css_fixed),
+        CssUnitEx(css_fixed),
+        CssUnitEm(css_fixed),
+        CssUnitIn(css_fixed),
+        CssUnitCm(css_fixed),
+        CssUnitMm(css_fixed),
+        CssUnitPt(css_fixed),
+        CssUnitPc(css_fixed),
+        CssUnitPct(css_fixed),
+        CssUnitDeg(css_fixed),
+        CssUnitGrad(css_fixed),
+        CssUnitRad(css_fixed),
+        CssUnitMs(css_fixed),
+        CssUnitS(css_fixed),
+        CssUnitHz(css_fixed),
+        CssUnitKHz(css_fixed)
+    }
 }
 
 pub mod errors {
@@ -734,7 +752,7 @@ pub mod computed {
     use values::*;
     use ll::properties::*;
     use ll::computed::*;
-    use conversions::ll_color_to_hl_color;
+    use conversions::{ll_color_to_hl_color, ll_unit_to_hl_unit};
 
     pub struct CssComputedStyle {
         // A borrowed back reference to ensure this outlives the results
@@ -746,35 +764,75 @@ pub mod computed {
         fn color() -> CssColorValue {
             let mut llcolor = 0;
             let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
+            let type_ = type_ as css_color_e;
 
-            if type_ == CSS_COLOR_INHERIT as uint8_t {
+            if type_ == CSS_COLOR_INHERIT {
                 CssColorInherit
-            } else {
+            } else if type_ == CSS_COLOR_COLOR {
                 CssColorColor(ll_color_to_hl_color(llcolor))
+            } else {
+                unimpl("color")
             }
-
         }
 
         fn background_color() -> CssColorValue {
             let mut llcolor = 0;
             let type_ = css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
+            let type_ = type_ as css_color_e;
 
-            if type_ == CSS_COLOR_INHERIT as uint8_t {
+            if type_ == CSS_COLOR_INHERIT {
                 CssColorInherit
-            } else {
+            } else if type_ == CSS_COLOR_COLOR {
                 CssColorColor(ll_color_to_hl_color(llcolor))
+            } else {
+                unimpl("background_color")
             }
         }
+
+        fn border_top_width() -> CssBorderWidthValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_border_top_width(self.computed_style,
+                                                      to_mut_unsafe_ptr(&mut length),
+                                                      to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_border_width_e;
+
+            if type_ == CSS_BORDER_WIDTH_INHERIT {
+                CssBorderWidthInherit
+            } else if type_ == CSS_BORDER_WIDTH_THIN {
+                CssBorderWidthThin
+            } else if type_ == CSS_BORDER_WIDTH_MEDIUM {
+                CssBorderWidthMedium
+            } else if type_ == CSS_BORDER_WIDTH_THICK {
+                CssBorderWidthThick
+            } else if type_ == CSS_BORDER_WIDTH_WIDTH {
+                CssBorderWidthWidth(ll_unit_to_hl_unit(unit, length))
+            } else {
+                unimpl("border_top_width")
+            }
+        }
+    }
+
+    fn unimpl(what: &str) -> ! {
+        fail fmt!("unimplemented css value: %?", what);
     }
 }
 
 // Types returned as calculated styles. Maps to properties
 mod values {
-    use types::CssColor;
+    use types::{CssColor, CssUnit};
 
     // Like css_color_e
     pub enum CssColorValue {
         CssColorInherit,
         CssColorColor(CssColor)
+    }
+
+    pub enum CssBorderWidthValue {
+        CssBorderWidthInherit,
+        CssBorderWidthThin,
+        CssBorderWidthMedium,
+        CssBorderWidthThick,
+        CssBorderWidthWidth(CssUnit)
     }
 }

@@ -60,6 +60,44 @@ pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
     unsafe { transmute(color) }
 }
 
+pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
+    if unit == CSS_UNIT_PX {
+        CssUnitPx(value)
+    } else if unit == CSS_UNIT_EX {
+        CssUnitEx(value)
+    } else if unit == CSS_UNIT_EM {
+        CssUnitEm(value)
+    } else if unit == CSS_UNIT_IN {
+        CssUnitIn(value)
+    } else if unit == CSS_UNIT_CM {
+        CssUnitCm(value)
+    } else if unit == CSS_UNIT_MM {
+        CssUnitMm(value)
+    } else if unit == CSS_UNIT_PT {
+        CssUnitPt(value)
+    } else if unit == CSS_UNIT_PC {
+        CssUnitPc(value)
+    } else if unit == CSS_UNIT_PCT {
+        CssUnitPct(value)
+    } else if unit == CSS_UNIT_DEG {
+        CssUnitDeg(value)
+    } else if unit == CSS_UNIT_GRAD {
+        CssUnitGrad(value)
+    } else if unit == CSS_UNIT_RAD {
+        CssUnitRad(value)
+    } else if unit == CSS_UNIT_MS {
+        CssUnitMs(value)
+    } else if unit == CSS_UNIT_S {
+        CssUnitS(value)
+    } else if unit == CSS_UNIT_HZ {
+        CssUnitHz(value)
+    } else if unit == CSS_UNIT_KHZ {
+        CssUnitKHz(value)
+    } else {
+        fail
+    }
+}
+
 pub impl CssPseudoElement: ToLl<css_pseudo_element> {
     pub fn to_ll(&self) -> css_pseudo_element {
         *self as css_pseudo_element

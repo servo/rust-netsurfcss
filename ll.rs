@@ -277,6 +277,14 @@ pub mod properties {
 
     pub const CSS_COLOR_INHERIT: css_color_e = 0x0;
     pub const CSS_COLOR_COLOR: css_color_e = 0x1;
+
+    pub type css_border_width_e = c_enum;
+
+    pub const CSS_BORDER_WIDTH_INHERIT: css_border_width_e = 0x0;
+    pub const CSS_BORDER_WIDTH_THIN: css_border_width_e = 0x1;
+    pub const CSS_BORDER_WIDTH_MEDIUM: css_border_width_e = 0x2;
+    pub const CSS_BORDER_WIDTH_THICK: css_border_width_e = 0x3;
+    pub const CSS_BORDER_WIDTH_WIDTH: css_border_width_e = 0x4;
 }
 
 pub mod stylesheet {
