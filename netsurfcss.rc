@@ -8,3 +8,4 @@ extern mod wapcaplet;
 pub mod ll;
 pub mod conversions;
 pub mod test;
+pub mod util;
