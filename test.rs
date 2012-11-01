@@ -4,6 +4,7 @@ use types::*;
 use hint::*;
 use select::*;
 use stylesheet::*;
+use values::*;
 
 // Based off of libcss's examples/example1.c
 mod example1 {
@@ -54,10 +55,10 @@ mod example1 {
             let computed: CssComputedStyle = style.computed_style(CssPseudoElementNone);
 
             match computed.color() {
-                CssColorInherit => {
+                Inherit => {
                     debug!("color of h%u is 'inherit'", hh);
                 },
-                CssColorValue(color) => {
+                Specified(CssColorColor(color)) => {
                     debug!("color of h%u is %x", hh, color.to_ll() as uint);
                 }
             }

@@ -285,12 +285,6 @@ pub mod properties {
         unsafe { transmute(property as uint) }
     }
 
-    // Similar to css_color_e
-    pub enum CssColorProp {
-        CssColorInherit,
-        CssColorValue(CssColor)
-    }
-
     pub enum CssFontStyle {
 	CssFontStyleInherit			= 0x0,
 	CssFontStyleNormal			= 0x1,
@@ -407,7 +401,7 @@ pub mod select {
 
     use types::CssQName;
     use stylesheet::CssStylesheet;
-    use properties::{CssProperty, CssColorProp};
+    use properties::CssProperty;
     use computed::CssComputedStyle;
 
     pub enum CssPseudoElement {
@@ -737,7 +731,7 @@ pub mod select {
 
 pub mod computed {
     use select::CssSelectResults;
-    use properties::*;
+    use values::*;
     use ll::properties::*;
     use ll::computed::*;
     use conversions::ll_color_to_hl_color;
@@ -749,26 +743,42 @@ pub mod computed {
     }
 
     impl CssComputedStyle {
-        fn color() -> CssColorProp {
+        fn color() -> CssValue<CssColorValue> {
             let mut llcolor = 0;
             let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
 
             if type_ == CSS_COLOR_INHERIT as uint8_t {
-                CssColorInherit
+                Inherit
             } else {
-                CssColorValue(ll_color_to_hl_color(llcolor))
+                Specified(CssColorColor(ll_color_to_hl_color(llcolor)))
             }
+
         }
 
-        fn background_color() -> CssColorProp {
+        fn background_color() -> CssValue<CssColorValue> {
             let mut llcolor = 0;
             let type_ = css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
 
             if type_ == CSS_COLOR_INHERIT as uint8_t {
-                CssColorInherit
+                Inherit
             } else {
-                CssColorValue(ll_color_to_hl_color(llcolor))
+                Specified(CssColorColor(ll_color_to_hl_color(llcolor)))
             }
         }
+    }
+}
+
+// Types returned as calculated styles. Maps to properties
+mod values {
+    use types::CssColor;
+
+    pub enum CssValue<T> {
+        Inherit,
+        Specified(T)
+    }
+
+    // Like css_color_e
+    pub enum CssColorValue {
+        CssColorColor(CssColor)
     }
 }
