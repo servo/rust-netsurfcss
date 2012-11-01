@@ -55,10 +55,10 @@ mod example1 {
             let computed: CssComputedStyle = style.computed_style(CssPseudoElementNone);
 
             match computed.color() {
-                Inherit => {
+                CssColorInherit => {
                     debug!("color of h%u is 'inherit'", hh);
                 },
-                Specified(CssColorColor(color)) => {
+                CssColorColor(color) => {
                     debug!("color of h%u is %x", hh, color.to_ll() as uint);
                 }
             }

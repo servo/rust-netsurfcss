@@ -743,26 +743,26 @@ pub mod computed {
     }
 
     impl CssComputedStyle {
-        fn color() -> CssValue<CssColorValue> {
+        fn color() -> CssColorValue {
             let mut llcolor = 0;
             let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
 
             if type_ == CSS_COLOR_INHERIT as uint8_t {
-                Inherit
+                CssColorInherit
             } else {
-                Specified(CssColorColor(ll_color_to_hl_color(llcolor)))
+                CssColorColor(ll_color_to_hl_color(llcolor))
             }
 
         }
 
-        fn background_color() -> CssValue<CssColorValue> {
+        fn background_color() -> CssColorValue {
             let mut llcolor = 0;
             let type_ = css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
 
             if type_ == CSS_COLOR_INHERIT as uint8_t {
-                Inherit
+                CssColorInherit
             } else {
-                Specified(CssColorColor(ll_color_to_hl_color(llcolor)))
+                CssColorColor(ll_color_to_hl_color(llcolor))
             }
         }
     }
@@ -772,13 +772,9 @@ pub mod computed {
 mod values {
     use types::CssColor;
 
-    pub enum CssValue<T> {
-        Inherit,
-        Specified(T)
-    }
-
     // Like css_color_e
     pub enum CssColorValue {
+        CssColorInherit,
         CssColorColor(CssColor)
     }
 }
