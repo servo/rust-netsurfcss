@@ -786,6 +786,40 @@ pub mod computed {
 
             CssBorderWidthValue::new(type_, length, unit)
         }
+
+        fn border_right_width() -> CssBorderWidthValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_border_right_width(self.computed_style,
+                                                        to_mut_unsafe_ptr(&mut length),
+                                                        to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_border_width_e;
+
+            CssBorderWidthValue::new(type_, length, unit)
+        }
+
+        fn border_bottom_width() -> CssBorderWidthValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_border_bottom_width(self.computed_style,
+                                                         to_mut_unsafe_ptr(&mut length),
+                                                         to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_border_width_e;
+
+            CssBorderWidthValue::new(type_, length, unit)
+        }
+
+        fn border_left_width() -> CssBorderWidthValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_border_left_width(self.computed_style,
+                                                       to_mut_unsafe_ptr(&mut length),
+                                                       to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_border_width_e;
+
+            CssBorderWidthValue::new(type_, length, unit)
+        }
+
     }
 }
 
