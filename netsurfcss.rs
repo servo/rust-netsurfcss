@@ -47,7 +47,8 @@ pub mod types {
         CssLevelNotACLikeEnum(uint)
     }
 
-    pub struct CssColor { a: u8, r: u8, g: u8, b: u8 }
+    // NB: This must have the same binary structure as css_color
+    pub struct CssColor { b: u8, g: u8, r: u8, a: u8 }
 
     pub struct CssQName {
         ns: Option<LwcString>,
