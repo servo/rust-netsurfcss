@@ -426,5 +426,6 @@ pub mod computed {
 
     extern {
         fn css_computed_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        fn css_computed_background_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
     }
 }

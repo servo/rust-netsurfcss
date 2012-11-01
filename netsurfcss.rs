@@ -738,7 +738,7 @@ pub mod computed {
     use select::CssSelectResults;
     use properties::*;
     use ll::properties::*;
-    use ll::computed::css_computed_color;
+    use ll::computed::*;
     use conversions::ll_color_to_hl_color;
 
     pub struct CssComputedStyle {
@@ -751,6 +751,17 @@ pub mod computed {
         fn color() -> CssColorProp {
             let mut llcolor = 0;
             let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
+
+            if type_ == CSS_COLOR_INHERIT as uint8_t {
+                CssColorInherit
+            } else {
+                CssColorValue(ll_color_to_hl_color(llcolor))
+            }
+        }
+
+        fn background_color() -> CssColorProp {
+            let mut llcolor = 0;
+            let type_ = css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
 
             if type_ == CSS_COLOR_INHERIT as uint8_t {
                 CssColorInherit
