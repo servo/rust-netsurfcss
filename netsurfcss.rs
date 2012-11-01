@@ -749,10 +749,9 @@ pub mod select {
 
 pub mod computed {
     use select::CssSelectResults;
-    use values::*;
+    use values::{CssColorValue, CssBorderWidthValue};
     use ll::properties::*;
     use ll::computed::*;
-    use conversions::{ll_color_to_hl_color, ll_unit_to_hl_unit};
 
     pub struct CssComputedStyle {
         // A borrowed back reference to ensure this outlives the results
@@ -762,31 +761,19 @@ pub mod computed {
 
     impl CssComputedStyle {
         fn color() -> CssColorValue {
-            let mut llcolor = 0;
-            let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
+            let mut color = 0;
+            let type_ = css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut color));
             let type_ = type_ as css_color_e;
 
-            if type_ == CSS_COLOR_INHERIT {
-                CssColorInherit
-            } else if type_ == CSS_COLOR_COLOR {
-                CssColorColor(ll_color_to_hl_color(llcolor))
-            } else {
-                unimpl("color")
-            }
+            CssColorValue::new(type_, color)
         }
 
         fn background_color() -> CssColorValue {
-            let mut llcolor = 0;
-            let type_ = css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut llcolor));
+            let mut color = 0;
+            let type_ = css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut color));
             let type_ = type_ as css_color_e;
 
-            if type_ == CSS_COLOR_INHERIT {
-                CssColorInherit
-            } else if type_ == CSS_COLOR_COLOR {
-                CssColorColor(ll_color_to_hl_color(llcolor))
-            } else {
-                unimpl("background_color")
-            }
+            CssColorValue::new(type_, color)
         }
 
         fn border_top_width() -> CssBorderWidthValue {
@@ -797,6 +784,44 @@ pub mod computed {
                                                       to_mut_unsafe_ptr(&mut unit));
             let type_ = type_ as css_border_width_e;
 
+            CssBorderWidthValue::new(type_, length, unit)
+        }
+    }
+}
+
+// Types returned as calculated styles. Maps to properties
+mod values {
+    use types::{CssColor, CssUnit};
+    use conversions::{ll_color_to_hl_color, ll_unit_to_hl_unit};
+
+    // Like css_color_e
+    pub enum CssColorValue {
+        CssColorInherit,
+        CssColorColor(CssColor)
+    }
+
+    impl CssColorValue {
+        static fn new(type_: css_color_e, color: css_color) -> CssColorValue {
+            if type_ == CSS_COLOR_INHERIT {
+                CssColorInherit
+            } else if type_ == CSS_COLOR_COLOR {
+                CssColorColor(ll_color_to_hl_color(color))
+            } else {
+                unimpl("color")
+            }
+        }
+    }
+
+    pub enum CssBorderWidthValue {
+        CssBorderWidthInherit,
+        CssBorderWidthThin,
+        CssBorderWidthMedium,
+        CssBorderWidthThick,
+        CssBorderWidthWidth(CssUnit)
+    }
+
+    impl CssBorderWidthValue {
+        static fn new(type_: css_border_width_e, length: css_fixed, unit: css_unit) -> CssBorderWidthValue {
             if type_ == CSS_BORDER_WIDTH_INHERIT {
                 CssBorderWidthInherit
             } else if type_ == CSS_BORDER_WIDTH_THIN {
@@ -808,7 +833,7 @@ pub mod computed {
             } else if type_ == CSS_BORDER_WIDTH_WIDTH {
                 CssBorderWidthWidth(ll_unit_to_hl_unit(unit, length))
             } else {
-                unimpl("border_top_width")
+                unimpl("border_width")
             }
         }
     }
@@ -816,23 +841,5 @@ pub mod computed {
     fn unimpl(what: &str) -> ! {
         fail fmt!("unimplemented css value: %?", what);
     }
-}
 
-// Types returned as calculated styles. Maps to properties
-mod values {
-    use types::{CssColor, CssUnit};
-
-    // Like css_color_e
-    pub enum CssColorValue {
-        CssColorInherit,
-        CssColorColor(CssColor)
-    }
-
-    pub enum CssBorderWidthValue {
-        CssBorderWidthInherit,
-        CssBorderWidthThin,
-        CssBorderWidthMedium,
-        CssBorderWidthThick,
-        CssBorderWidthWidth(CssUnit)
-    }
 }
