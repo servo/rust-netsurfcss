@@ -12,11 +12,12 @@ use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
 use conversions::c_enum_to_rust_enum;
 use errors::CssError;
+use util::VoidPtrLike;
 
 use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string};
 
-trait DomNode: Copy {
+trait DomNode: Copy, VoidPtrLike {
 }
 
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
