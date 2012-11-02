@@ -12,11 +12,12 @@ use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
 use conversions::c_enum_to_rust_enum;
 use errors::CssError;
-use util::VoidPtrLike;
+use util::{VoidPtrLike, from_void_ptr};
 
 use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string};
 
+// FIXME: Trait inheritance still busted
 trait DomNode: VoidPtrLike {
 }
 
@@ -475,14 +476,14 @@ pub mod select {
             return count as uint;
         }
 
-        fn select_style<N: DomNode, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
-                                                         _inline_style: Option<&CssStylesheet>,
-                                                         handler: &H) -> CssSelectResults {
+        fn select_style<N: VoidPtrLike, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
+                                                                _inline_style: Option<&CssStylesheet>,
+                                                                handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
                 let raw_handler = build_raw_handler();
                 let mut results: *css_select_results = null();
                 let code = css_select_style(self.select_ctx,
-                                            unsafe { transmute(to_unsafe_ptr(node)) },
+                                            node.to_void_ptr(),
                                             media,
                                             null(), // FIXME,
                                             to_unsafe_ptr(&raw_handler),
@@ -671,12 +672,12 @@ pub mod select {
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
-    priv fn with_untyped_handler<N: DomNode, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
+    priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *css_qname| -> css_error {
-                    let hlnode: &N = transmute(node);
-                    let hlqname = handler.node_name(hlnode);
+                    let hlnode: N = from_void_ptr(node);
+                    let hlqname = handler.node_name(move hlnode);
                     match hlqname.ns {
                         Some(ns) => {
                             (*qname).ns = ns.raw_reffed();
@@ -720,8 +721,8 @@ pub mod select {
         }
     }
 
-    pub trait CssSelectHandler<N: DomNode> {
-        fn node_name(node: &N) -> CssQName;
+    pub trait CssSelectHandler<N> {
+        fn node_name(node: N) -> CssQName;
         //fn parent_node(node: &a/N) -> Option<&a/N>;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }

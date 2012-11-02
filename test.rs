@@ -9,7 +9,25 @@ use values::*;
 // Based off of libcss's examples/example1.c
 mod example1 {
 
-    impl LwcString: DomNode {
+    struct MyDomNode {
+        name: @LwcString
+    }
+
+    impl MyDomNode: DomNode {
+        static fn from_void_ptr(node: *libc::c_void) -> MyDomNode {
+            assert node.is_not_null();
+            MyDomNode {
+                name: unsafe {
+                    let box = cast::reinterpret_cast(&node);
+                    cast::bump_box_refcount(box);
+                    box
+                }
+            }
+        }
+
+        fn to_void_ptr(&self) -> *libc::c_void {
+            unsafe { cast::reinterpret_cast(&self.name) }
+        }
     }
 
     #[test]
@@ -49,12 +67,13 @@ mod example1 {
 
         for uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
-            let element_name: LwcString = from_rust_string(element);
+            let element_name: @LwcString = @from_rust_string(element);
+            let node = MyDomNode { name: element_name };
             let select_handler = SelectHandler { bogus: () };
-            let style: CssSelectResults = select_ctx.select_style(&element_name,
-                                                                     CSS_MEDIA_SCREEN,
-                                                                     None,
-                                                                     &select_handler);
+            let style: CssSelectResults = select_ctx.select_style(&node,
+                                                                  CSS_MEDIA_SCREEN,
+                                                                  None,
+                                                                  &select_handler);
 
             let computed: CssComputedStyle = style.computed_style(CssPseudoElementNone);
 
@@ -77,14 +96,14 @@ mod example1 {
         bogus: ()
     }
 
-    impl SelectHandler: CssSelectHandler<LwcString> {
-        fn node_name(node: &LwcString) -> CssQName {
+    impl SelectHandler: CssSelectHandler<MyDomNode> {
+        fn node_name(node: MyDomNode) -> CssQName {
             debug!("HL node_name!");
-            debug!("SS %?", node.to_str());
+            debug!("SS %?", node.name.to_str());
 
             CssQName {
                 ns: None,
-                name: node.clone()
+                name: node.name.clone()
             }
         }
 
