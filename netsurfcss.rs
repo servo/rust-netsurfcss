@@ -18,8 +18,8 @@ use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string};
 
 // FIXME: Trait inheritance still busted
-trait DomNode: VoidPtrLike {
-}
+//trait DomNode: VoidPtrLike {
+//}
 
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     match code {
@@ -476,7 +476,7 @@ pub mod select {
             return count as uint;
         }
 
-        fn select_style<N: DomNode, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
+        fn select_style<N: VoidPtrLike, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
                                                             _inline_style: Option<&CssStylesheet>,
                                                             handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
@@ -672,7 +672,7 @@ pub mod select {
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
-    priv fn with_untyped_handler<N: DomNode, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
+    priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *css_qname| -> css_error {

@@ -13,7 +13,7 @@ mod example1 {
         name: @LwcString
     }
 
-    impl MyDomNode: DomNode {
+    impl MyDomNode: VoidPtrLike {
         static fn from_void_ptr(node: *libc::c_void) -> MyDomNode {
             assert node.is_not_null();
             MyDomNode {
