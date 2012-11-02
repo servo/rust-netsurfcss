@@ -16,6 +16,9 @@ use errors::CssError;
 use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string};
 
+trait DomNode: Copy {
+}
+
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     match code {
         e if e == CSS_OK => Ok(move val),
@@ -471,9 +474,9 @@ pub mod select {
             return count as uint;
         }
 
-        fn select_style<N, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
-                                                   _inline_style: Option<&CssStylesheet>,
-                                                   handler: &H) -> CssSelectResults {
+        fn select_style<N: DomNode, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
+                                                         _inline_style: Option<&CssStylesheet>,
+                                                         handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
                 let raw_handler = build_raw_handler();
                 let mut results: *css_select_results = null();
@@ -667,7 +670,7 @@ pub mod select {
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
-    priv fn with_untyped_handler<N, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
+    priv fn with_untyped_handler<N: DomNode, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *css_qname| -> css_error {
@@ -716,7 +719,7 @@ pub mod select {
         }
     }
 
-    pub trait CssSelectHandler<N> {
+    pub trait CssSelectHandler<N: DomNode> {
         fn node_name(node: &N) -> CssQName;
         //fn parent_node(node: &a/N) -> Option<&a/N>;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;

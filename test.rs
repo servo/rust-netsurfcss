@@ -8,6 +8,10 @@ use values::*;
 
 // Based off of libcss's examples/example1.c
 mod example1 {
+
+    impl LwcString: DomNode {
+    }
+
     #[test]
     fn run() {
         let data = "h1 { color: red; }\
