@@ -17,7 +17,7 @@ use util::VoidPtrLike;
 use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string};
 
-trait DomNode: Copy, VoidPtrLike {
+trait DomNode: VoidPtrLike {
 }
 
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
