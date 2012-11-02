@@ -677,7 +677,7 @@ pub mod select {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *css_qname| -> css_error {
                     let hlnode: N = from_void_ptr(node);
-                    let hlqname = handler.node_name(move hlnode);
+                    let hlqname = handler.node_name(&hlnode);
                     match hlqname.ns {
                         Some(ns) => {
                             (*qname).ns = ns.raw_reffed();
@@ -698,15 +698,13 @@ pub mod select {
                     *id = null();
                     CSS_OK
                 },
-                parent_node: |_node: *c_void, parent: *mut *c_void| -> css_error {
-                    /*let hlnode: &N = transmute(node);
-                    let hlparent: Option<&N> = handler.parent_node(hlnode);
-                    match hlparent {
-                        Some(p) => *parent = transmute(p),
-                        None => *parent = null()
-                    }*/
-                    // FIXME
-                    *parent = null();
+                parent_node: |node: *c_void, parent: *mut *c_void| -> css_error {
+                    let hlnode: N = from_void_ptr(node);
+                    let hlparent: Option<N> = handler.parent_node(&hlnode);
+                    *parent = match hlparent {
+                        Some(ref p) => p.to_void_ptr(),
+                        None => null()
+                    };
                     CSS_OK
                 },
                 ua_default_for_property: |property: uint32_t, hint: *mut css_hint| -> css_error {
@@ -722,8 +720,8 @@ pub mod select {
     }
 
     pub trait CssSelectHandler<N> {
-        fn node_name(node: N) -> CssQName;
-        //fn parent_node(node: &a/N) -> Option<&a/N>;
+        fn node_name(node: &N) -> CssQName;
+        fn parent_node(node: &N) -> Option<N>;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
 

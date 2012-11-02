@@ -97,7 +97,7 @@ mod example1 {
     }
 
     impl SelectHandler: CssSelectHandler<MyDomNode> {
-        fn node_name(node: MyDomNode) -> CssQName {
+        fn node_name(node: &MyDomNode) -> CssQName {
             debug!("HL node_name!");
             debug!("SS %?", node.name.to_str());
 
@@ -107,9 +107,9 @@ mod example1 {
             }
         }
 
-        /*fn parent_node(_node: &a/LwcString) -> Option<&a/LwcString> {
+        fn parent_node(_node: &MyDomNode) -> Option<MyDomNode> {
             None
-        }*/
+        }
 
         fn ua_default_for_property(property: CssProperty) -> CssHint {
             match property {
