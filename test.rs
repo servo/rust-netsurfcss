@@ -9,7 +9,7 @@ use values::*;
 // Based off of libcss's examples/example1.c
 mod example1 {
 
-    impl LwcString: DomNode {
+    impl @LwcString: DomNode {
     }
 
     #[test]
@@ -49,12 +49,12 @@ mod example1 {
 
         for uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
-            let element_name: LwcString = from_rust_string(element);
+            let element_name: @LwcString = @from_rust_string(element);
             let select_handler = SelectHandler { bogus: () };
-            let style: CssSelectResults = select_ctx.select_style(&element_name,
-                                                                     CSS_MEDIA_SCREEN,
-                                                                     None,
-                                                                     &select_handler);
+            let style: CssSelectResults = select_ctx.select_style(element_name,
+                                                                  CSS_MEDIA_SCREEN,
+                                                                  None,
+                                                                  &select_handler);
 
             let computed: CssComputedStyle = style.computed_style(CssPseudoElementNone);
 
@@ -77,8 +77,8 @@ mod example1 {
         bogus: ()
     }
 
-    impl SelectHandler: CssSelectHandler<LwcString> {
-        fn node_name(node: &LwcString) -> CssQName {
+    impl SelectHandler: CssSelectHandler<@LwcString> {
+        fn node_name(node: @LwcString) -> CssQName {
             debug!("HL node_name!");
             debug!("SS %?", node.to_str());
 
