@@ -831,6 +831,37 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
+        fn border_top_color() -> CssColorValue {
+            let mut color = 0;
+            let type_ = css_computed_border_top_color(self.computed_style,
+                                                      to_mut_unsafe_ptr(&mut color));
+            let type_ = type_ as css_color_e;
+            CssColorValue::new(type_, color)
+        }
+
+        fn border_right_color() -> CssColorValue {
+            let mut color = 0;
+            let type_ = css_computed_border_right_color(self.computed_style,
+                                                        to_mut_unsafe_ptr(&mut color));
+            let type_ = type_ as css_color_e;
+            CssColorValue::new(type_, color)
+        }
+
+        fn border_bottom_color() -> CssColorValue {
+            let mut color = 0;
+            let type_ = css_computed_border_bottom_color(self.computed_style,
+                                                         to_mut_unsafe_ptr(&mut color));
+            let type_ = type_ as css_color_e;
+            CssColorValue::new(type_, color)
+        }
+
+        fn border_left_color() -> CssColorValue {
+            let mut color = 0;
+            let type_ = css_computed_border_left_color(self.computed_style,
+                                                       to_mut_unsafe_ptr(&mut color));
+            let type_ = type_ as css_color_e;
+            CssColorValue::new(type_, color)
+        }
     }
 }
 

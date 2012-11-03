@@ -439,5 +439,9 @@ pub mod computed {
         fn css_computed_border_right_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_border_bottom_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_border_left_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_border_top_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        fn css_computed_border_right_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        fn css_computed_border_bottom_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        fn css_computed_border_left_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
     }
 }
