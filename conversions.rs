@@ -14,6 +14,7 @@ use ll::properties::*;
 use properties::*;
 use ll::select::*;
 use select::*;
+use ll_lwcstr_to_hl_lwcstr = wapcaplet::from_lwc_string;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -95,6 +96,20 @@ pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
         CssUnitKHz(value)
     } else {
         fail
+    }
+}
+
+pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName unsafe {
+    CssQName {
+        ns: if (*qname).ns.is_not_null() {
+            Some(ll_lwcstr_to_hl_lwcstr((*qname).ns))
+        } else {
+            None
+        },
+        name: {
+            assert (*qname).name.is_not_null();
+            ll_lwcstr_to_hl_lwcstr((*qname).name)
+        }
     }
 }
 

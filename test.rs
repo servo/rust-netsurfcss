@@ -107,7 +107,7 @@ mod example1 {
             }
         }
 
-        fn named_parent_node(_node: &MyDomNode) -> Option<(CssQName, MyDomNode)> {
+        fn named_parent_node(_node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
             None
         }
 

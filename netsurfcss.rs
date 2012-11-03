@@ -10,7 +10,7 @@ use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
-use conversions::{c_enum_to_rust_enum, write_ll_qname};
+use conversions::{c_enum_to_rust_enum, write_ll_qname, ll_qname_to_hl_qname};
 use errors::CssError;
 use util::{VoidPtrLike, from_void_ptr};
 
@@ -698,15 +698,11 @@ pub mod select {
                 },
                 named_parent_node: |node: *c_void, qname: *css_qname, parent: *mut *c_void| -> css_error {
                     let hlnode: N = from_void_ptr(node);
-                    match handler.named_parent_node(&hlnode) {
-                        Some((move qn, move p)) => {
-                            write_ll_qname(&qn, qname);
-                            *parent = p.to_void_ptr();
-                        }
-                        None => {
-                            *parent = null();
-                        }
-                    }
+                    let hlqname = ll_qname_to_hl_qname(qname);
+                    *parent = match handler.named_parent_node(&hlnode, &hlqname) {
+                        Some(p) => p.to_void_ptr(),
+                        None => null()
+                    };
                     CSS_OK
                 },
                 parent_node: |node: *c_void, parent: *mut *c_void| -> css_error {
@@ -732,7 +728,7 @@ pub mod select {
 
     pub trait CssSelectHandler<N> {
         fn node_name(node: &N) -> CssQName;
-        fn named_parent_node(node: &N) -> Option<(CssQName, N)>;
+        fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(node: &N) -> Option<N>;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
