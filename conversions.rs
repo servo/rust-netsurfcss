@@ -142,3 +142,13 @@ pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
 extern fn resolve(_pw: *c_void, _base: *c_char, _rel: *lwc_string, _abs: **lwc_string) -> css_error {
     fail ~"css resolve function called";
 }
+
+pub fn write_ll_qname(hlqname: &CssQName, llqname: *css_qname) unsafe {
+    match hlqname.ns {
+        Some(ns) => {
+            (*llqname).ns = ns.raw_reffed();
+        }
+        _ => ()
+    }
+    (*llqname).name = hlqname.name.raw_reffed();
+}

@@ -10,7 +10,7 @@ use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
-use conversions::c_enum_to_rust_enum;
+use conversions::{c_enum_to_rust_enum, write_ll_qname};
 use errors::CssError;
 use util::{VoidPtrLike, from_void_ptr};
 
@@ -564,8 +564,9 @@ pub mod select {
         pub extern fn named_ancestor_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
             unimpl("named_ancestor_node")
         }
-        pub extern fn named_parent_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
-            unimpl("named_parent_node")
+        pub extern fn named_parent_node(pw: *c_void, node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error {
+            enter("named_parent_node");
+            ph(pw).named_parent_node(node, qname, parent)
         }
         pub extern fn named_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
             unimpl("named_sibling_node")
@@ -668,9 +669,12 @@ pub mod select {
         node_name: &fn(node: *c_void, qname: *css_qname) -> css_error,
         node_classes: &fn(node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error,
         node_id: &fn(node: *c_void, id: *mut *lwc_string) -> css_error,
+        named_parent_node: &fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
         parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
+
+    
 
     priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
@@ -678,13 +682,7 @@ pub mod select {
                 node_name: |node: *c_void, qname: *css_qname| -> css_error {
                     let hlnode: N = from_void_ptr(node);
                     let hlqname = handler.node_name(&hlnode);
-                    match hlqname.ns {
-                        Some(ns) => {
-                            (*qname).ns = ns.raw_reffed();
-                        }
-                        _ => ()
-                    }
-                    (*qname).name = hlqname.name.raw_reffed();
+                    write_ll_qname(&hlqname, qname);
                     CSS_OK
                 },
                 node_classes: |_node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t| -> css_error {
@@ -696,6 +694,19 @@ pub mod select {
                 node_id: |_node: *c_void, id: *mut *lwc_string| -> css_error {
                     // FIXME
                     *id = null();
+                    CSS_OK
+                },
+                named_parent_node: |node: *c_void, qname: *css_qname, parent: *mut *c_void| -> css_error {
+                    let hlnode: N = from_void_ptr(node);
+                    match handler.named_parent_node(&hlnode) {
+                        Some((move qn, move p)) => {
+                            write_ll_qname(&qn, qname);
+                            *parent = p.to_void_ptr();
+                        }
+                        None => {
+                            *parent = null();
+                        }
+                    }
                     CSS_OK
                 },
                 parent_node: |node: *c_void, parent: *mut *c_void| -> css_error {
@@ -721,6 +732,7 @@ pub mod select {
 
     pub trait CssSelectHandler<N> {
         fn node_name(node: &N) -> CssQName;
+        fn named_parent_node(node: &N) -> Option<(CssQName, N)>;
         fn parent_node(node: &N) -> Option<N>;
         fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
     }
