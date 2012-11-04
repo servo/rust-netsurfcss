@@ -760,7 +760,7 @@ pub mod select {
 
 pub mod computed {
     use select::CssSelectResults;
-    use values::{CssColorValue, CssMarginValue, CssBorderWidthValue};
+    use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -907,6 +907,12 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
+        fn display(root: bool) -> CssDisplayValue {
+            let type_ = css_computed_display(self.computed_style, root);
+            let type_ = type_ as css_display_e;
+
+            CssDisplayValue::new(type_)
+        }
     }
 }
 
@@ -976,6 +982,32 @@ mod values {
             } else {
                 unimpl("border_width")
             }
+        }
+    }
+
+    pub enum CssDisplayValue {
+        CssDisplayInherit = 0x00,
+        CssDisplayInline = 0x01,
+        CssDisplayBlock = 0x02,
+        CssDisplayListItem = 0x03,
+        CssDisplayRunIn = 0x04,
+        CssDisplayInlineBlock = 0x05,
+        CssDisplayTable = 0x06,
+        CssDisplayInlineTable = 0x07,
+        CssDisplayTableRowGroup = 0x08,
+        CssDisplayTableHeaderGroup = 0x09,
+        CssDisplayTableFooterGroup = 0x0a,
+        CssDisplayTableRow = 0x0b,
+        CssDisplayTableColumnGroup = 0x0c,
+        CssDisplayTableColumn = 0x0d,
+        CssDisplayTableCell = 0x0e,
+        CssDisplayTableCaption = 0x0f,
+        CssDisplayNone = 0x10,
+    }
+
+    impl CssDisplayValue {
+        static fn new(type_: css_display_e) -> CssDisplayValue {
+            c_enum_to_rust_enum(type_)
         }
     }
 

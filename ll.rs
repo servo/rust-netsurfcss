@@ -292,6 +292,26 @@ pub mod properties {
     pub const CSS_MARGIN_SET: css_margin_e = 0x1;
     pub const CSS_MARGIN_AUTO: css_margin_e = 0x2;
 
+    pub type css_display_e = c_enum;
+    
+    pub const CSS_DISPLAY_INHERIT: css_display_e = 0x00;
+    pub const CSS_DISPLAY_INLINE: css_display_e = 0x01;
+    pub const CSS_DISPLAY_BLOCK: css_display_e = 0x02;
+    pub const CSS_DISPLAY_LIST_ITEM: css_display_e = 0x03;
+    pub const CSS_DISPLAY_RUN_IN: css_display_e = 0x04;
+    pub const CSS_DISPLAY_INLINE_BLOCK: css_display_e = 0x05;
+    pub const CSS_DISPLAY_TABLE: css_display_e = 0x06;
+    pub const CSS_DISPLAY_INLINE_TABLE: css_display_e = 0x07;
+    pub const CSS_DISPLAY_TABLE_ROW_GROUP: css_display_e = 0x08;
+    pub const CSS_DISPLAY_TABLE_HEADER_GROUP: css_display_e = 0x09;
+    pub const CSS_DISPLAY_TABLE_FOOTER_GROUP: css_display_e = 0x0a;
+    pub const CSS_DISPLAY_TABLE_ROW: css_display_e = 0x0b;
+    pub const CSS_DISPLAY_TABLE_COLUMN_GROUP: css_display_e = 0x0c;
+    pub const CSS_DISPLAY_TABLE_COLUMN: css_display_e = 0x0d;
+    pub const CSS_DISPLAY_TABLE_CELL: css_display_e = 0x0e;
+    pub const CSS_DISPLAY_TABLE_CAPTION: css_display_e = 0x0f;
+    pub const CSS_DISPLAY_NONE: css_display_e = 0x10;
+
 }
 
 pub mod stylesheet {
@@ -454,5 +474,6 @@ pub mod computed {
         fn css_computed_margin_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
     }
 }
