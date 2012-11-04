@@ -760,7 +760,7 @@ pub mod select {
 
 pub mod computed {
     use select::CssSelectResults;
-    use values::{CssColorValue, CssBorderWidthValue};
+    use values::{CssColorValue, CssMarginValue, CssBorderWidthValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -862,6 +862,51 @@ pub mod computed {
             let type_ = type_ as css_color_e;
             CssColorValue::new(type_, color)
         }
+
+        fn margin_top() -> CssMarginValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_margin_top(self.computed_style,
+                                                to_mut_unsafe_ptr(&mut length),
+                                                to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_margin_e;
+
+            CssMarginValue::new(type_, length, unit)
+        }
+
+        fn margin_right() -> CssMarginValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_margin_right(self.computed_style,
+                                                  to_mut_unsafe_ptr(&mut length),
+                                                  to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_margin_e;
+
+            CssMarginValue::new(type_, length, unit)
+        }
+
+        fn margin_bottom() -> CssMarginValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_margin_bottom(self.computed_style,
+                                                   to_mut_unsafe_ptr(&mut length),
+                                                   to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_margin_e;
+
+            CssMarginValue::new(type_, length, unit)
+        }
+
+        fn margin_left() -> CssMarginValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_margin_left(self.computed_style,
+                                                 to_mut_unsafe_ptr(&mut length),
+                                                 to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_margin_e;
+
+            CssMarginValue::new(type_, length, unit)
+        }
+
     }
 }
 
@@ -884,6 +929,26 @@ mod values {
                 CssColorColor(ll_color_to_hl_color(color))
             } else {
                 unimpl("color")
+            }
+        }
+    }
+
+    pub enum CssMarginValue {
+        CssMarginInherit,
+        CssMarginSet(CssUnit),
+        CssMarginAuto
+    }
+
+    impl CssMarginValue {
+        static fn new(type_: css_margin_e, length: css_fixed, unit: css_unit) -> CssMarginValue {
+            if type_ == CSS_MARGIN_INHERIT {
+                CssMarginInherit
+            } else if type_ == CSS_MARGIN_SET {
+                CssMarginSet(ll_unit_to_hl_unit(unit, length))
+            } else if type_ == CSS_MARGIN_AUTO {
+                CssMarginAuto
+            } else {
+                unimpl("margin")
             }
         }
     }

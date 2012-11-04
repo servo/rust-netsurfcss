@@ -285,6 +285,13 @@ pub mod properties {
     pub const CSS_BORDER_WIDTH_MEDIUM: css_border_width_e = 0x2;
     pub const CSS_BORDER_WIDTH_THICK: css_border_width_e = 0x3;
     pub const CSS_BORDER_WIDTH_WIDTH: css_border_width_e = 0x4;
+
+    pub type css_margin_e = c_enum;
+
+    pub const CSS_MARGIN_INHERIT: css_margin_e = 0x0;
+    pub const CSS_MARGIN_SET: css_margin_e = 0x1;
+    pub const CSS_MARGIN_AUTO: css_margin_e = 0x2;
+
 }
 
 pub mod stylesheet {
@@ -443,5 +450,9 @@ pub mod computed {
         fn css_computed_border_right_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         fn css_computed_border_bottom_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         fn css_computed_border_left_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        fn css_computed_margin_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_margin_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
     }
 }
