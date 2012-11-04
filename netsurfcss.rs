@@ -761,6 +761,7 @@ pub mod select {
 pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
+    use values::{CssFloatValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -913,6 +914,13 @@ pub mod computed {
 
             CssDisplayValue::new(type_)
         }
+
+        fn float() -> CssFloatValue {
+            let type_ = css_computed_float(self.computed_style);
+            let type_ = type_ as css_float_e;
+
+            CssFloatValue::new(type_)
+        }
     }
 }
 
@@ -1007,6 +1015,19 @@ mod values {
 
     impl CssDisplayValue {
         static fn new(type_: css_display_e) -> CssDisplayValue {
+            c_enum_to_rust_enum(type_)
+        }
+    }
+
+    pub enum CssFloatValue {
+        CssFloatInherit = 0x0,
+        CssFloatLeft = 0x1,
+        CssFloatRight = 0x2,
+        CssFloatNone = 0x3
+    }
+
+    impl CssFloatValue {
+        static fn new(type_: css_float_e) -> CssFloatValue {
             c_enum_to_rust_enum(type_)
         }
     }

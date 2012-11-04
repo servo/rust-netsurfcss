@@ -312,6 +312,12 @@ pub mod properties {
     pub const CSS_DISPLAY_TABLE_CAPTION: css_display_e = 0x0f;
     pub const CSS_DISPLAY_NONE: css_display_e = 0x10;
 
+    pub type css_float_e = c_enum;
+
+    pub const CSS_FLOAT_INHERIT: css_float_e = 0x0;
+    pub const CSS_FLOAT_LEFT: css_float_e = 0x1;
+    pub const CSS_FLOAT_RIGHT: css_float_e = 0x2;
+    pub const CSS_FLOAT_NONE: css_float_e = 0x3;
 }
 
 pub mod stylesheet {
@@ -475,5 +481,6 @@ pub mod computed {
         fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
+        fn css_computed_float(style: *css_computed_style) -> uint8_t;
     }
 }
