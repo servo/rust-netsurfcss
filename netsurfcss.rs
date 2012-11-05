@@ -761,7 +761,7 @@ pub mod select {
 pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
-    use values::{CssFloatValue, CssPositionValue};
+    use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -922,6 +922,28 @@ pub mod computed {
             CssPositionValue::new(type_)
         }
 
+        fn width() -> CssWidthValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_width(self.computed_style,
+                                           to_mut_unsafe_ptr(&mut length),
+                                           to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_width_e;
+
+            CssWidthValue::new(type_, length, unit)
+        }
+
+        fn height() -> CssHeightValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_height(self.computed_style,
+                                            to_mut_unsafe_ptr(&mut length),
+                                            to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_height_e;
+
+            CssHeightValue::new(type_, length, unit)
+        }
+
         fn float() -> CssFloatValue {
             let type_ = css_computed_float(self.computed_style);
             let type_ = type_ as css_float_e;
@@ -1040,11 +1062,51 @@ mod values {
         }
     }
 
+    pub enum CssWidthValue {
+        CssWidthInherit,
+        CssWidthSet(CssUnit),
+        CssWidthAuto
+    }
+
+    impl CssWidthValue {
+        static fn new(type_: css_width_e, length: css_fixed, unit: css_unit) -> CssWidthValue {
+            if type_ == CSS_WIDTH_INHERIT {
+                CssWidthInherit
+            } else if type_ == CSS_WIDTH_SET {
+                CssWidthSet(ll_unit_to_hl_unit(unit, length))
+            } else if type_ == CSS_WIDTH_AUTO {
+                CssWidthAuto
+            } else {
+                unimpl("width")
+            }
+        }
+    }
+
     pub enum CssFloatValue {
         CssFloatInherit = 0x0,
         CssFloatLeft = 0x1,
         CssFloatRight = 0x2,
         CssFloatNone = 0x3
+    }
+
+    pub enum CssHeightValue {
+        CssHeightInherit,
+        CssHeightSet(CssUnit),
+        CssHeightAuto
+    }
+
+    impl CssHeightValue {
+        static fn new(type_: css_height_e, length: css_fixed, unit: css_unit) -> CssHeightValue {
+            if type_ == CSS_HEIGHT_INHERIT {
+                CssHeightInherit
+            } else if type_ == CSS_HEIGHT_SET {
+                CssHeightSet(ll_unit_to_hl_unit(unit, length))
+            } else if type_ == CSS_HEIGHT_AUTO {
+                CssHeightAuto
+            } else {
+                unimpl("width")
+            }
+        }
     }
 
     impl CssFloatValue {

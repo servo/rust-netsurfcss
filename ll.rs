@@ -326,6 +326,19 @@ pub mod properties {
     pub const CSS_POSITION_RELATIVE: css_position_e = 0x2;
     pub const CSS_POSITION_ABSOLUTE: css_position_e = 0x3;
     pub const CSS_POSITION_FIXED: css_position_e = 0x4;
+
+    pub type css_width_e = c_enum;
+
+    pub const CSS_WIDTH_INHERIT: css_width_e = 0x0;
+    pub const CSS_WIDTH_SET: css_width_e = 0x1;
+    pub const CSS_WIDTH_AUTO: css_width_e = 0x2;
+
+    pub type css_height_e = c_enum;
+
+    pub const CSS_HEIGHT_INHERIT: css_height_e = 0x0;
+    pub const CSS_HEIGHT_SET: css_height_e = 0x1;
+    pub const CSS_HEIGHT_AUTO: css_height_e = 0x2;
+    
 }
 
 pub mod stylesheet {
@@ -491,5 +504,7 @@ pub mod computed {
         fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
         fn css_computed_float(style: *css_computed_style) -> uint8_t;
         fn css_computed_position(style: *css_computed_style) -> uint8_t;
+        fn css_computed_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
     }
 }
