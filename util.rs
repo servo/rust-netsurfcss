@@ -8,6 +8,11 @@ pub fn css_fixed_to_float(f: css_fixed) -> float {
     f as float * 1.0f / ((1i32 << before) as float)
 }
 
+pub fn float_to_css_fixed(f: float) -> css_fixed {
+    const before: i32 = 10;
+    (f as i32 << before) * (f as i32)
+}
+
 pub fn rust_str_to_net_qname(s: &str) -> CssQName {
     CssQName {
         ns: None,

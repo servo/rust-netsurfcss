@@ -61,6 +61,29 @@ pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
     unsafe { transmute(color) }
 }
 
+pub impl CssUnit: ToLl<(css_unit, css_fixed)> {
+    pub fn to_ll(&self) -> (css_unit, css_fixed) {
+        match *self {
+            CssUnitPx(value) => (CSS_UNIT_PX, value),
+            CssUnitEx(value) => (CSS_UNIT_EX, value),
+            CssUnitEm(value) => (CSS_UNIT_EM, value),
+            CssUnitIn(value) => (CSS_UNIT_IN, value),
+            CssUnitCm(value) => (CSS_UNIT_CM, value),
+            CssUnitMm(value) => (CSS_UNIT_MM, value),
+            CssUnitPt(value) => (CSS_UNIT_PT, value),
+            CssUnitPc(value) => (CSS_UNIT_PC, value),
+            CssUnitPct(value) => (CSS_UNIT_PCT, value),
+            CssUnitDeg(value) => (CSS_UNIT_DEG, value),
+            CssUnitGrad(value) => (CSS_UNIT_GRAD, value),
+            CssUnitRad(value) => (CSS_UNIT_RAD, value),
+            CssUnitMs(value) => (CSS_UNIT_MS, value),
+            CssUnitS(value) => (CSS_UNIT_S, value),
+            CssUnitHz(value) => (CSS_UNIT_HZ, value),
+            CssUnitKHz(value) => (CSS_UNIT_KHZ, value)
+        }
+    }
+}
+
 pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
     if unit == CSS_UNIT_PX {
         CssUnitPx(value)

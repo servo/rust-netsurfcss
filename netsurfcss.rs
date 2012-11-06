@@ -78,6 +78,16 @@ pub mod types {
         CssUnitHz(css_fixed),
         CssUnitKHz(css_fixed)
     }
+
+    pub impl CssUnit {
+        fn to_ll_css_hint_length(&self) -> css_hint_length {
+            let (unit, value) = self.to_ll();
+            css_hint_length {
+                value: value,
+                unit: unit
+            }
+        }
+    }
 }
 
 pub mod errors {
@@ -384,11 +394,11 @@ pub mod hint {
             let status = get_css_hint_status(hint) as u32;
             match property {
                 CssPropFontSize => {
+                    let length: &css_hint_length = hint_imm_data_field(hint);
                     if status == CSS_FONT_SIZE_DIMENSION {
-                        let length: &css_hint_length = hint_imm_data_field(hint);
                         CssHintLength(ll_unit_to_hl_unit(length.unit, length.value))
                     } else {
-                        fail fmt!("unexpected font size hint")
+                        CssHintUnknown
                     }
                 }
                 _ => fail fmt!("unknown css hint: %?", property)
@@ -411,6 +421,11 @@ pub mod hint {
                     let color: &mut css_color = hint_data_field(llhint);
                     *color = CssColor { a: 255, r: 0, g: 0, b: 0 }.to_ll();
                     set_css_hint_status(llhint, CSS_COLOR_COLOR as uint8_t);
+                }
+                (CssPropFontSize, &CssHintLength(val)) => {
+                    let length: &mut css_hint_length = hint_data_field(llhint);
+                    *length = val.to_ll_css_hint_length();
+                    set_css_hint_status(llhint, CSS_FONT_SIZE_DIMENSION as uint8_t);
                 }
                 (_, &CssHintUnknown) => {
                     fail fmt!("unknown css hint %?", property);
