@@ -759,6 +759,7 @@ pub mod select {
 }
 
 pub mod computed {
+    use hint::CssHint;
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue};
@@ -950,6 +951,20 @@ pub mod computed {
 
             CssFloatValue::new(type_)
         }
+    }
+
+    pub type ComputeFontSizeCb = @fn(parent: &CssHint) -> CssHint;
+
+    // Merge parent and child styles into another style. The result
+    // pointer may point to the child style, in which case the child
+    // style is overwritten
+    pub fn compose(_parent: &CssComputedStyle, _child: &mut CssComputedStyle,
+                   _compute_font_size: ComputeFontSizeCb,
+                   _result: &mut CssComputedStyle) {
+        /*let llparent = parent.computed_style;
+        let llchild = child.computed_style;
+        let pw = ptr::to_unsafe_ptr(&compute_font_size);
+        let llresult = result.computed_style;*/
     }
 }
 

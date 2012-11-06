@@ -486,7 +486,15 @@ pub mod computed {
 
     pub type css_computed_style = c_void;
 
+    pub type compute_font_size_cb = *u8; // (pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error
+
     extern {
+        fn css_computed_style_compose(parent: *css_computed_style,
+                                      child: *css_computed_style,
+                                      compute_font_size: compute_font_size_cb,
+                                      pw: *c_void,
+                                      result: *mut css_computed_style) -> css_error;
+
         fn css_computed_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         fn css_computed_background_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         fn css_computed_border_top_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
