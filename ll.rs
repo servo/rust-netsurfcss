@@ -107,8 +107,16 @@ pub mod errors {
 }
 
 pub mod hint {
+    use types::css_unit;
+    use stylesheet::css_fixed;
+
     // FIXME: This is not an opaque type
     pub type css_hint = c_void;
+
+    pub struct css_hint_length {
+        value: css_fixed,
+        unit: css_unit
+    }
 }
 
 pub mod properties {
@@ -338,6 +346,20 @@ pub mod properties {
     pub const CSS_HEIGHT_INHERIT: css_height_e = 0x0;
     pub const CSS_HEIGHT_SET: css_height_e = 0x1;
     pub const CSS_HEIGHT_AUTO: css_height_e = 0x2;
+
+    pub type css_font_size_e = c_enum;
+
+    pub const CSS_FONT_SIZE_INHERIT: css_font_size_e = 0x0;
+    pub const CSS_FONT_SIZE_XX_SMALL: css_font_size_e = 0x1;
+    pub const CSS_FONT_SIZE_X_SMALL: css_font_size_e = 0x2;
+    pub const CSS_FONT_SIZE_SMALL: css_font_size_e = 0x3;
+    pub const CSS_FONT_SIZE_MEDIUM: css_font_size_e = 0x4;
+    pub const CSS_FONT_SIZE_LARGE: css_font_size_e = 0x5;
+    pub const CSS_FONT_SIZE_X_LARGE: css_font_size_e = 0x6;
+    pub const CSS_FONT_SIZE_XX_LARGE: css_font_size_e = 0x7;
+    pub const CSS_FONT_SIZE_LARGER: css_font_size_e = 0x8;
+    pub const CSS_FONT_SIZE_SMALLER: css_font_size_e = 0x9;
+    pub const CSS_FONT_SIZE_DIMENSION: css_font_size_e = 0xa;
     
 }
 

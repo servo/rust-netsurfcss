@@ -361,17 +361,41 @@ pub mod properties {
 
 pub mod hint {
 
-    use properties::*;
+    use types::{CssUnit, CssColor};
+    use properties::{CssProperty,
+                     CssPropFontSize,
+                     CssPropFontFamily,
+                     CssPropQuotes,
+                     CssPropColor,
+                     CssFontFamily};
+    use conversions::ll_unit_to_hl_unit;
 
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
         CssHintFontFamily(~[LwcString], CssFontFamily),
+        CssHintLength(CssUnit),
         CssHintDefault,
         CssHintUnknown
     }
 
     impl CssHint {
-        fn write_to_ll(&self, property: CssProperty, llhint: &mut css_hint) -> css_error {
+
+        static fn new(property: CssProperty, hint: *css_hint) -> CssHint {
+            let status = get_css_hint_status(hint) as u32;
+            match property {
+                CssPropFontSize => {
+                    if status == CSS_FONT_SIZE_DIMENSION {
+                        let length: &css_hint_length = hint_imm_data_field(hint);
+                        CssHintLength(ll_unit_to_hl_unit(length.unit, length.value))
+                    } else {
+                        fail fmt!("unexpected font size hint")
+                    }
+                }
+                _ => fail fmt!("unknown css hint: %?", property)
+            }
+        }
+        
+        fn write_to_ll(&self, property: CssProperty, llhint: *mut css_hint) -> css_error {
             match (property, self) {
                 (CssPropFontFamily, &CssHintDefault) => {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
@@ -400,22 +424,32 @@ pub mod hint {
         }
     }
 
-    fn set_css_hint_status(llhint: &mut css_hint, status: uint8_t) unsafe {
+    fn get_css_hint_status(llhint: *css_hint) -> uint8_t unsafe {
+        let llhint_bytes: *mut uint8_t = transmute(llhint);
+        let status_field: *mut uint8_t = ptr::mut_offset(llhint_bytes, status_field_offset());
+        *status_field
+    }
+
+    fn set_css_hint_status(llhint: *mut css_hint, status: uint8_t) unsafe {
         // So gnarly. The status field is a uint8_t that comes after a union type.
         // We're just going to calculate it's address and write it
-        let llhint_bytes: *mut uint8_t = to_mut_unsafe_ptr(transmute(llhint));
+        let llhint_bytes: *mut uint8_t = transmute(llhint);
         let status_field: *mut uint8_t = ptr::mut_offset(llhint_bytes, status_field_offset());
 
         *status_field = status;
-
-        #[cfg(target_arch = "x86_64")]
-        fn status_field_offset() -> uint { 16 }
-
-        #[cfg(target_arch = "x86")]
-        fn status_field_offset() -> uint { 16 }
     }
 
-    priv fn hint_data_field<T>(llhint: &mut css_hint) -> &mut T {
+    #[cfg(target_arch = "x86_64")]
+    fn status_field_offset() -> uint { 16 }
+
+    #[cfg(target_arch = "x86")]
+    fn status_field_offset() -> uint { 16 }
+
+    priv fn hint_data_field<T>(llhint: *mut css_hint) -> &mut T {
+        unsafe { transmute(llhint) }
+    }
+
+    priv fn hint_imm_data_field<T>(llhint: *css_hint) -> &T {
         unsafe { transmute(llhint) }
     }
 }
@@ -426,6 +460,7 @@ pub mod select {
     use stylesheet::CssStylesheet;
     use properties::CssProperty;
     use computed::CssComputedStyle;
+    use hint::CssHint;
 
     pub enum CssPseudoElement {
 	CssPseudoElementNone         = 0,
@@ -718,7 +753,7 @@ pub mod select {
                     use properties::property_from_uint;
                     let hlproperty = property_from_uint(property);
                     let hlhint = handler.ua_default_for_property(hlproperty);
-                    hlhint.write_to_ll(hlproperty, &mut *hint)
+                    hlhint.write_to_ll(hlproperty, hint)
                 },
             };
 
@@ -730,7 +765,7 @@ pub mod select {
         fn node_name(node: &N) -> CssQName;
         fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(node: &N) -> Option<N>;
-        fn ua_default_for_property(property: CssProperty) -> hint::CssHint;
+        fn ua_default_for_property(property: CssProperty) -> CssHint;
     }
 
     pub struct CssSelectResults {
@@ -747,7 +782,8 @@ pub mod select {
         fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyle/&self {
             let element = element.to_ll();
             let llstyle = unsafe { *self.results }.styles[element];
-            assert llstyle.is_not_null();
+            // FIXME: Rust #3926
+            assert (llstyle as *c_void).is_not_null();
 
             CssComputedStyle {
                 result_backref: self,
@@ -759,6 +795,7 @@ pub mod select {
 }
 
 pub mod computed {
+    use properties::CssPropFontSize;
     use hint::CssHint;
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
@@ -953,18 +990,35 @@ pub mod computed {
         }
     }
 
-    pub type ComputeFontSizeCb = @fn(parent: &CssHint) -> CssHint;
+    pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>) -> CssHint;
 
     // Merge parent and child styles into another style. The result
     // pointer may point to the child style, in which case the child
     // style is overwritten
-    pub fn compose(_parent: &CssComputedStyle, _child: &mut CssComputedStyle,
-                   _compute_font_size: ComputeFontSizeCb,
-                   _result: &mut CssComputedStyle) {
-        /*let llparent = parent.computed_style;
+    pub fn compose(parent: &CssComputedStyle, child: &mut CssComputedStyle,
+                   compute_font_size: ComputeFontSizeCb,
+                   result: &mut CssComputedStyle) {
+        let llparent = parent.computed_style;
         let llchild = child.computed_style;
-        let pw = ptr::to_unsafe_ptr(&compute_font_size);
-        let llresult = result.computed_style;*/
+        let pw = unsafe { transmute(ptr::to_unsafe_ptr(&compute_font_size)) };
+        let llresult = result.computed_style as *mut css_computed_style;
+        let err = css_computed_style_compose(llparent, llchild, compute_font_size_cb, pw, llresult);
+        if err != CSS_OK {
+            fail ~"stylesheet composition failed"
+        }
+    }
+
+    extern fn compute_font_size_cb(pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error {
+        let hlcbptr: *ComputeFontSizeCb = unsafe { transmute(pw) };
+        let hlparent = if parent.is_null() {
+            None
+        } else {
+            Some(CssHint::new(CssPropFontSize, parent))
+        };
+        let new_hint = unsafe { *hlcbptr }(&hlparent);
+        new_hint.write_to_ll(CssPropFontSize, size);
+
+        CSS_OK
     }
 }
 
