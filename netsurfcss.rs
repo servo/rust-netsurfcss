@@ -661,8 +661,9 @@ pub mod select {
         pub extern fn node_has_attribute_substring(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             unimpl("node_has_attribute_substring")
         }
-        pub extern fn node_is_root(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_root")
+        pub extern fn node_is_root(pw: *c_void, node: *c_void, match_: *mut bool) -> css_error {
+            enter("node_is_root");
+            ph(pw).node_is_root(node, match_)
         }
         pub extern fn node_count_siblings(_pw: *c_void, _node: *c_void, _same_name: bool, _after: bool, _count: *int32_t) -> css_error {
             unimpl("node_count_siblings")
@@ -721,6 +722,7 @@ pub mod select {
         node_id: &fn(node: *c_void, id: *mut *lwc_string) -> css_error,
         named_parent_node: &fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
         parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
+        node_is_root: &fn(node: *c_void, match_: *mut bool) -> css_error,
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
@@ -764,6 +766,15 @@ pub mod select {
                     };
                     CSS_OK
                 },
+                node_is_root: |node: *c_void, match_: *mut bool| -> css_error {
+                    let hlnode = from_void_ptr(node);
+                    if handler.node_is_root(&hlnode) {
+                        unsafe { *match_ = true }
+                    } else {
+                        unsafe { *match_ = false }
+                    }
+                    CSS_OK
+                },
                 ua_default_for_property: |property: uint32_t, hint: *mut css_hint| -> css_error {
                     use properties::property_from_uint;
                     let hlproperty = property_from_uint(property);
@@ -780,6 +791,7 @@ pub mod select {
         fn node_name(node: &N) -> CssQName;
         fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(node: &N) -> Option<N>;
+        fn node_is_root(node: &N) -> bool;
         fn ua_default_for_property(property: CssProperty) -> CssHint;
     }
 
