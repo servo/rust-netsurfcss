@@ -117,6 +117,8 @@ mod example1 {
 
         fn node_is_root(_node: &MyDomNode) -> bool { false }
 
+        fn node_is_link(_node: &MyDomNode) -> bool { false }
+
         fn ua_default_for_property(property: CssProperty) -> CssHint {
             match property {
                 _ => CssHintDefault

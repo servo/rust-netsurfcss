@@ -593,6 +593,9 @@ pub mod select {
         priv fn unimpl(n: &str) -> ! {
             fail fmt!("unimplemented css callback handler: %s", n)
         }
+        fn unimpl_warn(what: &str) {
+            warn!("unimplemented css value: %?", what);
+        }
         priv fn enter(n: &str) {
             debug!("entering raw handler: %s", n);
         }
@@ -644,7 +647,8 @@ pub mod select {
             unimpl("node_has_attribute")
         }
         pub extern fn node_has_attribute_equal(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_attribute_equal")
+            unimpl_warn("node_has_attribute_equal");
+            CSS_OK
         }
         pub extern fn node_has_attribute_dashmatch(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             unimpl("node_has_attribute_dashmatch")
@@ -671,20 +675,24 @@ pub mod select {
         pub extern fn node_is_empty(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             unimpl("node_is_empty")
         }
-        pub extern fn node_is_link(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_link")
+        pub extern fn node_is_link(pw: *c_void, node: *c_void, match_: *mut bool) -> css_error {
+            enter("node_is_link");
+            ph(pw).node_is_link(node, match_)
         }
-        pub extern fn node_is_visited(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_visited")
+        pub extern fn node_is_visited(_pw: *c_void, _node: *c_void, _match_: *mut bool) -> css_error {
+            unimpl_warn("node_is_visited");
+            CSS_OK
         }
         pub extern fn node_is_hover(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_hover")
+            unimpl_warn("node_is_hover");
+            CSS_OK
         }
         pub extern fn node_is_active(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             unimpl("node_is_active")
         }
         pub extern fn node_is_focus(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_focus")
+            unimpl_warn("node_is_focus");
+            CSS_OK
         }
         pub extern fn node_is_enabled(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             unimpl("node_is_enabled")
@@ -723,6 +731,7 @@ pub mod select {
         named_parent_node: &fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
         parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
         node_is_root: &fn(node: *c_void, match_: *mut bool) -> css_error,
+        node_is_link: &fn(node: *c_void, match_: *mut bool) -> css_error,
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
@@ -768,11 +777,12 @@ pub mod select {
                 },
                 node_is_root: |node: *c_void, match_: *mut bool| -> css_error {
                     let hlnode = from_void_ptr(node);
-                    if handler.node_is_root(&hlnode) {
-                        unsafe { *match_ = true }
-                    } else {
-                        unsafe { *match_ = false }
-                    }
+                    unsafe { *match_ = handler.node_is_root(&hlnode) }
+                    CSS_OK
+                },
+                node_is_link: |node: *c_void, match_: *mut bool| -> css_error {
+                    let hlnode = from_void_ptr(node);
+                    unsafe { *match_ = handler.node_is_link(&hlnode) }
                     CSS_OK
                 },
                 ua_default_for_property: |property: uint32_t, hint: *mut css_hint| -> css_error {
@@ -792,6 +802,7 @@ pub mod select {
         fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(node: &N) -> Option<N>;
         fn node_is_root(node: &N) -> bool;
+        fn node_is_link(node: &N) -> bool;
         fn ua_default_for_property(property: CssProperty) -> CssHint;
     }
 
