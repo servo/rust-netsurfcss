@@ -190,3 +190,13 @@ pub fn write_ll_qname(hlqname: &CssQName, llqname: *css_qname) unsafe {
     }
     (*llqname).name = hlqname.name.raw_reffed();
 }
+
+pub fn lwc_string_buf_to_hl_vec(names: **lwc_string) -> ~[LwcString] unsafe {
+    let mut result = ~[];
+    let mut names = names;
+    while (*names).is_not_null() {
+        result.push(ll_lwcstr_to_hl_lwcstr(*names));
+        names = names.offset(1);
+    }
+    return move result;
+}

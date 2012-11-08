@@ -10,7 +10,7 @@ use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
 use ll_css_select_ctx_create = ll::select::css_select_ctx_create;
 use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
-use conversions::{c_enum_to_rust_enum, write_ll_qname, ll_qname_to_hl_qname};
+use conversions::{c_enum_to_rust_enum, write_ll_qname, ll_qname_to_hl_qname, lwc_string_buf_to_hl_vec};
 use errors::CssError;
 use util::{VoidPtrLike, from_void_ptr};
 
@@ -837,7 +837,7 @@ pub mod computed {
     use hint::CssHint;
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
-    use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue};
+    use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -1026,6 +1026,15 @@ pub mod computed {
 
             CssFloatValue::new(type_)
         }
+
+        fn font_family() -> CssFontFamilyValue {
+            let mut names: **lwc_string = null();
+            let type_ = css_computed_font_family(self.computed_style,
+                                                 to_mut_unsafe_ptr(&mut names));
+            let type_ = type_ as css_font_family_e;
+
+            CssFontFamilyValue::new(type_, names)
+        }
     }
 
     pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>) -> CssHint;
@@ -1189,13 +1198,6 @@ mod values {
         }
     }
 
-    pub enum CssFloatValue {
-        CssFloatInherit = 0x0,
-        CssFloatLeft = 0x1,
-        CssFloatRight = 0x2,
-        CssFloatNone = 0x3
-    }
-
     pub enum CssHeightValue {
         CssHeightInherit,
         CssHeightSet(CssUnit),
@@ -1216,9 +1218,48 @@ mod values {
         }
     }
 
+    pub enum CssFloatValue {
+        CssFloatInherit = 0x0,
+        CssFloatLeft = 0x1,
+        CssFloatRight = 0x2,
+        CssFloatNone = 0x3
+    }
+
     impl CssFloatValue {
         static fn new(type_: css_float_e) -> CssFloatValue {
             c_enum_to_rust_enum(type_)
+        }
+    }
+
+    pub enum CssFontFamilyValue {
+        CssFontFamilyInherit,
+        CssFontFamilySerif,
+        CssFontFamilySansSerif,
+        CssFontFamilyCursive,
+        CssFontFamilyFantasy,
+        CssFontFamilyMonospace,
+        CssFontFamilyValue(~[LwcString])
+    }
+
+    impl CssFontFamilyValue {
+        static fn new(type_: css_font_family_e, names: **lwc_string) -> CssFontFamilyValue {
+            if names.is_not_null() {
+                CssFontFamilyValue(lwc_string_buf_to_hl_vec(names))
+            } else if type_ == CSS_FONT_FAMILY_INHERIT {
+                CssFontFamilyInherit
+            } else if type_ == CSS_FONT_FAMILY_SERIF {
+                CssFontFamilySerif
+            } else if type_ == CSS_FONT_FAMILY_SANS_SERIF {
+                CssFontFamilySansSerif
+            } else if type_ == CSS_FONT_FAMILY_CURSIVE {
+                CssFontFamilyCursive
+            } else if type_ == CSS_FONT_FAMILY_FANTASY {
+                CssFontFamilyFantasy
+            } else if type_ == CSS_FONT_FAMILY_MONOSPACE {
+                CssFontFamilyMonospace
+            } else {
+                fail
+            }
         }
     }
 
