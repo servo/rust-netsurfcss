@@ -99,7 +99,7 @@ mod example1 {
     impl SelectHandler: CssSelectHandler<MyDomNode> {
         fn node_name(node: &MyDomNode) -> CssQName {
             debug!("HL node_name!");
-            debug!("SS %?", node.name.to_str());
+            debug!("SS %?", (*node.name).to_str());
 
             CssQName {
                 ns: None,

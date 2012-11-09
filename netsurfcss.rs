@@ -838,6 +838,7 @@ pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
+    use values::{CssFontSizeValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -1034,6 +1035,17 @@ pub mod computed {
             let type_ = type_ as css_font_family_e;
 
             CssFontFamilyValue::new(type_, names)
+        }
+
+        fn font_size() -> CssFontSizeValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_font_size(self.computed_style,
+                                               to_mut_unsafe_ptr(&mut length),
+                                               to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_font_size_e;
+
+            CssFontSizeValue::new(type_, length, unit)
         }
     }
 
@@ -1259,6 +1271,39 @@ mod values {
                 CssFontFamilyMonospace
             } else {
                 fail
+            }
+        }
+    }
+
+    pub enum CssFontSizeValue {
+        CssFontSizeInherit,
+        CssFontSizeXXSmall,
+        CssFontSizeXSmall,
+        CssFontSizeSmall,
+        CssFontSizeMedium,
+        CssFontSizeLarge,
+        CssFontSizeXLarge,
+        CssFontSizeXXLarge,
+        CssFontSizeLarger,
+        CssFontSizeSmaller,
+        CssFontSizeDimension(CssUnit)
+    }
+
+    impl CssFontSizeValue {
+        static fn new(type_: css_font_size_e, length: css_fixed, unit: css_unit) -> CssFontSizeValue {
+            match type_ {
+                x if x == CSS_FONT_SIZE_INHERIT => CssFontSizeInherit,
+                x if x == CSS_FONT_SIZE_XX_SMALL => CssFontSizeXXSmall,
+                x if x == CSS_FONT_SIZE_X_SMALL => CssFontSizeXSmall,
+                x if x == CSS_FONT_SIZE_SMALL => CssFontSizeSmall,
+                x if x == CSS_FONT_SIZE_MEDIUM => CssFontSizeMedium,
+                x if x == CSS_FONT_SIZE_LARGE => CssFontSizeLarge,
+                x if x == CSS_FONT_SIZE_X_LARGE => CssFontSizeXLarge,
+                x if x == CSS_FONT_SIZE_XX_LARGE => CssFontSizeXXLarge,
+                x if x == CSS_FONT_SIZE_LARGER => CssFontSizeLarger,
+                x if x == CSS_FONT_SIZE_SMALLER => CssFontSizeSmaller,
+                x if x == CSS_FONT_SIZE_DIMENSION => CssFontSizeDimension(ll_unit_to_hl_unit(unit, length)),
+                _ => fail
             }
         }
     }
