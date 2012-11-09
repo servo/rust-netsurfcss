@@ -360,7 +360,7 @@ pub mod properties {
     pub const CSS_FONT_SIZE_LARGER: css_font_size_e = 0x8;
     pub const CSS_FONT_SIZE_SMALLER: css_font_size_e = 0x9;
     pub const CSS_FONT_SIZE_DIMENSION: css_font_size_e = 0xa;
-    
+
 }
 
 pub mod stylesheet {
@@ -538,5 +538,6 @@ pub mod computed {
         fn css_computed_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_font_family(style: *css_computed_style, names: *mut **lwc_string) -> uint8_t;
         fn css_computed_font_size(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_font_style(style: *css_computed_style) -> uint8_t;
     }
 }

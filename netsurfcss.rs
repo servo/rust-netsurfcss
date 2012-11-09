@@ -838,7 +838,7 @@ pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
-    use values::{CssFontSizeValue};
+    use values::{CssFontSizeValue, CssFontStyleValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -1046,6 +1046,13 @@ pub mod computed {
             let type_ = type_ as css_font_size_e;
 
             CssFontSizeValue::new(type_, length, unit)
+        }
+
+        fn font_style() -> CssFontStyleValue {
+            let type_ = css_computed_font_style(self.computed_style);
+            let type_ = type_ as css_font_style_e;
+
+            CssFontStyleValue::new(type_)
         }
     }
 
@@ -1305,6 +1312,19 @@ mod values {
                 x if x == CSS_FONT_SIZE_DIMENSION => CssFontSizeDimension(ll_unit_to_hl_unit(unit, length)),
                 _ => fail
             }
+        }
+    }
+
+    pub enum CssFontStyleValue {
+        CssFontStyleInherit = 0x0,
+        CssFontStyleNormal = 0x1,
+        CssFontStyleItalic = 0x2,
+        CssFontStyleOblique = 0x3
+    }
+
+    impl CssFontStyleValue {
+        static fn new(type_: css_font_style_e) -> CssFontStyleValue {
+            c_enum_to_rust_enum(type_)
         }
     }
 
