@@ -785,8 +785,12 @@ pub mod select {
                 named_ancestor_node: |node: *c_void,
                                       qname: *css_qname,
                                       parent: *mut *c_void| -> css_error {
-                    // TODO: unimplemented
-                    *parent = null();
+                    let hlnode: N = from_void_ptr(node);
+                    let hlqname = ll_qname_to_hl_qname(qname);
+                    *parent = match handler.named_ancestor_node(&hlnode, &hlqname) {
+                        Some(p) => p.to_void_ptr(),
+                        None => null()
+                    };
                     CSS_OK
                 },
                 node_is_root: |node: *c_void, match_: *mut bool| -> css_error {
@@ -815,6 +819,7 @@ pub mod select {
         fn node_name(node: &N) -> CssQName;
         fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(node: &N) -> Option<N>;
+        fn named_ancestor_node(node: &N, qname: &CssQName) -> Option<N>;
         fn node_is_root(node: &N) -> bool;
         fn node_is_link(node: &N) -> bool;
         fn ua_default_for_property(property: CssProperty) -> CssHint;

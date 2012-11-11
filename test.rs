@@ -115,6 +115,10 @@ mod example1 {
             None
         }
 
+        fn named_ancestor_node(_node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
+            None
+        }
+
         fn node_is_root(_node: &MyDomNode) -> bool { false }
 
         fn node_is_link(_node: &MyDomNode) -> bool { false }
