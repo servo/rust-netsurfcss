@@ -614,8 +614,12 @@ pub mod select {
             enter("node_id");
             ph(pw).node_id(node, id)
         }
-        pub extern fn named_ancestor_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _parent: **c_void) -> css_error {
-            unimpl("named_ancestor_node")
+        pub extern fn named_ancestor_node(pw: *c_void,
+                                          node: *c_void,
+                                          qname: *css_qname,
+                                          parent: *mut *c_void) -> css_error {
+            enter("named_ancestor_node");
+            ph(pw).named_ancestor_node(node, qname, parent)
         }
         pub extern fn named_parent_node(pw: *c_void, node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error {
             enter("named_parent_node");
@@ -730,6 +734,9 @@ pub mod select {
         node_id: &fn(node: *c_void, id: *mut *lwc_string) -> css_error,
         named_parent_node: &fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
         parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
+        named_ancestor_node: &fn(node: *c_void,
+                                 qname: *css_qname,
+                                 parent: *mut *c_void) -> css_error,
         node_is_root: &fn(node: *c_void, match_: *mut bool) -> css_error,
         node_is_link: &fn(node: *c_void, match_: *mut bool) -> css_error,
         ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
@@ -773,6 +780,13 @@ pub mod select {
                         Some(ref p) => p.to_void_ptr(),
                         None => null()
                     };
+                    CSS_OK
+                },
+                named_ancestor_node: |node: *c_void,
+                                      qname: *css_qname,
+                                      parent: *mut *c_void| -> css_error {
+                    // TODO: unimplemented
+                    *parent = null();
                     CSS_OK
                 },
                 node_is_root: |node: *c_void, match_: *mut bool| -> css_error {
