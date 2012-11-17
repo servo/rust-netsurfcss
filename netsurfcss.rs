@@ -857,7 +857,7 @@ pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
-    use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue};
+    use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -1079,6 +1079,13 @@ pub mod computed {
             let type_ = type_ as css_font_weight_e;
 
             CssFontWeightValue::new(type_)
+        }
+
+        fn text_align() -> CssTextAlignValue {
+            let type_ = css_computed_text_align(self.computed_style);
+            let type_ = type_ as css_text_align_e;
+
+            CssTextAlignValue::new(type_)
         }
     }
 
@@ -1373,6 +1380,25 @@ mod values {
 
     impl CssFontWeightValue {
         static fn new(type_: css_font_weight_e) -> CssFontWeightValue {
+            c_enum_to_rust_enum(type_)
+        }
+    }
+
+    enum CssTextAlignValue {
+	CssTextAlignInherit = 0x0,
+	CssTextAlignInheritIfNonMagic = 0x1,
+	CssTextAlignLeft = 0x2,
+	CssTextAlignRight = 0x3,
+	CssTextAlignCenter = 0x4,
+	CssTextAlignJustify = 0x5,
+	CssTextAlignDefault = 0x6,
+	CssTextAlignLibcssLeft = 0x7,
+	CssTextAlignLibcssCenter = 0x8,
+	CssTextAlignLibcssRight	= 0x9
+    }
+
+    impl CssTextAlignValue {
+        static fn new(type_: css_text_align_e) -> CssTextAlignValue {
             c_enum_to_rust_enum(type_)
         }
     }

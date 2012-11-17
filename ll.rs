@@ -361,6 +361,19 @@ pub mod properties {
     pub const CSS_FONT_SIZE_SMALLER: css_font_size_e = 0x9;
     pub const CSS_FONT_SIZE_DIMENSION: css_font_size_e = 0xa;
 
+    pub type css_text_align_e = c_enum;
+
+    pub const CSS_TEXT_ALIGN_INHERIT: css_text_align_e = 0x0;
+    pub const CSS_TEXT_ALIGN_INHERIT_IF_NON_MAGIC: css_text_align_e = 0x1;
+    pub const CSS_TEXT_ALIGN_LEFT: css_text_align_e = 0x2;
+    pub const CSS_TEXT_ALIGN_RIGHT: css_text_align_e = 0x3;
+    pub const CSS_TEXT_ALIGN_CENTER: css_text_align_e = 0x4;
+    pub const CSS_TEXT_ALIGN_JUSTIFY: css_text_align_e = 0x5;
+    pub const CSS_TEXT_ALIGN_DEFAULT: css_text_align_e = 0x6;
+    pub const CSS_TEXT_ALIGN_LIBCSS_LEFT: css_text_align_e = 0x7;
+    pub const CSS_TEXT_ALIGN_LIBCSS_CENTER: css_text_align_e = 0x8;
+    pub const CSS_TEXT_ALIGN_LIBCSS_RIGHT: css_text_align_e = 0x9;
+
 }
 
 pub mod stylesheet {
@@ -540,5 +553,6 @@ pub mod computed {
         fn css_computed_font_size(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_font_style(style: *css_computed_style) -> uint8_t;
         fn css_computed_font_weight(style: *css_computed_style) -> uint8_t;
+        fn css_computed_text_align(style: *css_computed_style) -> uint8_t;
     }
 }
