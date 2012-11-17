@@ -87,6 +87,48 @@ pub mod types {
                 unit: unit
             }
         }
+
+        fn to_css_fixed(&self) -> css_fixed {
+            match *self {
+                CssUnitPx(css_fixed) |
+                CssUnitEx(css_fixed) |
+                CssUnitEm(css_fixed) |
+                CssUnitIn(css_fixed) |
+                CssUnitCm(css_fixed) |
+                CssUnitMm(css_fixed) |
+                CssUnitPt(css_fixed) |
+                CssUnitPc(css_fixed) |
+                CssUnitPct(css_fixed) |
+                CssUnitDeg(css_fixed) |
+                CssUnitGrad(css_fixed) |
+                CssUnitRad(css_fixed) |
+                CssUnitMs(css_fixed) |
+                CssUnitS(css_fixed) |
+                CssUnitHz(css_fixed) |
+                CssUnitKHz(css_fixed) => css_fixed
+            }
+        }
+
+        fn modify(&self, new_value: css_fixed) -> CssUnit {
+            match *self {
+                CssUnitPx(_) => CssUnitPx(new_value),
+                CssUnitEx(_) => CssUnitEx(new_value),
+                CssUnitEm(_) => CssUnitEm(new_value),
+                CssUnitIn(_) => CssUnitIn(new_value),
+                CssUnitCm(_) => CssUnitCm(new_value),
+                CssUnitMm(_) => CssUnitMm(new_value),
+                CssUnitPt(_) => CssUnitPt(new_value),
+                CssUnitPc(_) => CssUnitPc(new_value),
+                CssUnitPct(_) => CssUnitPct(new_value),
+                CssUnitDeg(_) => CssUnitDeg(new_value),
+                CssUnitGrad(_) => CssUnitGrad(new_value),
+                CssUnitRad(_) => CssUnitRad(new_value),
+                CssUnitMs(_) => CssUnitMs(new_value),
+                CssUnitS(_) => CssUnitS(new_value),
+                CssUnitHz(_) => CssUnitHz(new_value),
+                CssUnitKHz(_) => CssUnitKHz(new_value),
+            }
+        }
     }
 }
 
@@ -200,7 +242,7 @@ pub mod properties {
 
     use types::CssColor;
 
-    enum CssProperty {
+    pub enum CssProperty {
         CssPropAzimuth			= 0x000,
         CssPropBackgroundAttachment		= 0x001,
         CssPropBackgroundColor		= 0x002,
@@ -722,9 +764,16 @@ pub mod select {
             enter("ua_default_for_property");
             ph(pw).ua_default_for_property(property, hint)
         }
-        pub extern fn compute_font_size(_pw: *c_void, _parent: *css_hint, _size: *css_hint) -> css_error {
+        pub extern fn compute_font_size(_pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error {
             enter("compute_font_size");
-            // FIXME
+            // FIXME: This should be merged with the one in rust-css, I think. --pcwalton
+            let parent_hint;
+            if parent.is_null() {
+                parent_hint = hint::CssHintLength(types::CssUnitPx(16 * 1024));
+            } else {
+                parent_hint = CssHint::new(properties::CssPropFontSize, parent);
+            }
+            parent_hint.write_to_ll(properties::CssPropFontSize, size);
             CSS_OK
         }
     }
@@ -1102,7 +1151,7 @@ pub mod computed {
         }
     }
 
-    pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>) -> CssHint;
+    pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>, child: &CssHint) -> CssHint;
 
     // Merge parent and child styles into another style. The result
     // pointer may point to the child style, in which case the child
@@ -1127,7 +1176,8 @@ pub mod computed {
         } else {
             Some(CssHint::new(CssPropFontSize, parent))
         };
-        let new_hint = unsafe { *hlcbptr }(&hlparent);
+        let hlchild = CssHint::new(CssPropFontSize, unsafe { transmute(size) });
+        let new_hint = unsafe { *hlcbptr }(&hlparent, &hlchild);
         new_hint.write_to_ll(CssPropFontSize, size);
 
         CSS_OK
