@@ -857,7 +857,7 @@ pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
-    use values::{CssFontSizeValue, CssFontStyleValue};
+    use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -1072,6 +1072,13 @@ pub mod computed {
             let type_ = type_ as css_font_style_e;
 
             CssFontStyleValue::new(type_)
+        }
+
+        fn font_weight() -> CssFontWeightValue {
+            let type_ = css_computed_font_weight(self.computed_style);
+            let type_ = type_ as css_font_weight_e;
+
+            CssFontWeightValue::new(type_)
         }
     }
 
@@ -1343,6 +1350,29 @@ mod values {
 
     impl CssFontStyleValue {
         static fn new(type_: css_font_style_e) -> CssFontStyleValue {
+            c_enum_to_rust_enum(type_)
+        }
+    }
+
+    pub enum CssFontWeightValue {
+        CssFontWeightInherit = 0x0,
+        CssFontWeightNormal = 0x1,
+        CssFontWeightBold = 0x2,
+        CssFontWeightBolder = 0x3,
+        CssFontWeightLighter = 0x4,
+        CssFontWeight100 = 0x5,
+        CssFontWeight200 = 0x6,
+        CssFontWeight300 = 0x7,
+        CssFontWeight400 = 0x8,
+        CssFontWeight500 = 0x9,
+        CssFontWeight600 = 0xa,
+        CssFontWeight700 = 0xb,
+        CssFontWeight800 = 0xc,
+        CssFontWeight900 = 0xd
+    }
+
+    impl CssFontWeightValue {
+        static fn new(type_: css_font_weight_e) -> CssFontWeightValue {
             c_enum_to_rust_enum(type_)
         }
     }
