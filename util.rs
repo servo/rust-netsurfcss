@@ -10,7 +10,7 @@ pub fn css_fixed_to_float(f: css_fixed) -> float {
 
 pub fn float_to_css_fixed(f: float) -> css_fixed {
     const before: i32 = 10;
-    (f as i32 << before) * (f as i32)
+    (f * ((1 << before) as float)) as css_fixed
 }
 
 pub fn rust_str_to_net_qname(s: &str) -> CssQName {
