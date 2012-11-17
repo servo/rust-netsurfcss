@@ -15,7 +15,7 @@ use errors::CssError;
 use util::{VoidPtrLike, from_void_ptr};
 
 use wapcaplet::ll::lwc_string;
-use wapcaplet::{LwcString, from_rust_string};
+use wapcaplet::{LwcString, from_rust_string, from_lwc_string};
 
 // FIXME: Trait inheritance still busted
 //trait DomNode: VoidPtrLike {
@@ -644,8 +644,9 @@ pub mod select {
         pub extern fn node_has_class(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
             unimpl("node_has_class")
         }
-        pub extern fn node_has_id(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_id")
+        pub extern fn node_has_id(pw: *c_void, node: *c_void, name: *lwc_string, match_: *mut bool) -> css_error {
+            enter("node_has_id");
+            ph(pw).node_has_id(node, name, match_)
         }
         pub extern fn node_has_attribute(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
             unimpl("node_has_attribute")
@@ -734,6 +735,7 @@ pub mod select {
         node_id: &fn(node: *c_void, id: *mut *lwc_string) -> css_error,
         named_parent_node: &fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
         parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
+        node_has_id: &fn(node: *c_void, name: *lwc_string, match_: *mut bool) -> css_error,
         named_ancestor_node: &fn(node: *c_void,
                                  qname: *css_qname,
                                  parent: *mut *c_void) -> css_error,
@@ -759,9 +761,12 @@ pub mod select {
                     *n_classes = 0;
                     CSS_OK
                 },
-                node_id: |_node: *c_void, id: *mut *lwc_string| -> css_error {
-                    // FIXME
-                    *id = null();
+                node_id: |node: *c_void, id: *mut *lwc_string| -> css_error {
+                    let hlnode: N = from_void_ptr(node);
+                    *id = match handler.node_id(&hlnode) {
+                        Some(id) => id.raw_reffed(),
+                        None => null()
+                    };
                     CSS_OK
                 },
                 named_parent_node: |node: *c_void, qname: *css_qname, parent: *mut *c_void| -> css_error {
@@ -780,6 +785,12 @@ pub mod select {
                         Some(ref p) => p.to_void_ptr(),
                         None => null()
                     };
+                    CSS_OK
+                },
+                node_has_id: |node: *c_void, name: *lwc_string, match_: *mut bool| -> css_error {
+                    let hlnode: N = from_void_ptr(node);
+                    let hlname = from_lwc_string(name);
+                    *match_ = handler.node_has_id(&hlnode, move hlname);
                     CSS_OK
                 },
                 named_ancestor_node: |node: *c_void,
@@ -817,8 +828,10 @@ pub mod select {
 
     pub trait CssSelectHandler<N> {
         fn node_name(node: &N) -> CssQName;
+        fn node_id(node: &N) -> Option<LwcString>;
         fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(node: &N) -> Option<N>;
+        fn node_has_id(node: &N, name: LwcString) -> bool;
         fn named_ancestor_node(node: &N, qname: &CssQName) -> Option<N>;
         fn node_is_root(node: &N) -> bool;
         fn node_is_link(node: &N) -> bool;

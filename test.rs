@@ -107,6 +107,8 @@ mod example1 {
             }
         }
 
+        fn node_id(_node: &MyDomNode) -> Option<LwcString> { None }
+
         fn named_parent_node(_node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
             None
         }
@@ -114,6 +116,8 @@ mod example1 {
         fn parent_node(_node: &MyDomNode) -> Option<MyDomNode> {
             None
         }
+
+        fn node_has_id(_node: &MyDomNode, _name: LwcString) -> bool { false }
 
         fn named_ancestor_node(_node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
             None
