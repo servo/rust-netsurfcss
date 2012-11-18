@@ -667,8 +667,12 @@ pub mod select {
             enter("named_parent_node");
             ph(pw).named_parent_node(node, qname, parent)
         }
-        pub extern fn named_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
-            unimpl("named_sibling_node")
+        pub extern fn named_sibling_node(_pw: *c_void, node: *c_void, _qname: *css_qname, sibling: *mut *c_void) -> css_error {
+            unimpl_warn("named_sibling_node");
+            unsafe {
+                *sibling = node;
+                CSS_OK
+            }
         }
         pub extern fn named_generic_sibling_node(_pw: *c_void, _node: *c_void, _qname: *css_qname, _sibling: **c_void) -> css_error {
             unimpl("named_generic_sibling_node")
@@ -677,14 +681,23 @@ pub mod select {
             enter("parent_node");
             ph(pw).parent_node(node, parent)
         }
-        pub extern fn sibling_node(_pw: *c_void, _node: *c_void, _sibling: **c_void) -> css_error {
-            unimpl("sibling_node")
+        pub extern fn sibling_node(_pw: *c_void, node: *c_void, sibling: *mut *c_void) -> css_error {
+            unimpl_warn("sibling_node");
+            unsafe {
+                *sibling = node;
+                CSS_OK
+            }
         }
         pub extern fn node_has_name(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
             unimpl("node_has_name")
         }
-        pub extern fn node_has_class(_pw: *c_void, _node: *c_void, _name: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_class")
+        pub extern fn node_has_class(_pw: *c_void, _node: *c_void, _name: *lwc_string, match_: *mut bool) -> css_error {
+            // TODO
+            unsafe {
+                unimpl_warn("node_has_class");
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_has_id(pw: *c_void, node: *c_void, name: *lwc_string, match_: *mut bool) -> css_error {
             enter("node_has_id");
@@ -703,8 +716,12 @@ pub mod select {
         pub extern fn node_has_attribute_includes(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             unimpl("node_has_attribute_includes")
         }
-        pub extern fn node_has_attribute_prefix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_attribute_prefix")
+        pub extern fn node_has_attribute_prefix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, match_: *mut bool) -> css_error {
+            unimpl_warn("node_has_attribute_prefix");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_has_attribute_suffix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             unimpl("node_has_attribute_suffix")
@@ -716,11 +733,19 @@ pub mod select {
             enter("node_is_root");
             ph(pw).node_is_root(node, match_)
         }
-        pub extern fn node_count_siblings(_pw: *c_void, _node: *c_void, _same_name: bool, _after: bool, _count: *int32_t) -> css_error {
-            unimpl("node_count_siblings")
+        pub extern fn node_count_siblings(_pw: *c_void, _node: *c_void, _same_name: bool, _after: bool, count: *mut int32_t) -> css_error {
+            unimpl_warn("node_count_siblings");
+            unsafe {
+                *count = 0;
+                CSS_OK
+            }
         }
-        pub extern fn node_is_empty(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_empty")
+        pub extern fn node_is_empty(_pw: *c_void, _node: *c_void, match_: *mut bool) -> css_error {
+            unimpl_warn("node_is_empty");
+            unsafe {
+                *match_ = true;
+                CSS_OK
+            }
         }
         pub extern fn node_is_link(pw: *c_void, node: *c_void, match_: *mut bool) -> css_error {
             enter("node_is_link");
@@ -734,8 +759,12 @@ pub mod select {
             unimpl_warn("node_is_hover");
             CSS_OK
         }
-        pub extern fn node_is_active(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
-            unimpl("node_is_active")
+        pub extern fn node_is_active(_pw: *c_void, _node: *c_void, match_: *mut bool) -> css_error {
+            unimpl_warn("node_is_active");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_is_focus(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             unimpl_warn("node_is_focus");
@@ -753,8 +782,12 @@ pub mod select {
         pub extern fn node_is_target(_pw: *c_void, _node: *c_void, _match_: *bool) -> css_error {
             unimpl("node_is_target")
         }
-        pub extern fn node_is_lang(_pw: *c_void, _node: *c_void, _lang: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_is_lang")
+        pub extern fn node_is_lang(_pw: *c_void, _node: *c_void, _lang: *lwc_string, match_: *mut bool) -> css_error {
+            unimpl_warn("node_is_lang");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_presentational_hint(_pw: *c_void, _node: *c_void, _property: uint32_t, _hint: *css_hint) -> css_error {
             enter("node_presentational_hint");
