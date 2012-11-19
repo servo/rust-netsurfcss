@@ -20,8 +20,8 @@ pub fn rust_str_to_net_qname(s: &str) -> CssQName {
     }
 }
 
-pub fn net_qname_to_rust_str(qname: &CssQName) -> ~str {
-    qname.name.to_str()
+pub fn net_qname_to_rust_str(qname: &a/CssQName) -> &a/str {
+    qname.name.to_str_slice()
 }
 
 
