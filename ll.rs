@@ -374,6 +374,13 @@ pub mod properties {
     pub const CSS_TEXT_ALIGN_LIBCSS_CENTER: css_text_align_e = 0x8;
     pub const CSS_TEXT_ALIGN_LIBCSS_RIGHT: css_text_align_e = 0x9;
 
+    pub type css_line_height_e = c_enum;
+
+    pub const CSS_LINE_HEIGHT_INHERIT: css_line_height_e = 0x0;
+    pub const CSS_LINE_HEIGHT_NUMBER: css_line_height_e = 0x1;
+    pub const CSS_LINE_HEIGHT_DIMENSION: css_line_height_e = 0x2;
+    pub const CSS_LINE_HEIGHT_NORMAL: css_line_height_e = 0x3;
+
 }
 
 pub mod stylesheet {
@@ -554,5 +561,6 @@ pub mod computed {
         fn css_computed_font_style(style: *css_computed_style) -> uint8_t;
         fn css_computed_font_weight(style: *css_computed_style) -> uint8_t;
         fn css_computed_text_align(style: *css_computed_style) -> uint8_t;
+        fn css_computed_line_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
     }
 }

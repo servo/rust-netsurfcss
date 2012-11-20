@@ -953,6 +953,7 @@ pub mod computed {
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
     use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue};
+    use values::{CssLineHeightValue};
     use ll::properties::*;
     use ll::computed::*;
 
@@ -1182,6 +1183,18 @@ pub mod computed {
 
             CssTextAlignValue::new(type_)
         }
+
+        fn line_height() -> CssLineHeightValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = css_computed_line_height(self.computed_style,
+                                                 to_mut_unsafe_ptr(&mut length),
+                                                 to_mut_unsafe_ptr(&mut unit));
+            let type_ = type_ as css_line_height_e;
+
+            CssLineHeightValue::new(type_, length, unit)
+        }
+
     }
 
     pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>, child: &CssHint) -> CssHint;
@@ -1496,6 +1509,29 @@ mod values {
     impl CssTextAlignValue {
         static fn new(type_: css_text_align_e) -> CssTextAlignValue {
             c_enum_to_rust_enum(type_)
+        }
+    }
+
+    pub enum CssLineHeightValue {
+        CssLineHeightInherit,
+        CssLineHeightNumber(css_fixed),
+        CssLineHeightDimension(CssUnit),
+        CssLineHeightNormal
+    }
+
+    impl CssLineHeightValue {
+        static fn new(type_: css_line_height_e, length: css_fixed, unit: css_unit) -> CssLineHeightValue {
+            if type_ == CSS_LINE_HEIGHT_INHERIT {
+                CssLineHeightInherit
+            } else if type_ == CSS_LINE_HEIGHT_NUMBER {
+                CssLineHeightNumber(length)
+            } else if type_ == CSS_LINE_HEIGHT_DIMENSION {
+                CssLineHeightDimension(ll_unit_to_hl_unit(unit, length))
+            } else if type_ == CSS_LINE_HEIGHT_NORMAL {
+                CssLineHeightNormal
+            } else {
+                unimpl("line-height")
+            }
         }
     }
 
