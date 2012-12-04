@@ -21,8 +21,8 @@ extern mod linking { }
 extern mod linking { }
 
 // Generally true
-type c_enum = uint32_t;
-type rust_enum = uint;
+pub type c_enum = uint32_t;
+pub type rust_enum = uint;
 
 pub mod functypes {
     // (ptr: *c_void, size: size_t, pw: *c_void)
