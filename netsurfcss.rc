@@ -658,26 +658,26 @@ pub mod select {
         }
         pub extern fn node_name(pw: *c_void, node: *c_void, qname: *css_qname) -> css_error {
             enter("node_name");
-            ph(pw).node_name(node, qname)
+            (ph(pw).node_name)(node, qname)
         }
         pub extern fn node_classes(pw: *c_void, node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error {
             enter("node_classes");
-            ph(pw).node_classes(node, classes, n_classes)
+            (ph(pw).node_classes)(node, classes, n_classes)
         }
         pub extern fn node_id(pw: *c_void, node: *c_void, id: *mut *lwc_string) -> css_error {
             enter("node_id");
-            ph(pw).node_id(node, id)
+            (ph(pw).node_id)(node, id)
         }
         pub extern fn named_ancestor_node(pw: *c_void,
                                           node: *c_void,
                                           qname: *css_qname,
                                           parent: *mut *c_void) -> css_error {
             enter("named_ancestor_node");
-            ph(pw).named_ancestor_node(node, qname, parent)
+            (ph(pw).named_ancestor_node)(node, qname, parent)
         }
         pub extern fn named_parent_node(pw: *c_void, node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error {
             enter("named_parent_node");
-            ph(pw).named_parent_node(node, qname, parent)
+            (ph(pw).named_parent_node)(node, qname, parent)
         }
         pub extern fn named_sibling_node(_pw: *c_void, node: *c_void, _qname: *css_qname, sibling: *mut *c_void) -> css_error {
             unimpl_warn("named_sibling_node");
@@ -691,7 +691,7 @@ pub mod select {
         }
         pub extern fn parent_node(pw: *c_void, node: *c_void, parent: *mut *c_void) -> css_error {
             enter("parent_node");
-            ph(pw).parent_node(node, parent)
+            (ph(pw).parent_node)(node, parent)
         }
         pub extern fn sibling_node(_pw: *c_void, node: *c_void, sibling: *mut *c_void) -> css_error {
             unimpl_warn("sibling_node");
@@ -713,7 +713,7 @@ pub mod select {
         }
         pub extern fn node_has_id(pw: *c_void, node: *c_void, name: *lwc_string, match_: *mut bool) -> css_error {
             enter("node_has_id");
-            ph(pw).node_has_id(node, name, match_)
+            (ph(pw).node_has_id)(node, name, match_)
         }
         pub extern fn node_has_attribute(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
             unimpl("node_has_attribute")
@@ -743,7 +743,7 @@ pub mod select {
         }
         pub extern fn node_is_root(pw: *c_void, node: *c_void, match_: *mut bool) -> css_error {
             enter("node_is_root");
-            ph(pw).node_is_root(node, match_)
+            (ph(pw).node_is_root)(node, match_)
         }
         pub extern fn node_count_siblings(_pw: *c_void, _node: *c_void, _same_name: bool, _after: bool, count: *mut int32_t) -> css_error {
             unimpl_warn("node_count_siblings");
@@ -761,7 +761,7 @@ pub mod select {
         }
         pub extern fn node_is_link(pw: *c_void, node: *c_void, match_: *mut bool) -> css_error {
             enter("node_is_link");
-            ph(pw).node_is_link(node, match_)
+            (ph(pw).node_is_link)(node, match_)
         }
         pub extern fn node_is_visited(_pw: *c_void, _node: *c_void, _match_: *mut bool) -> css_error {
             unimpl_warn("node_is_visited");
@@ -807,7 +807,7 @@ pub mod select {
         }
         pub extern fn ua_default_for_property(pw: *c_void, property: uint32_t, hint: *mut css_hint) -> css_error {
             enter("ua_default_for_property");
-            ph(pw).ua_default_for_property(property, hint)
+            (ph(pw).ua_default_for_property)(property, hint)
         }
         pub extern fn compute_font_size(_pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error {
             enter("compute_font_size");
