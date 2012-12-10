@@ -186,8 +186,8 @@ extern fn resolve(_pw: *c_void, _base: *c_char, rel: *lwc_string, abs: *mut *lwc
 }
 
 pub fn write_ll_qname(hlqname: &CssQName, llqname: *css_qname) unsafe {
-    match hlqname.ns {
-        Some(ns) => {
+    match &hlqname.ns {
+        &Some(ref ns) => {
             (*llqname).ns = ns.raw_reffed();
         }
         _ => ()
