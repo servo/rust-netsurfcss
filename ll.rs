@@ -107,8 +107,8 @@ pub mod errors {
 }
 
 pub mod hint {
-    use types::css_unit;
-    use stylesheet::css_fixed;
+    use ll::types::css_unit;
+    use ll::stylesheet::css_fixed;
 
     // FIXME: This is not an opaque type
     pub type css_hint = c_void;
@@ -385,10 +385,10 @@ pub mod properties {
 
 pub mod stylesheet {
 
-    use types::{css_language_level, css_unit};
-    use properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
-    use functypes::css_allocator_fn;
-    use errors::css_error;
+    use ll::types::{css_language_level, css_unit};
+    use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
+    use ll::functypes::css_allocator_fn;
+    use ll::errors::css_error;
 
     pub struct css_stylesheet_params {
         params_version: uint32_t,
@@ -447,10 +447,10 @@ pub mod stylesheet {
 }
 
 pub mod select {
-    use functypes::css_allocator_fn;
-    use errors::css_error;
-    use stylesheet::css_stylesheet;
-    use types::{css_origin, css_computed_style};
+    use ll::functypes::css_allocator_fn;
+    use ll::errors::css_error;
+    use ll::stylesheet::css_stylesheet;
+    use ll::types::{css_origin, css_computed_style};
 
     pub type css_select_ctx = c_void;
 
@@ -524,7 +524,7 @@ pub mod select {
 }
 
 pub mod computed {
-    use types::css_color;
+    use ll::types::css_color;
 
     pub type css_computed_style = c_void;
 
