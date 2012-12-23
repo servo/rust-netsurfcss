@@ -24,7 +24,7 @@ use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
 use cast::transmute;
 use conversions::{c_enum_to_rust_enum, write_ll_qname, ll_qname_to_hl_qname, lwc_string_buf_to_hl_vec};
 use errors::CssError;
-use util::{VoidPtrLike, from_void_ptr};
+use util::VoidPtrLike;
 
 use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string, from_lwc_string};
@@ -844,7 +844,7 @@ pub mod select {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *css_qname| -> css_error {
-                    let hlnode: N = from_void_ptr(node);
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     let hlqname = handler.node_name(&hlnode);
                     write_ll_qname(&hlqname, qname);
                     CSS_OK
@@ -856,7 +856,7 @@ pub mod select {
                     CSS_OK
                 },
                 node_id: |node: *c_void, id: *mut *lwc_string| -> css_error {
-                    let hlnode: N = from_void_ptr(node);
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     *id = match handler.node_id(&hlnode) {
                         Some(id) => id.raw_reffed(),
                         None => null()
@@ -864,7 +864,7 @@ pub mod select {
                     CSS_OK
                 },
                 named_parent_node: |node: *c_void, qname: *css_qname, parent: *mut *c_void| -> css_error {
-                    let hlnode: N = from_void_ptr(node);
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     let hlqname = ll_qname_to_hl_qname(qname);
                     *parent = match handler.named_parent_node(&hlnode, &hlqname) {
                         Some(p) => p.to_void_ptr(),
@@ -873,7 +873,7 @@ pub mod select {
                     CSS_OK
                 },
                 parent_node: |node: *c_void, parent: *mut *c_void| -> css_error {
-                    let hlnode: N = from_void_ptr(node);
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     let hlparent: Option<N> = handler.parent_node(&hlnode);
                     *parent = match hlparent {
                         Some(ref p) => p.to_void_ptr(),
@@ -882,7 +882,7 @@ pub mod select {
                     CSS_OK
                 },
                 node_has_id: |node: *c_void, name: *lwc_string, match_: *mut bool| -> css_error {
-                    let hlnode: N = from_void_ptr(node);
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     let hlname = from_lwc_string(name);
                     *match_ = handler.node_has_id(&hlnode, move hlname);
                     CSS_OK
@@ -890,7 +890,7 @@ pub mod select {
                 named_ancestor_node: |node: *c_void,
                                       qname: *css_qname,
                                       parent: *mut *c_void| -> css_error {
-                    let hlnode: N = from_void_ptr(node);
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     let hlqname = ll_qname_to_hl_qname(qname);
                     *parent = match handler.named_ancestor_node(&hlnode, &hlqname) {
                         Some(p) => p.to_void_ptr(),
@@ -899,12 +899,12 @@ pub mod select {
                     CSS_OK
                 },
                 node_is_root: |node: *c_void, match_: *mut bool| -> css_error {
-                    let hlnode = from_void_ptr(node);
+                    let hlnode = VoidPtrLike::from_void_ptr(node);
                     unsafe { *match_ = handler.node_is_root(&hlnode) }
                     CSS_OK
                 },
                 node_is_link: |node: *c_void, match_: *mut bool| -> css_error {
-                    let hlnode = from_void_ptr(node);
+                    let hlnode = VoidPtrLike::from_void_ptr(node);
                     unsafe { *match_ = handler.node_is_link(&hlnode) }
                     CSS_OK
                 },
