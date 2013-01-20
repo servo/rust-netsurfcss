@@ -1,20 +1,23 @@
+use wapcaplet::LwcString;
 use wapcaplet::ll::lwc_string;
 use core::libc::{c_void, c_char};
 use core::libc::types::common::c99::{uint32_t};
 use cast::transmute;
 use core::ptr::null;
 use ll::{c_enum, rust_enum};
-use ll::types::*;
-use types::*;
-use ll::stylesheet::*;
-use stylesheet::*;
-use ll::errors::*;
-use errors::*;
-use ll::properties::*;
-use properties::*;
-use ll::select::*;
-use select::*;
 use ll_lwcstr_to_hl_lwcstr = wapcaplet::from_lwc_string;
+use ll::types::{css_language_level, CSS_LEVEL_1, CSS_LEVEL_2, CSS_LEVEL_21, CSS_LEVEL_3, CSS_LEVEL_DEFAULT};
+use types::{CssLanguageLevel, CssLevel1, CssLevel2, CssLevel21, CssLevel3, CssLevelDefault, CssLevelNotACLikeEnum};
+use ll::errors::{css_error, CSS_OK};
+use errors::CssError;
+use ll::properties::css_font_family_e;
+use properties::CssFontFamily;
+use ll::types::{css_color, css_unit, css_qname};
+use types::{CssColor, CssUnit, CssQName};
+use ll::stylesheet::{css_fixed, css_stylesheet_params};
+use stylesheet::{CssStylesheetParams};
+use ll::select::{css_pseudo_element};
+use select::{CssPseudoElement};
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -63,6 +66,8 @@ pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
 
 pub impl CssUnit: ToLl<(css_unit, css_fixed)> {
     pub fn to_ll(&self) -> (css_unit, css_fixed) {
+        use ll::types::*;
+        use types::*;
         match *self {
             CssUnitPx(value) => (CSS_UNIT_PX, value),
             CssUnitEx(value) => (CSS_UNIT_EX, value),
@@ -85,6 +90,8 @@ pub impl CssUnit: ToLl<(css_unit, css_fixed)> {
 }
 
 pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
+    use ll::types::*;
+    use types::*;
     if unit == CSS_UNIT_PX {
         CssUnitPx(value)
     } else if unit == CSS_UNIT_EX {

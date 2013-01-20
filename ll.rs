@@ -5,10 +5,7 @@ include files
 
 */
 
-use core::libc::{c_char, c_void, size_t};
-use core::libc::types::common::c99::{int32_t, uint32_t, uint64_t, uint8_t};
-
-use wapcaplet::ll::lwc_string;
+use core::libc::types::common::c99::uint32_t;
 
 #[cfg(target_os = "macos")]
 #[nolink]
@@ -30,6 +27,11 @@ pub mod functypes {
 }
 
 pub mod types {
+    use core::libc::c_void;
+    use core::libc::types::common::c99::{uint32_t, uint64_t};
+    use wapcaplet::ll::lwc_string;
+    use ll::c_enum;
+
     pub type css_language_level = uint32_t;
 
     pub const CSS_LEVEL_1: css_language_level = 0;
@@ -91,6 +93,7 @@ pub mod types {
 }
 
 pub mod errors {
+    use ll::c_enum;
 
     pub type css_error = c_enum;
 
@@ -107,6 +110,7 @@ pub mod errors {
 }
 
 pub mod hint {
+    use core::libc::c_void;
     use ll::types::css_unit;
     use ll::stylesheet::css_fixed;
 
@@ -120,6 +124,7 @@ pub mod hint {
 }
 
 pub mod properties {
+    use ll::c_enum;
 
     pub type css_properties_e = c_enum;
     
@@ -385,6 +390,9 @@ pub mod properties {
 
 pub mod stylesheet {
 
+    use core::libc::{c_char, c_void, size_t};
+    use core::libc::types::common::c99::{uint32_t, int32_t, uint8_t};
+    use wapcaplet::ll::lwc_string;
     use ll::types::{css_language_level, css_unit};
     use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
     use ll::functypes::css_allocator_fn;
@@ -427,7 +435,7 @@ pub mod stylesheet {
     }
 
     // This isn't in the libcss source. In C it is defined inline with css_system_font
-    struct css_size {
+    pub struct css_size {
         size: css_fixed,
         unit: css_unit
     }
@@ -447,6 +455,9 @@ pub mod stylesheet {
 }
 
 pub mod select {
+    use core::libc::c_void;
+    use core::libc::types::common::c99::{uint32_t, uint64_t};
+    use ll::c_enum;
     use ll::functypes::css_allocator_fn;
     use ll::errors::css_error;
     use ll::stylesheet::css_stylesheet;
@@ -524,7 +535,13 @@ pub mod select {
 }
 
 pub mod computed {
+    use core::libc::c_void;
+    use core::libc::types::common::c99::uint8_t;
     use ll::types::css_color;
+    use super::errors::css_error;
+    use super::stylesheet::css_fixed;
+    use super::types::css_unit;
+    use wapcaplet::ll::lwc_string;
 
     pub type css_computed_style = c_void;
 

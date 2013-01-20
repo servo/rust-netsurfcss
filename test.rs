@@ -1,13 +1,15 @@
-use wapcaplet::ll::lwc_string;
-use ll::properties::*;
-use types::*;
-use hint::*;
-use select::*;
-use stylesheet::*;
-use values::*;
-
 // Based off of libcss's examples/example1.c
 mod example1 {
+
+    use CssResult;
+    use wapcaplet::ll::lwc_string;
+    use ll::properties::*;
+    use types::*;
+    use hint::*;
+    use select::*;
+    use values::*;
+    use util::VoidPtrLike;
+    use wapcaplet::LwcString;
 
     struct MyDomNode {
         name: @LwcString
