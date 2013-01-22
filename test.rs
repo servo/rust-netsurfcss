@@ -4,12 +4,14 @@ mod example1 {
     use CssResult;
     use wapcaplet::ll::lwc_string;
     use ll::properties::*;
+    use ll::types::*;
     use types::*;
     use hint::*;
     use select::*;
     use values::*;
+    use stylesheet::*;
     use util::VoidPtrLike;
-    use wapcaplet::LwcString;
+    use wapcaplet::{LwcString, from_rust_string};
 
     struct MyDomNode {
         name: @LwcString
@@ -38,6 +40,8 @@ mod example1 {
                     h4 { color: #321; }\
                     h4, h5 { color: #123456; }";
 
+        let resolve: CssUrlResolutionFn = |a,b| resolve_url(a, b);
+
         let params: CssStylesheetParams = CssStylesheetParams {
             params_version: CssStylesheetParamsVersion1,
             level: CssLevel21,
@@ -46,7 +50,7 @@ mod example1 {
             title: ~"foo",
             allow_quirks: false,
             inline_style: false,
-            resolve: Some(resolve_url),
+            resolve: Some(resolve),
             import: None,
             color: None,
             font: None,
@@ -140,7 +144,10 @@ mod example1 {
 #[test]
 fn test_arc() {
     use std::arc::ARC;
+    use stylesheet::*;
+    use types::CssLevel21;
 
+    let resolve: CssUrlResolutionFn = |a,b| resolve_url(a, b);
     let params: CssStylesheetParams = CssStylesheetParams {
         params_version: CssStylesheetParamsVersion1,
         level: CssLevel21,
@@ -149,7 +156,7 @@ fn test_arc() {
         title: ~"foo",
         allow_quirks: false,
         inline_style: false,
-        resolve: Some(resolve_url),
+        resolve: Some(resolve),
         import: None,
         color: None,
         font: None,
