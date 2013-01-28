@@ -129,16 +129,18 @@ pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
     }
 }
 
-pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName unsafe {
-    CssQName {
-        ns: if (*qname).ns.is_not_null() {
-            Some(ll_lwcstr_to_hl_lwcstr((*qname).ns))
-        } else {
-            None
-        },
-        name: {
-            assert (*qname).name.is_not_null();
-            ll_lwcstr_to_hl_lwcstr((*qname).name)
+pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
+    unsafe {
+        CssQName {
+            ns: if (*qname).ns.is_not_null() {
+                Some(ll_lwcstr_to_hl_lwcstr((*qname).ns))
+            } else {
+                None
+            },
+            name: {
+                assert (*qname).name.is_not_null();
+                ll_lwcstr_to_hl_lwcstr((*qname).name)
+            }
         }
     }
 }
@@ -192,22 +194,26 @@ extern fn resolve(_pw: *c_void, _base: *c_char, rel: *lwc_string, abs: *mut *lwc
     CSS_OK
 }
 
-pub fn write_ll_qname(hlqname: &CssQName, llqname: *css_qname) unsafe {
-    match &hlqname.ns {
-        &Some(ref ns) => {
-            (*llqname).ns = ns.raw_reffed();
+pub fn write_ll_qname(hlqname: &CssQName, llqname: *css_qname) {
+    unsafe {
+        match &hlqname.ns {
+            &Some(ref ns) => {
+                (*llqname).ns = ns.raw_reffed();
+            }
+            _ => ()
         }
-        _ => ()
+        (*llqname).name = hlqname.name.raw_reffed();
     }
-    (*llqname).name = hlqname.name.raw_reffed();
 }
 
-pub fn lwc_string_buf_to_hl_vec(names: **lwc_string) -> ~[LwcString] unsafe {
-    let mut result = ~[];
-    let mut names = names;
-    while (*names).is_not_null() {
-        result.push(ll_lwcstr_to_hl_lwcstr(*names));
-        names = names.offset(1);
+pub fn lwc_string_buf_to_hl_vec(names: **lwc_string) -> ~[LwcString] {
+    unsafe {
+        let mut result = ~[];
+        let mut names = names;
+        while (*names).is_not_null() {
+            result.push(ll_lwcstr_to_hl_lwcstr(*names));
+            names = names.offset(1);
+        }
+        return move result;
     }
-    return move result;
 }
