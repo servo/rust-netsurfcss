@@ -562,9 +562,8 @@ pub mod hint {
     }
 
     #[cfg(target_arch = "x86_64")]
-    fn status_field_offset() -> uint { 16 }
-
     #[cfg(target_arch = "x86")]
+    #[cfg(target_arch = "arm")]
     fn status_field_offset() -> uint { 16 }
 
     priv fn hint_data_field<T>(llhint: *mut css_hint) -> &mut T {
