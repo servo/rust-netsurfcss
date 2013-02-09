@@ -43,7 +43,7 @@ type CssResult<T> = Result<T, CssError>;
 pure fn require_ok(code: css_error, what: &str) {
     match code {
         e if e == CSS_OK => (),
-        e => fail fmt!("CSS parsing failed while %s. code: %?", what, e)
+        e => fail!(fmt!("CSS parsing failed while %s. code: %?", what, e))
     }
 }
 
@@ -52,10 +52,10 @@ extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
 }
 
 pub mod types {
-
     use wapcaplet::LwcString;
     use ll::stylesheet::css_fixed;
     use ll::hint::css_hint_length;
+    use conversions::{AsLl, ToLl};
     
     pub enum CssLanguageLevel {
         CssLevel1,
@@ -169,6 +169,7 @@ pub mod stylesheet {
     use wapcaplet::LwcString;
     use properties::{CssFontStyle, CssFontVariant, CssFontWeight};
     use types::{CssLanguageLevel, CssColor};
+    use conversions::AsLl;
     use ll::stylesheet::*;
     use ll_css_stylesheet_create = ll::stylesheet::css_stylesheet_create;
     use CssResult;
@@ -451,7 +452,7 @@ pub mod hint {
                      CssPropQuotes,
                      CssPropColor,
                      CssFontFamily};
-    use conversions::ll_unit_to_hl_unit;
+    use conversions::{ToLl, ll_unit_to_hl_unit};
     use wapcaplet::LwcString;
     use wapcaplet::ll::lwc_string;
     use ll::hint::*;
@@ -483,7 +484,7 @@ pub mod hint {
                         CssHintUnknown
                     }
                 }
-                _ => fail fmt!("unknown css hint: %?", property)
+                _ => fail!(fmt!("unknown css hint: %?", property))
             }
         }
         
@@ -510,10 +511,10 @@ pub mod hint {
                     set_css_hint_status(llhint, CSS_FONT_SIZE_DIMENSION as uint8_t);
                 }
                 (_, &CssHintUnknown) => {
-                    fail fmt!("unknown css hint %?", property);
+                    fail!(fmt!("unknown css hint %?", property));
                 }
                 (_, _) => {
-                    fail fmt!("incorrectly handled property hint: %?, %?", property, self);
+                    fail!(fmt!("incorrectly handled property hint: %?, %?", property, self));
                 }
             }
 
@@ -577,7 +578,7 @@ pub mod select {
     use wapcaplet::ll::lwc_string;
     use ll::hint::css_hint;
     use wapcaplet::LwcString;
-    use conversions::{write_ll_qname, ll_qname_to_hl_qname};
+    use conversions::{ToLl, write_ll_qname, ll_qname_to_hl_qname};
     use wapcaplet::from_lwc_string;
 
     pub enum CssPseudoElement {
@@ -708,7 +709,7 @@ pub mod select {
         use conversions::write_ll_qname;
 
         priv fn unimpl(n: &str) -> ! {
-            fail fmt!("unimplemented css callback handler: %s", n)
+            fail!(fmt!("unimplemented css callback handler: %s", n))
         }
         fn unimpl_warn(what: &str) {
             warn!("unimplemented css value: %?", what);
@@ -1290,7 +1291,7 @@ pub mod computed {
         let llresult = result.computed_style as *mut css_computed_style;
         let err = unsafe { css_computed_style_compose(llparent, llchild, compute_font_size_cb, pw, llresult) };
         if err != CSS_OK {
-            fail ~"stylesheet composition failed"
+            fail!(~"stylesheet composition failed")
         }
     }
 
@@ -1504,7 +1505,7 @@ mod values {
             } else if type_ == CSS_FONT_FAMILY_MONOSPACE {
                 CssFontFamilyMonospace
             } else {
-                fail
+                fail!()
             }
         }
     }
@@ -1537,7 +1538,7 @@ mod values {
                 x if x == CSS_FONT_SIZE_LARGER => CssFontSizeLarger,
                 x if x == CSS_FONT_SIZE_SMALLER => CssFontSizeSmaller,
                 x if x == CSS_FONT_SIZE_DIMENSION => CssFontSizeDimension(ll_unit_to_hl_unit(unit, length)),
-                _ => fail
+                _ => fail!()
             }
         }
     }
@@ -1621,7 +1622,7 @@ mod values {
     }
 
     fn unimpl(what: &str) -> ! {
-        fail fmt!("unimplemented css value: %?", what);
+        fail!(fmt!("unimplemented css value: %?", what));
     }
 
 }

@@ -95,7 +95,7 @@ mod example1 {
     }
 
     fn resolve_url(_base: &str, _rel: &LwcString) -> CssResult<LwcString> {
-        fail ~"resolving url";
+        fail!(~"resolving url");
     }
 
     struct SelectHandler {
@@ -166,6 +166,6 @@ fn test_arc() {
     let _arc = ARC(move sheet);
 
     fn resolve_url(_base: &str, _rel: &LwcString) -> CssResult<LwcString> {
-        fail ~"resolving url";
+        fail!(~"resolving url");
     }
 }

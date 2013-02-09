@@ -35,7 +35,7 @@ pub impl CssLanguageLevel: ToLl<css_language_level> {
             CssLevel21 => CSS_LEVEL_21,
             CssLevel3 => CSS_LEVEL_3,
             CssLevelDefault => CSS_LEVEL_DEFAULT,
-            CssLevelNotACLikeEnum(*) => fail
+            CssLevelNotACLikeEnum(*) => fail!()
         }
     }
 }
@@ -125,7 +125,7 @@ pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
     } else if unit == CSS_UNIT_KHZ {
         CssUnitKHz(value)
     } else {
-        fail
+        fail!()
     }
 }
 

@@ -27,6 +27,6 @@ pub fn net_qname_to_rust_str(qname: &a/CssQName) -> &a/str {
 
 // FIXME: These methods should be unsafe
 pub trait VoidPtrLike {
-    static fn from_void_ptr(*c_void) -> self;
+    static fn from_void_ptr(*c_void) -> Self;
     fn to_void_ptr(&self) -> *c_void;
 }
