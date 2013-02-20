@@ -27,7 +27,7 @@ pub trait AsLl<T> {
     fn as_ll<U>(&self, f: fn(&T) -> U) -> U;
 }
 
-pub impl CssLanguageLevel: ToLl<css_language_level> {
+pub impl ToLl<css_language_level> for CssLanguageLevel {
     pub fn to_ll(&self) -> css_language_level {
         match *self {
             CssLevel1 => CSS_LEVEL_1,
@@ -40,19 +40,19 @@ pub impl CssLanguageLevel: ToLl<css_language_level> {
     }
 }
 
-pub impl CssError: ToLl<css_error> {
+pub impl ToLl<css_error> for CssError {
     pub fn to_ll(&self) -> css_error {
         *self as css_error
     }
 }
 
-pub impl CssFontFamily: ToLl<css_font_family_e> {
+pub impl ToLl<css_font_family_e> for CssFontFamily {
     pub fn to_ll(&self) -> css_font_family_e {
         *self as css_font_family_e
     }
 }
 
-pub impl CssColor: ToLl<css_color> {
+pub impl ToLl<css_color> for CssColor {
     pub fn to_ll(&self) -> css_color {
         assert sys::size_of::<CssColor>() == sys::size_of::<css_color>();
         unsafe { transmute(*self) }
@@ -64,7 +64,7 @@ pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
     unsafe { transmute(color) }
 }
 
-pub impl CssUnit: ToLl<(css_unit, css_fixed)> {
+pub impl ToLl<(css_unit, css_fixed)> for CssUnit {
     pub fn to_ll(&self) -> (css_unit, css_fixed) {
         use ll::types::*;
         use types::*;
@@ -145,7 +145,7 @@ pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
     }
 }
 
-pub impl CssPseudoElement: ToLl<css_pseudo_element> {
+pub impl ToLl<css_pseudo_element> for CssPseudoElement {
     pub fn to_ll(&self) -> css_pseudo_element {
         *self as css_pseudo_element
     }
@@ -157,7 +157,7 @@ pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
     unsafe { transmute(val as rust_enum) }
 }
 
-pub impl CssStylesheetParams: AsLl<css_stylesheet_params> {
+pub impl AsLl<css_stylesheet_params> for CssStylesheetParams {
     pub fn as_ll<U>(&self, f: fn(&css_stylesheet_params) -> U) -> U {
         do str::as_c_str(self.charset) |charset| {
             do str::as_c_str(self.url) |url| {
@@ -214,6 +214,6 @@ pub fn lwc_string_buf_to_hl_vec(names: **lwc_string) -> ~[LwcString] {
             result.push(ll_lwcstr_to_hl_lwcstr(*names));
             names = names.offset(1);
         }
-        return move result;
+        return result;
     }
 }

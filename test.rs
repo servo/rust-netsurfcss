@@ -17,7 +17,7 @@ mod example1 {
         name: @LwcString
     }
 
-    impl MyDomNode: VoidPtrLike {
+    impl VoidPtrLike for MyDomNode {
         static fn from_void_ptr(node: *libc::c_void) -> MyDomNode {
             assert node.is_not_null();
             MyDomNode {
@@ -67,7 +67,7 @@ mod example1 {
 
         let mut select_ctx: CssSelectCtx = css_select_ctx_create();
         assert select_ctx.count_sheets() == 0;
-        select_ctx.append_sheet(move sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
+        select_ctx.append_sheet(sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert select_ctx.count_sheets() == 1;
 
@@ -102,7 +102,7 @@ mod example1 {
         bogus: ()
     }
 
-    impl SelectHandler: CssSelectHandler<MyDomNode> {
+    impl CssSelectHandler<MyDomNode> for SelectHandler {
         fn node_name(node: &MyDomNode) -> CssQName {
             debug!("HL node_name!");
             debug!("SS %?", (*node.name).to_str());
@@ -163,7 +163,7 @@ fn test_arc() {
     };
 
     let sheet: CssStylesheet = css_stylesheet_create(&params);
-    let _arc = ARC(move sheet);
+    let _arc = ARC(sheet);
 
     fn resolve_url(_base: &str, _rel: &LwcString) -> CssResult<LwcString> {
         fail!(~"resolving url");

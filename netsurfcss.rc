@@ -33,7 +33,7 @@ use conversions::c_enum_to_rust_enum;
 
 fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     match code {
-        e if e == CSS_OK => Ok(move val),
+        e if e == CSS_OK => Ok(val),
         _ => Err(c_enum_to_rust_enum(code))
     }
 }
@@ -620,7 +620,7 @@ pub mod select {
             let code = unsafe { css_select_ctx_append_sheet(self.select_ctx, sheet.ll_sheet(), origin, media) };
             require_ok(code, "adding sheet to select ctx");
 
-            self.sheets.push(move sheet);
+            self.sheets.push(sheet);
         }
 
         fn count_sheets(&self) -> uint {
@@ -948,7 +948,7 @@ pub mod select {
                 node_has_id: |node: *c_void, name: *lwc_string, match_: *mut bool| -> css_error {
                     let hlnode: N = VoidPtrLike::from_void_ptr(node);
                     let hlname = from_lwc_string(name);
-                    *match_ = handler.node_has_id(&hlnode, move hlname);
+                    *match_ = handler.node_has_id(&hlnode, hlname);
                     CSS_OK
                 },
                 named_ancestor_node: |node: *c_void,
