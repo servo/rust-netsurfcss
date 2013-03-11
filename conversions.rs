@@ -2,7 +2,7 @@ use wapcaplet::LwcString;
 use wapcaplet::ll::lwc_string;
 use core::libc::{c_void, c_char};
 use core::libc::types::common::c99::{uint32_t};
-use cast::transmute;
+use core::cast::transmute;
 use core::ptr::null;
 use ll::{c_enum, rust_enum};
 use ll_lwcstr_to_hl_lwcstr = wapcaplet::from_lwc_string;
@@ -27,7 +27,7 @@ pub trait AsLl<T> {
     fn as_ll<U>(&self, f: fn(&T) -> U) -> U;
 }
 
-pub impl ToLl<css_language_level> for CssLanguageLevel {
+impl ToLl<css_language_level> for CssLanguageLevel {
     pub fn to_ll(&self) -> css_language_level {
         match *self {
             CssLevel1 => CSS_LEVEL_1,
@@ -40,19 +40,19 @@ pub impl ToLl<css_language_level> for CssLanguageLevel {
     }
 }
 
-pub impl ToLl<css_error> for CssError {
+impl ToLl<css_error> for CssError {
     pub fn to_ll(&self) -> css_error {
         *self as css_error
     }
 }
 
-pub impl ToLl<css_font_family_e> for CssFontFamily {
+impl ToLl<css_font_family_e> for CssFontFamily {
     pub fn to_ll(&self) -> css_font_family_e {
         *self as css_font_family_e
     }
 }
 
-pub impl ToLl<css_color> for CssColor {
+impl ToLl<css_color> for CssColor {
     pub fn to_ll(&self) -> css_color {
         assert sys::size_of::<CssColor>() == sys::size_of::<css_color>();
         unsafe { transmute(*self) }
@@ -64,7 +64,7 @@ pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
     unsafe { transmute(color) }
 }
 
-pub impl ToLl<(css_unit, css_fixed)> for CssUnit {
+impl ToLl<(css_unit, css_fixed)> for CssUnit {
     pub fn to_ll(&self) -> (css_unit, css_fixed) {
         use ll::types::*;
         use types::*;
@@ -145,7 +145,7 @@ pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
     }
 }
 
-pub impl ToLl<css_pseudo_element> for CssPseudoElement {
+impl ToLl<css_pseudo_element> for CssPseudoElement {
     pub fn to_ll(&self) -> css_pseudo_element {
         *self as css_pseudo_element
     }
@@ -157,7 +157,7 @@ pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
     unsafe { transmute(val as rust_enum) }
 }
 
-pub impl AsLl<css_stylesheet_params> for CssStylesheetParams {
+impl AsLl<css_stylesheet_params> for CssStylesheetParams {
     pub fn as_ll<U>(&self, f: fn(&css_stylesheet_params) -> U) -> U {
         do str::as_c_str(self.charset) |charset| {
             do str::as_c_str(self.url) |url| {
@@ -194,7 +194,7 @@ extern fn resolve(_pw: *c_void, _base: *c_char, rel: *lwc_string, abs: *mut *lwc
     CSS_OK
 }
 
-pub fn write_ll_qname(hlqname: &CssQName, llqname: *css_qname) {
+pub fn write_ll_qname(hlqname: &mut CssQName, llqname: *mut css_qname) {
     unsafe {
         match &hlqname.ns {
             &Some(ref ns) => {

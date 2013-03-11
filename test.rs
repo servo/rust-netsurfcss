@@ -2,6 +2,7 @@
 mod example1 {
 
     use CssResult;
+    use CssProperty;
     use wapcaplet::ll::lwc_string;
     use ll::properties::*;
     use ll::types::*;
@@ -103,7 +104,7 @@ mod example1 {
     }
 
     impl CssSelectHandler<MyDomNode> for SelectHandler {
-        fn node_name(node: &MyDomNode) -> CssQName {
+        fn node_name(&self, node: &MyDomNode) -> CssQName {
             debug!("HL node_name!");
             debug!("SS %?", (*node.name).to_str());
 
@@ -113,27 +114,27 @@ mod example1 {
             }
         }
 
-        fn node_id(_node: &MyDomNode) -> Option<LwcString> { None }
+        fn node_id(&self, _node: &MyDomNode) -> Option<LwcString> { None }
 
-        fn named_parent_node(_node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
+        fn named_parent_node(&self, _node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
             None
         }
 
-        fn parent_node(_node: &MyDomNode) -> Option<MyDomNode> {
+        fn parent_node(&self, _node: &MyDomNode) -> Option<MyDomNode> {
             None
         }
 
-        fn node_has_id(_node: &MyDomNode, _name: LwcString) -> bool { false }
+        fn node_has_id(&self, _node: &MyDomNode, _name: LwcString) -> bool { false }
 
-        fn named_ancestor_node(_node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
+        fn named_ancestor_node(&self, _node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
             None
         }
 
-        fn node_is_root(_node: &MyDomNode) -> bool { false }
+        fn node_is_root(&self, _node: &MyDomNode) -> bool { false }
 
-        fn node_is_link(_node: &MyDomNode) -> bool { false }
+        fn node_is_link(&self, _node: &MyDomNode) -> bool { false }
 
-        fn ua_default_for_property(property: CssProperty) -> CssHint {
+        fn ua_default_for_property(&self, property: CssProperty) -> CssHint {
             match property {
                 _ => CssHintDefault
             }

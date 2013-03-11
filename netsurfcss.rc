@@ -18,14 +18,16 @@ use ll::types::*;
 use ll::select::*;
 use ll::hint::*;
 use ll::properties::*;
-use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
-use cast::transmute;
+use core::ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
+use core::cast::transmute;
 use errors::CssError;
 use util::VoidPtrLike;
 
 use wapcaplet::ll::lwc_string;
 use wapcaplet::{LwcString, from_rust_string, from_lwc_string};
 use conversions::c_enum_to_rust_enum;
+
+pub use self::properties::CssProperty;
 
 // FIXME: Trait inheritance still busted
 //trait DomNode: VoidPtrLike {
@@ -38,16 +40,16 @@ fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
     }
 }
 
-type CssResult<T> = Result<T, CssError>;
+pub type CssResult<T> = Result<T, CssError>;
 
-pure fn require_ok(code: css_error, what: &str) {
+pub pure fn require_ok(code: css_error, what: &str) {
     match code {
         e if e == CSS_OK => (),
         e => fail!(fmt!("CSS parsing failed while %s. code: %?", what, e))
     }
 }
 
-extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
+pub extern fn realloc(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
     unsafe { libc::realloc(ptr, len) }
 }
 
@@ -163,8 +165,9 @@ pub mod errors {
 }
 
 pub mod stylesheet {
-    use cast::transmute;
-    use ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
+    use core::cast::transmute;
+    use core::ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
+    use core::libc::size_t;
     use core::libc::types::common::c99::uint64_t;
     use wapcaplet::LwcString;
     use properties::{CssFontStyle, CssFontVariant, CssFontWeight};
@@ -237,7 +240,7 @@ pub mod stylesheet {
         }
     }
 
-    impl CssStylesheet {
+    pub impl CssStylesheet {
         fn size(&self) -> uint {
             unsafe {
                 let mut size = 0;
@@ -261,7 +264,7 @@ pub mod stylesheet {
             require_ok(code, "finishing parsing");
         }
 
-        fn ll_sheet() -> *css_stylesheet {
+        fn ll_sheet(&self) -> *css_stylesheet {
             self.sheet
         }
     }
@@ -271,7 +274,7 @@ pub mod stylesheet {
 pub mod properties {
 
     use core::libc::types::common::c99::uint32_t;
-    use cast::transmute;
+    use core::cast::transmute;
     use types::CssColor;
 
     pub enum CssProperty {
@@ -459,9 +462,9 @@ pub mod hint {
     use ll::properties::*;
     use ll::errors::*;
     use ll::types::css_color;
-    use ptr::null;
+    use core::ptr::null;
     use core::libc::types::common::c99::uint8_t;
-    use cast::transmute;
+    use core::cast::transmute;
 
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
@@ -572,8 +575,8 @@ pub mod select {
     use ll::select::{CSS_SELECT_HANDLER_VERSION_1, css_select_results_destroy};
     use require_ok;
     use realloc;
-    use ptr::{null, to_mut_unsafe_ptr, to_unsafe_ptr};
-    use cast::transmute;
+    use core::ptr::{null, to_mut_unsafe_ptr, to_unsafe_ptr};
+    use core::cast::transmute;
     use ll::errors::{css_error, CSS_OK};
     use wapcaplet::ll::lwc_string;
     use ll::hint::css_hint;
@@ -594,7 +597,7 @@ pub mod select {
         priv select_ctx: *css_select_ctx,
         // Whenever a sheet is added to the select ctx we will take ownership of it
         // to ensure that it stays alive
-        priv mut sheets: ~[CssStylesheet],
+        priv sheets: ~[CssStylesheet],
 
         drop {
             assert self.select_ctx.is_not_null();
@@ -615,7 +618,7 @@ pub mod select {
         }
     }
 
-    impl CssSelectCtx {
+    pub impl CssSelectCtx {
         fn append_sheet(&mut self, sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
             let code = unsafe { css_select_ctx_append_sheet(self.select_ctx, sheet.ll_sheet(), origin, media) };
             require_ok(code, "adding sheet to select ctx");
@@ -698,7 +701,7 @@ pub mod select {
         use wapcaplet::ll::lwc_string;
         use ll::types::css_qname;
         use core::libc::c_void;
-        use cast::transmute;
+        use core::cast::transmute;
         use ll::errors::{css_error, CSS_OK, CSS_PROPERTY_NOT_SET};
         use ll::hint::css_hint;
         use types;
@@ -720,7 +723,7 @@ pub mod select {
         priv fn ph(pw: *c_void) -> &UntypedHandler {
             unsafe { transmute(pw) }
         }
-        pub extern fn node_name(pw: *c_void, node: *c_void, qname: *css_qname) -> css_error {
+        pub extern fn node_name(pw: *c_void, node: *c_void, qname: *mut css_qname) -> css_error {
             enter("node_name");
             (ph(pw).node_name)(node, qname)
         }
@@ -888,18 +891,18 @@ pub mod select {
     }
 
     pub struct UntypedHandler {
-        node_name: &fn(node: *c_void, qname: *css_qname) -> css_error,
-        node_classes: &fn(node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error,
-        node_id: &fn(node: *c_void, id: *mut *lwc_string) -> css_error,
-        named_parent_node: &fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
-        parent_node: &fn(node: *c_void, parent: *mut *c_void) -> css_error,
-        node_has_id: &fn(node: *c_void, name: *lwc_string, match_: *mut bool) -> css_error,
-        named_ancestor_node: &fn(node: *c_void,
+        node_name: &'self fn(node: *c_void, qname: *mut css_qname) -> css_error,
+        node_classes: &'self fn(node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error,
+        node_id: &'self fn(node: *c_void, id: *mut *lwc_string) -> css_error,
+        named_parent_node: &'self fn(node: *c_void, qname: *css_qname, parent: *mut *c_void) -> css_error,
+        parent_node: &'self fn(node: *c_void, parent: *mut *c_void) -> css_error,
+        node_has_id: &'self fn(node: *c_void, name: *lwc_string, match_: *mut bool) -> css_error,
+        named_ancestor_node: &'self fn(node: *c_void,
                                  qname: *css_qname,
                                  parent: *mut *c_void) -> css_error,
-        node_is_root: &fn(node: *c_void, match_: *mut bool) -> css_error,
-        node_is_link: &fn(node: *c_void, match_: *mut bool) -> css_error,
-        ua_default_for_property: &fn(property: uint32_t, hint: *mut css_hint) -> css_error,
+        node_is_root: &'self fn(node: *c_void, match_: *mut bool) -> css_error,
+        node_is_link: &'self fn(node: *c_void, match_: *mut bool) -> css_error,
+        ua_default_for_property: &'self fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
     
@@ -907,10 +910,10 @@ pub mod select {
     priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
-                node_name: |node: *c_void, qname: *css_qname| -> css_error {
+                node_name: |node: *c_void, qname: *mut css_qname| -> css_error {
                     let hlnode: N = VoidPtrLike::from_void_ptr(node);
-                    let hlqname = handler.node_name(&hlnode);
-                    write_ll_qname(&hlqname, qname);
+                    let mut hlqname = handler.node_name(&hlnode);
+                    write_ll_qname(&mut hlqname, qname);
                     CSS_OK
                 },
                 node_classes: |_node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t| -> css_error {
@@ -985,15 +988,15 @@ pub mod select {
     }
 
     pub trait CssSelectHandler<N> {
-        fn node_name(node: &N) -> CssQName;
-        fn node_id(node: &N) -> Option<LwcString>;
-        fn named_parent_node(node: &N, qname: &CssQName) -> Option<N>;
-        fn parent_node(node: &N) -> Option<N>;
-        fn node_has_id(node: &N, name: LwcString) -> bool;
-        fn named_ancestor_node(node: &N, qname: &CssQName) -> Option<N>;
-        fn node_is_root(node: &N) -> bool;
-        fn node_is_link(node: &N) -> bool;
-        fn ua_default_for_property(property: CssProperty) -> CssHint;
+        fn node_name(&self, node: &N) -> CssQName;
+        fn node_id(&self, node: &N) -> Option<LwcString>;
+        fn named_parent_node(&self, node: &N, qname: &CssQName) -> Option<N>;
+        fn parent_node(&self, node: &N) -> Option<N>;
+        fn node_has_id(&self, node: &N, name: LwcString) -> bool;
+        fn named_ancestor_node(&self, node: &N, qname: &CssQName) -> Option<N>;
+        fn node_is_root(&self, node: &N) -> bool;
+        fn node_is_link(&self, node: &N) -> bool;
+        fn ua_default_for_property(&self, property: CssProperty) -> CssHint;
     }
 
     pub struct CssSelectResults {
@@ -1006,8 +1009,8 @@ pub mod select {
         }
     }
 
-    impl CssSelectResults {
-        fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyle/&self {
+    pub impl CssSelectResults {
+        fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyle<'self> {
             let element = element.to_ll();
             let llstyle = unsafe { *self.results }.styles[element];
             // FIXME: Rust #3926
@@ -1032,19 +1035,21 @@ pub mod computed {
     use values::{CssLineHeightValue};
     use ll::properties::*;
     use ll::computed::*;
-    use ptr::{to_mut_unsafe_ptr, null};
-    use cast::transmute;
-    use ll::errors::CSS_OK;
+    use core::ptr::{to_mut_unsafe_ptr, null};
+    use core::cast::transmute;
+    use core::libc::c_void;
+    use ll::errors::{css_error, CSS_OK};
     use ll::hint::css_hint;
+    use wapcaplet::ll::lwc_string;
 
-    pub struct CssComputedStyle {
+    pub struct CssComputedStyle<'self> {
         // A borrowed back reference to ensure this outlives the results
-        result_backref: &CssSelectResults,
+        result_backref: &'self CssSelectResults,
         computed_style: *css_computed_style,
     }
 
-    impl CssComputedStyle {
-        fn color() -> CssColorValue {
+    pub impl<'self> CssComputedStyle<'self> {
+        fn color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe {css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut color)) };
             let type_ = type_ as css_color_e;
@@ -1052,7 +1057,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn background_color() -> CssColorValue {
+        fn background_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut color)) };
             let type_ = type_ as css_color_e;
@@ -1060,7 +1065,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_top_width() -> CssBorderWidthValue {
+        fn border_top_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_border_top_width(self.computed_style,
@@ -1071,7 +1076,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_right_width() -> CssBorderWidthValue {
+        fn border_right_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_border_right_width(self.computed_style,
@@ -1082,7 +1087,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_bottom_width() -> CssBorderWidthValue {
+        fn border_bottom_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe {css_computed_border_bottom_width(self.computed_style,
@@ -1093,7 +1098,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_left_width() -> CssBorderWidthValue {
+        fn border_left_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_border_left_width(self.computed_style,
@@ -1104,7 +1109,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_top_color() -> CssColorValue {
+        fn border_top_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_top_color(self.computed_style,
                                                                to_mut_unsafe_ptr(&mut color)) };
@@ -1112,7 +1117,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_right_color() -> CssColorValue {
+        fn border_right_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_right_color(self.computed_style,
                                                                  to_mut_unsafe_ptr(&mut color)) };
@@ -1120,7 +1125,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_bottom_color() -> CssColorValue {
+        fn border_bottom_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_bottom_color(self.computed_style,
                                                                   to_mut_unsafe_ptr(&mut color)) };
@@ -1128,7 +1133,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_left_color() -> CssColorValue {
+        fn border_left_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_left_color(self.computed_style,
                                                                 to_mut_unsafe_ptr(&mut color)) };
@@ -1136,7 +1141,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn margin_top() -> CssMarginValue {
+        fn margin_top(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_margin_top(self.computed_style,
@@ -1147,7 +1152,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn margin_right() -> CssMarginValue {
+        fn margin_right(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe {css_computed_margin_right(self.computed_style,
@@ -1158,7 +1163,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn margin_bottom() -> CssMarginValue {
+        fn margin_bottom(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_margin_bottom(self.computed_style,
@@ -1169,7 +1174,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn margin_left() -> CssMarginValue {
+        fn margin_left(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_margin_left(self.computed_style,
@@ -1180,21 +1185,21 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn display(root: bool) -> CssDisplayValue {
+        fn display(&self, root: bool) -> CssDisplayValue {
             let type_ = unsafe { css_computed_display(self.computed_style, root) };
             let type_ = type_ as css_display_e;
 
             CssDisplayValue::new(type_)
         }
 
-        fn position() -> CssPositionValue {
+        fn position(&self) -> CssPositionValue {
             let type_ = unsafe { css_computed_position(self.computed_style) };
             let type_ = type_ as css_position_e;
 
             CssPositionValue::new(type_)
         }
 
-        fn width() -> CssWidthValue {
+        fn width(&self) -> CssWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_width(self.computed_style,
@@ -1205,7 +1210,7 @@ pub mod computed {
             CssWidthValue::new(type_, length, unit)
         }
 
-        fn height() -> CssHeightValue {
+        fn height(&self) -> CssHeightValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_height(self.computed_style,
@@ -1216,14 +1221,14 @@ pub mod computed {
             CssHeightValue::new(type_, length, unit)
         }
 
-        fn float() -> CssFloatValue {
+        fn float(&self) -> CssFloatValue {
             let type_ = unsafe { css_computed_float(self.computed_style) };
             let type_ = type_ as css_float_e;
 
             CssFloatValue::new(type_)
         }
 
-        fn font_family() -> CssFontFamilyValue {
+        fn font_family(&self) -> CssFontFamilyValue {
             let mut names: **lwc_string = null();
             let type_ = unsafe { css_computed_font_family(self.computed_style,
                                                           to_mut_unsafe_ptr(&mut names)) };
@@ -1232,7 +1237,7 @@ pub mod computed {
             CssFontFamilyValue::new(type_, names)
         }
 
-        fn font_size() -> CssFontSizeValue {
+        fn font_size(&self) -> CssFontSizeValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_font_size(self.computed_style,
@@ -1243,28 +1248,28 @@ pub mod computed {
             CssFontSizeValue::new(type_, length, unit)
         }
 
-        fn font_style() -> CssFontStyleValue {
+        fn font_style(&self) -> CssFontStyleValue {
             let type_ = unsafe { css_computed_font_style(self.computed_style) };
             let type_ = type_ as css_font_style_e;
 
             CssFontStyleValue::new(type_)
         }
 
-        fn font_weight() -> CssFontWeightValue {
+        fn font_weight(&self) -> CssFontWeightValue {
             let type_ = unsafe { css_computed_font_weight(self.computed_style) };
             let type_ = type_ as css_font_weight_e;
 
             CssFontWeightValue::new(type_)
         }
 
-        fn text_align() -> CssTextAlignValue {
+        fn text_align(&self) -> CssTextAlignValue {
             let type_ = unsafe { css_computed_text_align(self.computed_style) };
             let type_ = type_ as css_text_align_e;
 
             CssTextAlignValue::new(type_)
         }
 
-        fn line_height() -> CssLineHeightValue {
+        fn line_height(&self) -> CssLineHeightValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_line_height(self.computed_style,

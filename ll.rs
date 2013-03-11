@@ -87,8 +87,8 @@ pub mod types {
     pub type css_computed_style = c_void;
 
     pub struct css_qname {
-        mut ns: *lwc_string,
-        mut name: *lwc_string
+        ns: *lwc_string,
+        name: *lwc_string
     }
 }
 
