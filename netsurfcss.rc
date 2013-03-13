@@ -215,9 +215,11 @@ pub mod stylesheet {
     // Note that this must behave as if it is freezable
     pub struct CssStylesheet {
         priv sheet: *css_stylesheet,
+    }
 
-        drop {
-            assert self.sheet.is_not_null();
+    impl Drop for CssStylesheet {
+        fn finalize(&self) {
+            fail_unless!(self.sheet.is_not_null());
             let code = unsafe { css_stylesheet_destroy(self.sheet) };
             require_ok(code, "destroying stylesheet");
         }
@@ -230,7 +232,7 @@ pub mod stylesheet {
                 let code = ll_css_stylesheet_create(
                     to_unsafe_ptr(ll_params), realloc, null(), to_mut_unsafe_ptr(&mut sheet));
                 require_ok(code, "creating stylesheet");
-                assert sheet.is_not_null();
+                fail_unless!(sheet.is_not_null());
                 sheet
             }
         };
@@ -598,9 +600,11 @@ pub mod select {
         // Whenever a sheet is added to the select ctx we will take ownership of it
         // to ensure that it stays alive
         priv sheets: ~[CssStylesheet],
+    }
 
-        drop {
-            assert self.select_ctx.is_not_null();
+    impl Drop for CssSelectCtx {
+        fn finalize(&self) {
+            fail_unless!(self.select_ctx.is_not_null());
             let code = unsafe { css_select_ctx_destroy(self.select_ctx) };
             require_ok(code, "destroying select ctx");
         }
@@ -610,7 +614,7 @@ pub mod select {
         let mut select_ctx: *css_select_ctx = null();
         let code = unsafe { ll_css_select_ctx_create(realloc, null(), to_mut_unsafe_ptr(&mut select_ctx)) };
         require_ok(code, "creating select context");
-        assert select_ctx.is_not_null();
+        fail_unless!(select_ctx.is_not_null());
 
         CssSelectCtx {
             select_ctx: select_ctx,
@@ -907,7 +911,7 @@ pub mod select {
 
     
 
-    priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: fn(&UntypedHandler) -> R) -> R {
+    priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: &fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *mut css_qname| -> css_error {
@@ -1001,9 +1005,11 @@ pub mod select {
 
     pub struct CssSelectResults {
         priv results: *css_select_results,
+    }
 
-        drop {
-            assert self.results.is_not_null();
+    impl Drop for CssSelectResults {
+        fn finalize(&self) {
+            fail_unless!(self.results.is_not_null());
             let code = unsafe { css_select_results_destroy(self.results) };
             require_ok(code, "destroying select results");
         }
@@ -1014,7 +1020,7 @@ pub mod select {
             let element = element.to_ll();
             let llstyle = unsafe { *self.results }.styles[element];
             // FIXME: Rust #3926
-            assert (llstyle as *c_void).is_not_null();
+            fail_unless!((llstyle as *c_void).is_not_null());
 
             CssComputedStyle {
                 result_backref: self,

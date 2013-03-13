@@ -20,7 +20,7 @@ mod example1 {
 
     impl VoidPtrLike for MyDomNode {
         static fn from_void_ptr(node: *libc::c_void) -> MyDomNode {
-            assert node.is_not_null();
+            fail_unless!(node.is_not_null());
             MyDomNode {
                 name: unsafe {
                     let box = cast::reinterpret_cast(&node);
@@ -67,10 +67,10 @@ mod example1 {
 
 
         let mut select_ctx: CssSelectCtx = css_select_ctx_create();
-        assert select_ctx.count_sheets() == 0;
+        fail_unless!(select_ctx.count_sheets() == 0);
         select_ctx.append_sheet(sheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
         debug!("count sheets: %?", select_ctx.count_sheets());
-        assert select_ctx.count_sheets() == 1;
+        fail_unless!(select_ctx.count_sheets() == 1);
 
         for uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
