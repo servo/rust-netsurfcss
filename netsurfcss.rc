@@ -5,29 +5,19 @@
 extern mod std;
 extern mod wapcaplet;
 
+use core::libc::{c_void, size_t};
+use ll::errors::*;
+use errors::CssError;
+use util::VoidPtrLike;
+
+use conversions::c_enum_to_rust_enum;
+
+pub use self::properties::CssProperty;
+
 pub mod ll;
 pub mod conversions;
 pub mod test;
 pub mod util;
-
-use core::libc::{c_void, size_t};
-use core::libc::types::common::c99::{uint32_t, int32_t, uint64_t, uint8_t};
-use ll::errors::*;
-use ll::stylesheet::*;
-use ll::types::*;
-use ll::select::*;
-use ll::hint::*;
-use ll::properties::*;
-use core::ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
-use core::cast::transmute;
-use errors::CssError;
-use util::VoidPtrLike;
-
-use wapcaplet::ll::lwc_string;
-use wapcaplet::{LwcString, from_rust_string, from_lwc_string};
-use conversions::c_enum_to_rust_enum;
-
-pub use self::properties::CssProperty;
 
 // FIXME: Trait inheritance still busted
 //trait DomNode: VoidPtrLike {
@@ -42,7 +32,7 @@ fn ll_result_to_rust_result<T>(code: css_error, val: T) -> CssResult<T> {
 
 pub type CssResult<T> = Result<T, CssError>;
 
-pub pure fn require_ok(code: css_error, what: &str) {
+pub fn require_ok(code: css_error, what: &str) {
     match code {
         e if e == CSS_OK => (),
         e => fail!(fmt!("CSS parsing failed while %s. code: %?", what, e))
@@ -277,7 +267,6 @@ pub mod properties {
 
     use core::libc::types::common::c99::uint32_t;
     use core::cast::transmute;
-    use types::CssColor;
 
     pub enum CssProperty {
         CssPropAzimuth			= 0x000,
@@ -478,7 +467,7 @@ pub mod hint {
 
     pub impl CssHint {
 
-        static fn new(property: CssProperty, hint: *css_hint) -> CssHint {
+        fn new(property: CssProperty, hint: *css_hint) -> CssHint {
             let status = get_css_hint_status(hint) as u32;
             match property {
                 CssPropFontSize => {
@@ -713,7 +702,6 @@ pub mod select {
         use properties;
         use hint::CssHint;
         use super::UntypedHandler;
-        use conversions::write_ll_qname;
 
         priv fn unimpl(n: &str) -> ! {
             fail!(fmt!("unimplemented css callback handler: %s", n))
@@ -894,7 +882,7 @@ pub mod select {
         }
     }
 
-    pub struct UntypedHandler {
+    pub struct UntypedHandler<'self> {
         node_name: &'self fn(node: *c_void, qname: *mut css_qname) -> css_error,
         node_classes: &'self fn(node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t) -> css_error,
         node_id: &'self fn(node: *c_void, id: *mut *lwc_string) -> css_error,
@@ -1339,7 +1327,7 @@ mod values {
     }
 
     pub impl CssColorValue {
-        static fn new(type_: css_color_e, color: css_color) -> CssColorValue {
+        fn new(type_: css_color_e, color: css_color) -> CssColorValue {
             if type_ == CSS_COLOR_INHERIT {
                 CssColorInherit
             } else if type_ == CSS_COLOR_COLOR {
@@ -1357,7 +1345,7 @@ mod values {
     }
 
     pub impl CssMarginValue {
-        static fn new(type_: css_margin_e, length: css_fixed, unit: css_unit) -> CssMarginValue {
+        fn new(type_: css_margin_e, length: css_fixed, unit: css_unit) -> CssMarginValue {
             if type_ == CSS_MARGIN_INHERIT {
                 CssMarginInherit
             } else if type_ == CSS_MARGIN_SET {
@@ -1379,7 +1367,7 @@ mod values {
     }
 
     pub impl CssBorderWidthValue {
-        static fn new(type_: css_border_width_e, length: css_fixed, unit: css_unit) -> CssBorderWidthValue {
+        fn new(type_: css_border_width_e, length: css_fixed, unit: css_unit) -> CssBorderWidthValue {
             if type_ == CSS_BORDER_WIDTH_INHERIT {
                 CssBorderWidthInherit
             } else if type_ == CSS_BORDER_WIDTH_THIN {
@@ -1417,7 +1405,7 @@ mod values {
     }
 
     pub impl CssDisplayValue {
-        static fn new(type_: css_display_e) -> CssDisplayValue {
+        fn new(type_: css_display_e) -> CssDisplayValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1431,7 +1419,7 @@ mod values {
     }
 
     pub impl CssPositionValue {
-        static fn new(type_: css_position_e) -> CssPositionValue {
+        fn new(type_: css_position_e) -> CssPositionValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1443,7 +1431,7 @@ mod values {
     }
 
     pub impl CssWidthValue {
-        static fn new(type_: css_width_e, length: css_fixed, unit: css_unit) -> CssWidthValue {
+        fn new(type_: css_width_e, length: css_fixed, unit: css_unit) -> CssWidthValue {
             if type_ == CSS_WIDTH_INHERIT {
                 CssWidthInherit
             } else if type_ == CSS_WIDTH_SET {
@@ -1463,7 +1451,7 @@ mod values {
     }
 
     pub impl CssHeightValue {
-        static fn new(type_: css_height_e, length: css_fixed, unit: css_unit) -> CssHeightValue {
+        fn new(type_: css_height_e, length: css_fixed, unit: css_unit) -> CssHeightValue {
             if type_ == CSS_HEIGHT_INHERIT {
                 CssHeightInherit
             } else if type_ == CSS_HEIGHT_SET {
@@ -1484,7 +1472,7 @@ mod values {
     }
 
     pub impl CssFloatValue {
-        static fn new(type_: css_float_e) -> CssFloatValue {
+        fn new(type_: css_float_e) -> CssFloatValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1500,7 +1488,7 @@ mod values {
     }
 
     pub impl CssFontFamilyValue {
-        static fn new(type_: css_font_family_e, names: **lwc_string) -> CssFontFamilyValue {
+        fn new(type_: css_font_family_e, names: **lwc_string) -> CssFontFamilyValue {
             if names.is_not_null() {
                 CssFontFamilyValue(lwc_string_buf_to_hl_vec(names))
             } else if type_ == CSS_FONT_FAMILY_INHERIT {
@@ -1536,7 +1524,7 @@ mod values {
     }
 
     pub impl CssFontSizeValue {
-        static fn new(type_: css_font_size_e, length: css_fixed, unit: css_unit) -> CssFontSizeValue {
+        fn new(type_: css_font_size_e, length: css_fixed, unit: css_unit) -> CssFontSizeValue {
             match type_ {
                 x if x == CSS_FONT_SIZE_INHERIT => CssFontSizeInherit,
                 x if x == CSS_FONT_SIZE_XX_SMALL => CssFontSizeXXSmall,
@@ -1562,7 +1550,7 @@ mod values {
     }
 
     pub impl CssFontStyleValue {
-        static fn new(type_: css_font_style_e) -> CssFontStyleValue {
+        fn new(type_: css_font_style_e) -> CssFontStyleValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1585,7 +1573,7 @@ mod values {
     }
 
     pub impl CssFontWeightValue {
-        static fn new(type_: css_font_weight_e) -> CssFontWeightValue {
+        fn new(type_: css_font_weight_e) -> CssFontWeightValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1604,7 +1592,7 @@ mod values {
     }
 
     pub impl CssTextAlignValue {
-        static fn new(type_: css_text_align_e) -> CssTextAlignValue {
+        fn new(type_: css_text_align_e) -> CssTextAlignValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1617,7 +1605,7 @@ mod values {
     }
 
     pub impl CssLineHeightValue {
-        static fn new(type_: css_line_height_e, length: css_fixed, unit: css_unit) -> CssLineHeightValue {
+        fn new(type_: css_line_height_e, length: css_fixed, unit: css_unit) -> CssLineHeightValue {
             if type_ == CSS_LINE_HEIGHT_INHERIT {
                 CssLineHeightInherit
             } else if type_ == CSS_LINE_HEIGHT_NUMBER {
