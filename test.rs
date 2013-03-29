@@ -3,14 +3,9 @@ mod example1 {
 
     use CssResult;
     use CssProperty;
-    use wapcaplet::ll::lwc_string;
-    use ll::properties::*;
-    use ll::types::*;
     use types::*;
     use hint::*;
     use select::*;
-    use values::*;
-    use stylesheet::*;
     use util::VoidPtrLike;
     use wapcaplet::{LwcString, from_rust_string};
 
@@ -19,7 +14,7 @@ mod example1 {
     }
 
     impl VoidPtrLike for MyDomNode {
-        static fn from_void_ptr(node: *libc::c_void) -> MyDomNode {
+        fn from_void_ptr(node: *libc::c_void) -> MyDomNode {
             fail_unless!(node.is_not_null());
             MyDomNode {
                 name: unsafe {
