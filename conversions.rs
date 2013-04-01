@@ -54,13 +54,13 @@ impl ToLl<css_font_family_e> for CssFontFamily {
 
 impl ToLl<css_color> for CssColor {
     pub fn to_ll(&self) -> css_color {
-        fail_unless!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
+        assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
         unsafe { transmute(*self) }
     }
 }
 
 pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
-    fail_unless!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
+    assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
     unsafe { transmute(color) }
 }
 
@@ -138,7 +138,7 @@ pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
                 None
             },
             name: {
-                fail_unless!((*qname).name.is_not_null());
+                assert!((*qname).name.is_not_null());
                 ll_lwcstr_to_hl_lwcstr((*qname).name)
             }
         }
@@ -153,7 +153,7 @@ impl ToLl<css_pseudo_element> for CssPseudoElement {
 
 pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
     // Sanity check that this is actually a 'c-like' (har) enum
-    fail_unless!(sys::size_of::<T>() == sys::size_of::<rust_enum>());
+    assert!(sys::size_of::<T>() == sys::size_of::<rust_enum>());
     unsafe { transmute(val as rust_enum) }
 }
 
