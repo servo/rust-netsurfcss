@@ -32,6 +32,14 @@ mod example1 {
 
     #[test]
     fn run() {
+        use super::super::stylesheet::{CssUrlResolutionFn, CssStylesheetParams, CssStylesheet,
+                                       css_stylesheet_create, CssStylesheetParamsVersion1};
+        use super::super::computed::CssComputedStyle;
+        use super::super::values::{CssColorColor, CssColorInherit};
+        use super::super::ll::types::{CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL, CSS_MEDIA_SCREEN};
+        use super::super::conversions::ToLl;
+        use wapcaplet::{LwcString, from_rust_string};
+
         let data = "h1 { color: red; }\
                     h4 { color: #321; }\
                     h4, h5 { color: #123456; }";
@@ -82,7 +90,7 @@ mod example1 {
             match computed.color() {
                 CssColorInherit => {
                     debug!("color of h%u is 'inherit'", hh);
-                },
+                }
                 CssColorColor(color) => {
                     debug!("color of h%u is %x", hh, color.to_ll() as uint);
                 }
@@ -142,6 +150,8 @@ fn test_arc() {
     use std::arc::ARC;
     use stylesheet::*;
     use types::CssLevel21;
+    use wapcaplet::LwcString;
+    use super::CssResult;
 
     let resolve: CssUrlResolutionFn = |a,b| resolve_url(a, b);
     let params: CssStylesheetParams = CssStylesheetParams {
