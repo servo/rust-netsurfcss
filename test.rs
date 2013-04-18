@@ -122,7 +122,7 @@ mod example1 {
 
             CssQName {
                 ns: None,
-                name: node.name.clone()
+                name: (*node.name).clone()
             }
         }
 
