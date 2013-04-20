@@ -721,7 +721,7 @@ pub mod select {
         priv fn enter(n: &str) {
             debug!("entering raw handler: %s", n);
         }
-        priv fn ph(pw: *c_void) -> &UntypedHandler {
+        priv fn ph<'a>(pw: *c_void) -> &'a UntypedHandler<'a> {
             unsafe { transmute(pw) }
         }
         pub extern fn node_name(pw: *c_void, node: *c_void, qname: *mut css_qname) -> css_error {
@@ -1012,8 +1012,8 @@ pub mod select {
         }
     }
 
-    pub impl CssSelectResults {
-        fn computed_style(&self, element: CssPseudoElement) -> CssComputedStyle<'self> {
+    pub impl<'self> CssSelectResults {
+        fn computed_style(&'self self, element: CssPseudoElement) -> CssComputedStyle<'self> {
             let element = element.to_ll();
             let llstyle = unsafe { *self.results }.styles[element];
             // FIXME: Rust #3926
