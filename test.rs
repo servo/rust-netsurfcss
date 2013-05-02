@@ -27,7 +27,7 @@ mod example1 {
             assert!(node.is_not_null());
             MyDomNode {
                 name: unsafe {
-                    let box = cast::reinterpret_cast(&node);
+                    let box = cast::transmute(&node);
                     cast::bump_box_refcount(box);
                     box
                 }
@@ -35,7 +35,7 @@ mod example1 {
         }
 
         fn to_void_ptr(&self) -> *libc::c_void {
-            unsafe { cast::reinterpret_cast(&self.name) }
+            unsafe { cast::transmute(&self.name) }
         }
     }
 
