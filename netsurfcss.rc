@@ -906,8 +906,6 @@ pub mod select {
         ua_default_for_property: &'self fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
-    
-
     priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: &fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
@@ -968,12 +966,12 @@ pub mod select {
                 },
                 node_is_root: |node: *c_void, match_: *mut bool| -> css_error {
                     let hlnode = VoidPtrLike::from_void_ptr(node);
-                    unsafe { *match_ = handler.node_is_root(&hlnode) }
+                    *match_ = handler.node_is_root(&hlnode);
                     CSS_OK
                 },
                 node_is_link: |node: *c_void, match_: *mut bool| -> css_error {
                     let hlnode = VoidPtrLike::from_void_ptr(node);
-                    unsafe { *match_ = handler.node_is_link(&hlnode) }
+                    *match_ = handler.node_is_link(&hlnode);
                     CSS_OK
                 },
                 ua_default_for_property: |property: uint32_t, hint: *mut css_hint| -> css_error {
