@@ -18,12 +18,12 @@ use core::libc::types::common::c99::uint32_t;
 
 #[cfg(target_os = "macos")]
 #[nolink]
-#[link_args="-L../libcss -lcss -L../libparserutils -lparserutils -L../libwapcaplet -lwapcaplet -liconv"]
+#[link_args="-L../../netsurfcss/libcss -lcss -L../../libparserutils/libparserutils -lparserutils -L../../wapcaplet/libwapcaplet -lwapcaplet -liconv"]
 extern mod linking { }
 
 #[cfg(target_os = "linux")]
 #[nolink]
-#[link_args="-L../libcss -lcss -L../libparserutils -lparserutils -L../libwapcaplet -lwapcaplet"]
+#[link_args="-L../../netsurfcss/libcss -lcss -L../../libparserutils/libparserutils -lparserutils -L../../wapcaplet/libwapcaplet -lwapcaplet"]
 extern mod linking { }
 
 // Generally true
