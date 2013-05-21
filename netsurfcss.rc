@@ -1032,7 +1032,7 @@ pub mod computed {
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
-    use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue};
+    use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue, CssTextDecorationValue};
     use values::{CssLineHeightValue};
     use ll::properties::*;
     use ll::computed::*;
@@ -1269,6 +1269,14 @@ pub mod computed {
 
             CssTextAlignValue::new(type_)
         }
+
+        fn text_decoration(&self) -> CssTextDecorationValue {
+            let type_ = unsafe { css_computed_text_decoration(self.computed_style) };
+            let type_ = type_ as css_text_decoration_e;
+
+            CssTextDecorationValue::new(type_)
+        }
+
 
         fn line_height(&self) -> CssLineHeightValue {
             let mut length = 0;
@@ -1600,6 +1608,21 @@ mod values {
 
     pub impl CssTextAlignValue {
         fn new(type_: css_text_align_e) -> CssTextAlignValue {
+            c_enum_to_rust_enum(type_)
+        }
+    }
+
+    enum CssTextDecorationValue{
+    CssTextDecorationInherit = 0x00,
+    CssTextDecorationNone = 0x10,
+    CssTextDecorationBlink = (1<<3),
+    CssTextDecorationLineThrough = (1<<2),
+    CssTextDecorationOverline = (1<<1),
+    CssTextDecorationUnderline = (1<<0),
+    }
+
+    pub impl CssTextDecorationValue {
+        fn new(type_: css_text_decoration_e) -> CssTextDecorationValue {
             c_enum_to_rust_enum(type_)
         }
     }
