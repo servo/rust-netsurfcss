@@ -146,6 +146,8 @@ mod example1 {
 
         fn node_is_link(&self, _node: &MyDomNode) -> bool { false }
 
+        fn node_is_visited(&self, _node: &MyDomNode) -> bool { false }
+
         fn ua_default_for_property(&self, property: CssProperty) -> CssHint {
             match property {
                 _ => CssHintDefault
