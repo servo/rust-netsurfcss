@@ -1038,7 +1038,7 @@ pub mod computed {
     use properties::CssPropFontSize;
     use hint::CssHint;
     use select::CssSelectResults;
-    use values::{CssColorValue, CssMarginValue, CssBorderWidthValue, CssDisplayValue};
+    use values::{CssColorValue, CssMarginValue, CssPaddingValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
     use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue, CssTextDecorationValue};
     use values::{CssLineHeightValue};
@@ -1192,6 +1192,50 @@ pub mod computed {
             let type_ = type_ as css_margin_e;
 
             CssMarginValue::new(type_, length, unit)
+        }
+
+        fn padding_top(&self) -> CssPaddingValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = unsafe { css_computed_padding_top(self.computed_style,
+                                                         to_mut_unsafe_ptr(&mut length),
+                                                         to_mut_unsafe_ptr(&mut unit)) };
+            let type_ = type_ as css_padding_e;
+
+            CssPaddingValue::new(type_, length, unit)
+        }
+
+        fn padding_right(&self) -> CssPaddingValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = unsafe {css_computed_padding_right(self.computed_style,
+                                                          to_mut_unsafe_ptr(&mut length),
+                                                          to_mut_unsafe_ptr(&mut unit)) };
+            let type_ = type_ as css_padding_e;
+
+            CssPaddingValue::new(type_, length, unit)
+        }
+
+        fn padding_bottom(&self) -> CssPaddingValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = unsafe { css_computed_padding_bottom(self.computed_style,
+                                                            to_mut_unsafe_ptr(&mut length),
+                                                            to_mut_unsafe_ptr(&mut unit)) };
+            let type_ = type_ as css_padding_e;
+
+            CssPaddingValue::new(type_, length, unit)
+        }
+
+        fn padding_left(&self) -> CssPaddingValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = unsafe { css_computed_padding_left(self.computed_style,
+                                                          to_mut_unsafe_ptr(&mut length),
+                                                          to_mut_unsafe_ptr(&mut unit)) };
+            let type_ = type_ as css_padding_e;
+
+            CssPaddingValue::new(type_, length, unit)
         }
 
         fn display(&self, root: bool) -> CssDisplayValue {
@@ -1378,6 +1422,24 @@ mod values {
                 CssMarginAuto
             } else {
                 unimpl("margin")
+            }
+        }
+    }
+
+
+    pub enum CssPaddingValue {
+        CssPaddingInherit,
+        CssPaddingSet(CssUnit)
+    }
+
+    pub impl CssPaddingValue {
+        fn new(type_: css_padding_e, length: css_fixed, unit: css_unit) -> CssPaddingValue {
+            if type_ == CSS_PADDING_INHERIT {
+                CssPaddingInherit
+            } else if type_ == CSS_PADDING_SET {
+                CssPaddingSet(ll_unit_to_hl_unit(unit, length))
+            } else {
+                unimpl("padding")
             }
         }
     }

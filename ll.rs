@@ -314,6 +314,11 @@ pub mod properties {
     pub static CSS_MARGIN_SET: css_margin_e = 0x1;
     pub static CSS_MARGIN_AUTO: css_margin_e = 0x2;
 
+    pub type css_padding_e = c_enum;
+
+    pub static CSS_PADDING_INHERIT: css_padding_e = 0x0;
+    pub static CSS_PADDING_SET: css_padding_e = 0x1;
+
     pub type css_display_e = c_enum;
     
     pub static CSS_DISPLAY_INHERIT: css_display_e = 0x00;
@@ -586,6 +591,10 @@ pub mod computed {
         fn css_computed_margin_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_padding_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_padding_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_padding_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        fn css_computed_padding_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
         fn css_computed_float(style: *css_computed_style) -> uint8_t;
         fn css_computed_position(style: *css_computed_style) -> uint8_t;
