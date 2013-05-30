@@ -916,10 +916,22 @@ pub mod select {
                     write_ll_qname(&mut hlqname, qname);
                     CSS_OK
                 },
-                node_classes: |_node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t| -> css_error {
-                    // FIXME
-                    *classes = null();
-                    *n_classes = 0;
+                node_classes: |node: *c_void, classes: *mut **lwc_string, n_classes: *mut uint32_t| -> css_error {
+                    let hlnode: N = VoidPtrLike::from_void_ptr(node);
+                    
+                    let (a, b) = match handler.node_classes(&hlnode) {
+                        Some(classes) => {
+                            let class = classes.map(|e| e.raw_reffed());
+                            let len = classes.len();
+                            let size = (len * sys::size_of::<libc::intptr_t>()) as libc::size_t;
+                            let mem = libc::malloc(size);
+                            libc::memcpy(mem, vec::raw::to_ptr(class) as *libc::c_void, size);
+                            (mem as **lwc_string, len as u32)
+                        },
+                        None => (null(), 0)
+                    };
+                    *classes = a;
+                    *n_classes = b;
                     CSS_OK
                 },
                 node_id: |node: *c_void, id: *mut *lwc_string| -> css_error {
@@ -995,6 +1007,7 @@ pub mod select {
 
     pub trait CssSelectHandler<N> {
         fn node_name(&self, node: &N) -> CssQName;
+        fn node_classes(&self, node: &N) -> Option<~[LwcString]>;
         fn node_id(&self, node: &N) -> Option<LwcString>;
         fn named_parent_node(&self, node: &N, qname: &CssQName) -> Option<N>;
         fn parent_node(&self, node: &N) -> Option<N>;

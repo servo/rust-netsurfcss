@@ -126,6 +126,8 @@ mod example1 {
             }
         }
 
+        fn node_classes(&self, _node: &MyDomNode) -> Option<~[LwcString]> { None }
+
         fn node_id(&self, _node: &MyDomNode) -> Option<LwcString> { None }
 
         fn named_parent_node(&self, _node: &MyDomNode, _qname: &CssQName) -> Option<MyDomNode> {
