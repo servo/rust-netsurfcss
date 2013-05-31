@@ -137,6 +137,8 @@ mod example1 {
         fn parent_node(&self, _node: &MyDomNode) -> Option<MyDomNode> {
             None
         }
+        
+        fn node_has_class(&self, _node: &MyDomNode, _name: LwcString) -> bool { false }
 
         fn node_has_id(&self, _node: &MyDomNode, _name: LwcString) -> bool { false }
 
