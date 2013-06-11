@@ -274,7 +274,7 @@ pub mod stylesheet {
 
         fn data_done(&mut self) {
             let code = unsafe { css_stylesheet_data_done(self.sheet) };
-            require_ok(code, "finishing parsing");
+            //require_ok(code, "finishing parsing");
         }
 
         fn ll_sheet(&self) -> *css_stylesheet {
@@ -791,18 +791,29 @@ pub mod select {
             enter("node_has_id");
             (ph(pw).node_has_id)(node, name, match_)
         }
-        pub extern fn node_has_attribute(_pw: *c_void, _node: *c_void, _qname: *css_qname, _match_: *bool) -> css_error {
-            unimpl("node_has_attribute")
+        pub extern fn node_has_attribute(_pw: *c_void, _node: *c_void, _qname: *css_qname, match_: *mut bool) -> css_error {
+            unimpl_warn("node_has_attribute");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
-        pub extern fn node_has_attribute_equal(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
+        pub extern fn node_has_attribute_equal(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, match_: *mut bool) -> css_error {
             unimpl_warn("node_has_attribute_equal");
-            CSS_OK
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_has_attribute_dashmatch(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
             unimpl("node_has_attribute_dashmatch")
         }
-        pub extern fn node_has_attribute_includes(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_attribute_includes")
+        pub extern fn node_has_attribute_includes(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, match_: *mut bool) -> css_error {
+            unimpl_warn("node_has_attribute_includes");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_has_attribute_prefix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, match_: *mut bool) -> css_error {
             unimpl_warn("node_has_attribute_prefix");
@@ -811,11 +822,19 @@ pub mod select {
                 CSS_OK
             }
         }
-        pub extern fn node_has_attribute_suffix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_attribute_suffix")
+        pub extern fn node_has_attribute_suffix(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, match_: *mut bool) -> css_error {
+            unimpl_warn("node_has_attribute_suffix");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
-        pub extern fn node_has_attribute_substring(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, _match_: *bool) -> css_error {
-            unimpl("node_has_attribute_substring")
+        pub extern fn node_has_attribute_substring(_pw: *c_void, _node: *c_void, _qname: *css_qname, _value: *lwc_string, match_: *mut bool) -> css_error {
+            unimpl_warn("node_has_attribute_substring");
+            unsafe {
+                *match_ = false;
+                CSS_OK
+            }
         }
         pub extern fn node_is_root(pw: *c_void, node: *c_void, match_: *mut bool) -> css_error {
             enter("node_is_root");
