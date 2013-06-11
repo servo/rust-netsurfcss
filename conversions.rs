@@ -8,7 +8,7 @@
 // except according to those terms.
 
 use wapcaplet::LwcString;
-use wapcaplet::ll::lwc_string;
+use wapcaplet::ll::{lwc_string, rust_lwc_string_ref};
 use core::libc::{c_void, c_char};
 use core::libc::types::common::c99::{uint32_t};
 use core::cast::transmute;
@@ -198,6 +198,7 @@ impl AsLl<css_stylesheet_params> for CssStylesheetParams {
 extern fn resolve(_pw: *c_void, _base: *c_char, rel: *lwc_string, abs: *mut *lwc_string) -> css_error {
     unsafe {
         // TODO
+        rust_lwc_string_ref(rel);
         *abs = rel;
     }
     CSS_OK
