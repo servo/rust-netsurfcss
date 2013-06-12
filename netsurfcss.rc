@@ -273,7 +273,7 @@ pub mod stylesheet {
         }
 
         fn data_done(&mut self) {
-            let code = unsafe { css_stylesheet_data_done(self.sheet) };
+            let _code = unsafe { css_stylesheet_data_done(self.sheet) };
             //require_ok(code, "finishing parsing");
         }
 
