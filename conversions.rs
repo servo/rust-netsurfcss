@@ -9,10 +9,10 @@
 
 use wapcaplet::LwcString;
 use wapcaplet::ll::{lwc_string, rust_lwc_string_ref};
-use core::libc::{c_void, c_char};
-use core::libc::types::common::c99::{uint32_t};
-use core::cast::transmute;
-use core::ptr::null;
+use std::libc::{c_void, c_char};
+use std::libc::types::common::c99::{uint32_t};
+use std::cast::transmute;
+use std::ptr::null;
 use ll::{c_enum, rust_enum};
 use ll_lwcstr_to_hl_lwcstr = wapcaplet::from_lwc_string;
 use ll::types::{css_language_level, CSS_LEVEL_1, CSS_LEVEL_2, CSS_LEVEL_21, CSS_LEVEL_3, CSS_LEVEL_DEFAULT};
@@ -27,6 +27,8 @@ use ll::stylesheet::{css_fixed, css_stylesheet_params};
 use stylesheet::{CssStylesheetParams};
 use ll::select::{css_pseudo_element};
 use select::{CssPseudoElement};
+use std::sys;
+use std::str;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;

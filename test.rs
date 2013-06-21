@@ -17,6 +17,8 @@ mod example1 {
     use select::*;
     use util::VoidPtrLike;
     use wapcaplet::LwcString;
+    use std::libc;
+    use std::cast;
 
     struct MyDomNode {
         name: @LwcString
@@ -73,7 +75,7 @@ mod example1 {
         debug!("stylesheet: %?", sheet);
         debug!("stylesheet size: %?", sheet.size());
 
-        sheet.append_data(str::to_bytes(data));
+        sheet.append_data(data.as_bytes().to_owned());
         sheet.data_done();
         debug!("stylesheet size: %?", sheet.size());
 
@@ -84,7 +86,7 @@ mod example1 {
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert!(select_ctx.count_sheets() == 1);
 
-        for uint::range(1, 7) |hh| {
+        for ::std::uint::range(1, 7) |hh| {
             let element = fmt!("h%u", hh);
             let element_name: @LwcString = @from_rust_string(element);
             let node = MyDomNode { name: element_name };
@@ -162,7 +164,7 @@ mod example1 {
 
 #[test]
 fn test_arc() {
-    use std::arc::ARC;
+    use extra::arc::ARC;
     use stylesheet::*;
     use types::CssLevel21;
     use wapcaplet::LwcString;

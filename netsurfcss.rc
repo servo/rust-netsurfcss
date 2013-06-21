@@ -11,12 +11,12 @@
        vers = "0.1")];
 #[crate_type = "lib"];
 
-extern mod std;
+extern mod extra;
 extern mod wapcaplet;
 
-use core::libc::{c_void, size_t};
-use core::libc;
-use core::ptr;
+use std::libc::{c_void, size_t};
+use std::libc;
+use std::ptr;
 use ll::errors::*;
 use errors::CssError;
 use util::VoidPtrLike;
@@ -105,8 +105,8 @@ pub mod types {
         CssUnitKHz(css_fixed)
     }
 
-    pub impl CssUnit {
-        fn to_ll_css_hint_length(&self) -> css_hint_length {
+    impl CssUnit {
+        pub fn to_ll_css_hint_length(&self) -> css_hint_length {
             let (unit, value) = self.to_ll();
             css_hint_length {
                 value: value,
@@ -114,7 +114,7 @@ pub mod types {
             }
         }
 
-        fn to_css_fixed(&self) -> css_fixed {
+        pub fn to_css_fixed(&self) -> css_fixed {
             match *self {
                 CssUnitPx(css_fixed) |
                 CssUnitEx(css_fixed) |
@@ -135,7 +135,7 @@ pub mod types {
             }
         }
 
-        fn modify(&self, new_value: css_fixed) -> CssUnit {
+        pub fn modify(&self, new_value: css_fixed) -> CssUnit {
             match *self {
                 CssUnitPx(_) => CssUnitPx(new_value),
                 CssUnitEx(_) => CssUnitEx(new_value),
@@ -174,10 +174,11 @@ pub mod errors {
 }
 
 pub mod stylesheet {
-    use core::cast::transmute;
-    use core::ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
-    use core::libc::size_t;
-    use core::libc::types::common::c99::uint64_t;
+    use std::cast::transmute;
+    use std::ptr::{null, to_unsafe_ptr, to_mut_unsafe_ptr};
+    use std::libc::size_t;
+    use std::libc::types::common::c99::uint64_t;
+    use std::vec;
     use wapcaplet::LwcString;
     use properties::{CssFontStyle, CssFontVariant, CssFontWeight};
     use types::{CssLanguageLevel, CssColor};
@@ -251,8 +252,8 @@ pub mod stylesheet {
         }
     }
 
-    pub impl CssStylesheet {
-        fn size(&self) -> uint {
+    impl CssStylesheet {
+        pub fn size(&self) -> uint {
             unsafe {
                 let mut size = 0;
                 let code = css_stylesheet_size(self.sheet, to_mut_unsafe_ptr(&mut size));
@@ -261,7 +262,7 @@ pub mod stylesheet {
             }
         }
 
-        fn append_data(&mut self, data: &[u8]) {
+        pub fn append_data(&mut self, data: &[u8]) {
             // FIXME: For some reason to_const_ptr isn't accessible
             let code = unsafe {
                 css_stylesheet_append_data(self.sheet, transmute(vec::raw::to_ptr(data)), data.len() as size_t)
@@ -272,12 +273,12 @@ pub mod stylesheet {
             }
         }
 
-        fn data_done(&mut self) {
+        pub fn data_done(&mut self) {
             let _code = unsafe { css_stylesheet_data_done(self.sheet) };
             //require_ok(code, "finishing parsing");
         }
 
-        fn ll_sheet(&self) -> *css_stylesheet {
+        pub fn ll_sheet(&self) -> *css_stylesheet {
             self.sheet
         }
     }
@@ -286,8 +287,8 @@ pub mod stylesheet {
 
 pub mod properties {
 
-    use core::libc::types::common::c99::uint32_t;
-    use core::cast::transmute;
+    use std::libc::types::common::c99::uint32_t;
+    use std::cast::transmute;
 
     pub enum CssProperty {
         CssPropAzimuth			= 0x000,
@@ -474,9 +475,10 @@ pub mod hint {
     use ll::properties::*;
     use ll::errors::*;
     use ll::types::css_color;
-    use core::ptr::null;
-    use core::libc::types::common::c99::uint8_t;
-    use core::cast::transmute;
+    use std::ptr::null;
+    use std::libc::types::common::c99::uint8_t;
+    use std::cast::transmute;
+    use std::ptr;
 
     // An interpretation of the delightful css_hint union
     pub enum CssHint {
@@ -486,9 +488,9 @@ pub mod hint {
         CssHintUnknown
     }
 
-    pub impl CssHint {
+    impl CssHint {
 
-        fn new(property: CssProperty, hint: *css_hint) -> CssHint {
+        pub fn new(property: CssProperty, hint: *css_hint) -> CssHint {
             let status = get_css_hint_status(hint) as u32;
             match property {
                 CssPropFontSize => {
@@ -503,7 +505,7 @@ pub mod hint {
             }
         }
         
-        fn write_to_ll(&self, property: CssProperty, llhint: *mut css_hint) -> css_error {
+        pub fn write_to_ll(&self, property: CssProperty, llhint: *mut css_hint) -> css_error {
             match (property, self) {
                 (CssPropFontFamily, &CssHintDefault) => {
                     let strings: &mut **lwc_string = hint_data_field(llhint);
@@ -572,8 +574,12 @@ pub mod hint {
 
 pub mod select {
 
-    use core::libc::c_void;
-    use core::libc::types::common::c99::{uint64_t, uint32_t};
+    use std::libc;
+    use std::libc::c_void;
+    use std::libc::types::common::c99::{uint64_t, uint32_t};
+    use std::vec;
+    use std::sys;
+    use std::ptr;
     use ll::types::{css_origin, css_qname};
     use types::CssQName;
     use stylesheet::CssStylesheet;
@@ -587,8 +593,8 @@ pub mod select {
     use ll::select::{CSS_SELECT_HANDLER_VERSION_1, css_select_results_destroy};
     use require_ok;
     use realloc;
-    use core::ptr::{null, to_mut_unsafe_ptr, to_unsafe_ptr};
-    use core::cast::transmute;
+    use std::ptr::{null, to_mut_unsafe_ptr, to_unsafe_ptr};
+    use std::cast::transmute;
     use ll::errors::{css_error, CSS_OK};
     use wapcaplet::ll::lwc_string;
     use ll::hint::css_hint;
@@ -628,26 +634,26 @@ pub mod select {
 
         CssSelectCtx {
             select_ctx: select_ctx,
-            mut sheets: ~[]
+            sheets: ~[]
         }
     }
 
-    pub impl CssSelectCtx {
-        fn append_sheet(&mut self, sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
+    impl CssSelectCtx {
+        pub fn append_sheet(&mut self, sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
             let code = unsafe { css_select_ctx_append_sheet(self.select_ctx, sheet.ll_sheet(), origin, media) };
             require_ok(code, "adding sheet to select ctx");
 
             self.sheets.push(sheet);
         }
 
-        fn count_sheets(&self) -> uint {
+        pub fn count_sheets(&self) -> uint {
             let mut count = 0;
             let code = unsafe { css_select_ctx_count_sheets(self.select_ctx, to_mut_unsafe_ptr(&mut count)) };
             require_ok(code, "counting sheets");
             return count as uint;
         }
 
-        fn select_style<N: VoidPtrLike, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
+        pub fn select_style<N: VoidPtrLike, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
                                                             _inline_style: Option<&CssStylesheet>,
                                                             handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
@@ -711,11 +717,11 @@ pub mod select {
     }
 
     priv mod raw_handler {
-        use core::libc::types::common::c99::{uint32_t, int32_t};
+        use std::libc::types::common::c99::{uint32_t, int32_t};
         use wapcaplet::ll::lwc_string;
         use ll::types::css_qname;
-        use core::libc::c_void;
-        use core::cast::transmute;
+        use std::libc::c_void;
+        use std::cast::transmute;
         use ll::errors::{css_error, CSS_OK, CSS_PROPERTY_NOT_SET};
         use ll::hint::css_hint;
         use types;
@@ -958,9 +964,9 @@ pub mod select {
                         Some(classes) => {
                             let class = classes.map(|e| e.raw_reffed());
                             let len = classes.len();
-                            let size = (len * sys::size_of::<libc::intptr_t>()) as libc::size_t;
-                            let mem = libc::malloc(size);
-                            libc::memcpy(mem, vec::raw::to_ptr(class) as *libc::c_void, size);
+                            let size = (len * sys::size_of::<libc::intptr_t>());
+                            let mem = libc::malloc(size as libc::size_t) as *mut u8;
+                            ptr::copy_memory(mem, vec::raw::to_ptr(class) as *u8, size);
                             (mem as **lwc_string, len as u32)
                         },
                         None => (null(), 0)
@@ -1073,8 +1079,8 @@ pub mod select {
         }
     }
 
-    pub impl<'self> CssSelectResults {
-        fn computed_style(&'self self, element: CssPseudoElement) -> CssComputedStyle<'self> {
+    impl<'self> CssSelectResults {
+        pub fn computed_style(&'self self, element: CssPseudoElement) -> CssComputedStyle<'self> {
             let element = element.to_ll();
             let llstyle = unsafe { *self.results }.styles[element];
             // FIXME: Rust #3926
@@ -1099,9 +1105,9 @@ pub mod computed {
     use values::{CssLineHeightValue};
     use ll::properties::*;
     use ll::computed::*;
-    use core::ptr::{to_mut_unsafe_ptr, null};
-    use core::cast::transmute;
-    use core::libc::c_void;
+    use std::ptr::{to_mut_unsafe_ptr, null};
+    use std::cast::transmute;
+    use std::libc::c_void;
     use ll::errors::{css_error, CSS_OK};
     use ll::hint::css_hint;
     use wapcaplet::ll::lwc_string;
@@ -1112,8 +1118,8 @@ pub mod computed {
         computed_style: *css_computed_style,
     }
 
-    pub impl<'self> CssComputedStyle<'self> {
-        fn color(&self) -> CssColorValue {
+    impl<'self> CssComputedStyle<'self> {
+        pub fn color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe {css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut color)) };
             let type_ = type_ as css_color_e;
@@ -1121,7 +1127,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn background_color(&self) -> CssColorValue {
+        pub fn background_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut color)) };
             let type_ = type_ as css_color_e;
@@ -1129,7 +1135,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_top_width(&self) -> CssBorderWidthValue {
+        pub fn border_top_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_border_top_width(self.computed_style,
@@ -1140,7 +1146,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_right_width(&self) -> CssBorderWidthValue {
+        pub fn border_right_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_border_right_width(self.computed_style,
@@ -1151,7 +1157,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_bottom_width(&self) -> CssBorderWidthValue {
+        pub fn border_bottom_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe {css_computed_border_bottom_width(self.computed_style,
@@ -1162,7 +1168,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_left_width(&self) -> CssBorderWidthValue {
+        pub fn border_left_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_border_left_width(self.computed_style,
@@ -1173,7 +1179,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
-        fn border_top_color(&self) -> CssColorValue {
+        pub fn border_top_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_top_color(self.computed_style,
                                                                to_mut_unsafe_ptr(&mut color)) };
@@ -1181,7 +1187,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_right_color(&self) -> CssColorValue {
+        pub fn border_right_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_right_color(self.computed_style,
                                                                  to_mut_unsafe_ptr(&mut color)) };
@@ -1189,7 +1195,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_bottom_color(&self) -> CssColorValue {
+        pub fn border_bottom_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_bottom_color(self.computed_style,
                                                                   to_mut_unsafe_ptr(&mut color)) };
@@ -1197,7 +1203,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn border_left_color(&self) -> CssColorValue {
+        pub fn border_left_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_left_color(self.computed_style,
                                                                 to_mut_unsafe_ptr(&mut color)) };
@@ -1205,7 +1211,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
-        fn margin_top(&self) -> CssMarginValue {
+        pub fn margin_top(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_margin_top(self.computed_style,
@@ -1216,7 +1222,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn margin_right(&self) -> CssMarginValue {
+        pub fn margin_right(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe {css_computed_margin_right(self.computed_style,
@@ -1227,7 +1233,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn margin_bottom(&self) -> CssMarginValue {
+        pub fn margin_bottom(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_margin_bottom(self.computed_style,
@@ -1238,7 +1244,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn margin_left(&self) -> CssMarginValue {
+        pub fn margin_left(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_margin_left(self.computed_style,
@@ -1249,7 +1255,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
-        fn padding_top(&self) -> CssPaddingValue {
+        pub fn padding_top(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_padding_top(self.computed_style,
@@ -1260,7 +1266,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
-        fn padding_right(&self) -> CssPaddingValue {
+        pub fn padding_right(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe {css_computed_padding_right(self.computed_style,
@@ -1271,7 +1277,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
-        fn padding_bottom(&self) -> CssPaddingValue {
+        pub fn padding_bottom(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_padding_bottom(self.computed_style,
@@ -1282,7 +1288,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
-        fn padding_left(&self) -> CssPaddingValue {
+        pub fn padding_left(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_padding_left(self.computed_style,
@@ -1293,21 +1299,21 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
-        fn display(&self, root: bool) -> CssDisplayValue {
+        pub fn display(&self, root: bool) -> CssDisplayValue {
             let type_ = unsafe { css_computed_display(self.computed_style, root) };
             let type_ = type_ as css_display_e;
 
             CssDisplayValue::new(type_)
         }
 
-        fn position(&self) -> CssPositionValue {
+        pub fn position(&self) -> CssPositionValue {
             let type_ = unsafe { css_computed_position(self.computed_style) };
             let type_ = type_ as css_position_e;
 
             CssPositionValue::new(type_)
         }
 
-        fn width(&self) -> CssWidthValue {
+        pub fn width(&self) -> CssWidthValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_width(self.computed_style,
@@ -1318,7 +1324,7 @@ pub mod computed {
             CssWidthValue::new(type_, length, unit)
         }
 
-        fn height(&self) -> CssHeightValue {
+        pub fn height(&self) -> CssHeightValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_height(self.computed_style,
@@ -1329,14 +1335,14 @@ pub mod computed {
             CssHeightValue::new(type_, length, unit)
         }
 
-        fn float(&self) -> CssFloatValue {
+        pub fn float(&self) -> CssFloatValue {
             let type_ = unsafe { css_computed_float(self.computed_style) };
             let type_ = type_ as css_float_e;
 
             CssFloatValue::new(type_)
         }
 
-        fn font_family(&self) -> CssFontFamilyValue {
+        pub fn font_family(&self) -> CssFontFamilyValue {
             let mut names: **lwc_string = null();
             let type_ = unsafe { css_computed_font_family(self.computed_style,
                                                           to_mut_unsafe_ptr(&mut names)) };
@@ -1345,7 +1351,7 @@ pub mod computed {
             CssFontFamilyValue::new(type_, names)
         }
 
-        fn font_size(&self) -> CssFontSizeValue {
+        pub fn font_size(&self) -> CssFontSizeValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_font_size(self.computed_style,
@@ -1356,28 +1362,28 @@ pub mod computed {
             CssFontSizeValue::new(type_, length, unit)
         }
 
-        fn font_style(&self) -> CssFontStyleValue {
+        pub fn font_style(&self) -> CssFontStyleValue {
             let type_ = unsafe { css_computed_font_style(self.computed_style) };
             let type_ = type_ as css_font_style_e;
 
             CssFontStyleValue::new(type_)
         }
 
-        fn font_weight(&self) -> CssFontWeightValue {
+        pub fn font_weight(&self) -> CssFontWeightValue {
             let type_ = unsafe { css_computed_font_weight(self.computed_style) };
             let type_ = type_ as css_font_weight_e;
 
             CssFontWeightValue::new(type_)
         }
 
-        fn text_align(&self) -> CssTextAlignValue {
+        pub fn text_align(&self) -> CssTextAlignValue {
             let type_ = unsafe { css_computed_text_align(self.computed_style) };
             let type_ = type_ as css_text_align_e;
 
             CssTextAlignValue::new(type_)
         }
 
-        fn text_decoration(&self) -> CssTextDecorationValue {
+        pub fn text_decoration(&self) -> CssTextDecorationValue {
             let type_ = unsafe { css_computed_text_decoration(self.computed_style) };
             let type_ = type_ as css_text_decoration_e;
             debug!("Getting text-decoration raw: %?", type_);
@@ -1386,7 +1392,7 @@ pub mod computed {
         }
 
 
-        fn line_height(&self) -> CssLineHeightValue {
+        pub fn line_height(&self) -> CssLineHeightValue {
             let mut length = 0;
             let mut unit = 0;
             let type_ = unsafe { css_computed_line_height(self.computed_style,
@@ -1409,7 +1415,7 @@ pub mod computed {
                    result: &mut CssComputedStyle) {
         let llparent = parent.computed_style;
         let llchild = child.computed_style;
-        let pw = unsafe { transmute(ptr::to_unsafe_ptr(&compute_font_size)) };
+        let pw = unsafe { transmute(&compute_font_size) };
         let llresult = result.computed_style as *mut css_computed_style;
         let err = unsafe { css_computed_style_compose(llparent, llchild, compute_font_size_cb, pw, llresult) };
         if err != CSS_OK {
@@ -1449,8 +1455,8 @@ mod values {
         CssColorColor(CssColor)
     }
 
-    pub impl CssColorValue {
-        fn new(type_: css_color_e, color: css_color) -> CssColorValue {
+    impl CssColorValue {
+        pub fn new(type_: css_color_e, color: css_color) -> CssColorValue {
             if type_ == CSS_COLOR_INHERIT {
                 CssColorInherit
             } else if type_ == CSS_COLOR_COLOR {
@@ -1467,8 +1473,8 @@ mod values {
         CssMarginAuto
     }
 
-    pub impl CssMarginValue {
-        fn new(type_: css_margin_e, length: css_fixed, unit: css_unit) -> CssMarginValue {
+    impl CssMarginValue {
+        pub fn new(type_: css_margin_e, length: css_fixed, unit: css_unit) -> CssMarginValue {
             if type_ == CSS_MARGIN_INHERIT {
                 CssMarginInherit
             } else if type_ == CSS_MARGIN_SET {
@@ -1487,8 +1493,8 @@ mod values {
         CssPaddingSet(CssUnit)
     }
 
-    pub impl CssPaddingValue {
-        fn new(type_: css_padding_e, length: css_fixed, unit: css_unit) -> CssPaddingValue {
+    impl CssPaddingValue {
+        pub fn new(type_: css_padding_e, length: css_fixed, unit: css_unit) -> CssPaddingValue {
             if type_ == CSS_PADDING_INHERIT {
                 CssPaddingInherit
             } else if type_ == CSS_PADDING_SET {
@@ -1507,8 +1513,8 @@ mod values {
         CssBorderWidthWidth(CssUnit)
     }
 
-    pub impl CssBorderWidthValue {
-        fn new(type_: css_border_width_e, length: css_fixed, unit: css_unit) -> CssBorderWidthValue {
+    impl CssBorderWidthValue {
+        pub fn new(type_: css_border_width_e, length: css_fixed, unit: css_unit) -> CssBorderWidthValue {
             if type_ == CSS_BORDER_WIDTH_INHERIT {
                 CssBorderWidthInherit
             } else if type_ == CSS_BORDER_WIDTH_THIN {
@@ -1545,8 +1551,8 @@ mod values {
         CssDisplayNone = 0x10,
     }
 
-    pub impl CssDisplayValue {
-        fn new(type_: css_display_e) -> CssDisplayValue {
+    impl CssDisplayValue {
+        pub fn new(type_: css_display_e) -> CssDisplayValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1559,8 +1565,8 @@ mod values {
         CssPositionFixed = 0x4
     }
 
-    pub impl CssPositionValue {
-        fn new(type_: css_position_e) -> CssPositionValue {
+    impl CssPositionValue {
+        pub fn new(type_: css_position_e) -> CssPositionValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1571,8 +1577,8 @@ mod values {
         CssWidthAuto
     }
 
-    pub impl CssWidthValue {
-        fn new(type_: css_width_e, length: css_fixed, unit: css_unit) -> CssWidthValue {
+    impl CssWidthValue {
+        pub fn new(type_: css_width_e, length: css_fixed, unit: css_unit) -> CssWidthValue {
             if type_ == CSS_WIDTH_INHERIT {
                 CssWidthInherit
             } else if type_ == CSS_WIDTH_SET {
@@ -1591,8 +1597,8 @@ mod values {
         CssHeightAuto
     }
 
-    pub impl CssHeightValue {
-        fn new(type_: css_height_e, length: css_fixed, unit: css_unit) -> CssHeightValue {
+    impl CssHeightValue {
+        pub fn new(type_: css_height_e, length: css_fixed, unit: css_unit) -> CssHeightValue {
             if type_ == CSS_HEIGHT_INHERIT {
                 CssHeightInherit
             } else if type_ == CSS_HEIGHT_SET {
@@ -1612,8 +1618,8 @@ mod values {
         CssFloatNone = 0x3
     }
 
-    pub impl CssFloatValue {
-        fn new(type_: css_float_e) -> CssFloatValue {
+    impl CssFloatValue {
+        pub fn new(type_: css_float_e) -> CssFloatValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1628,8 +1634,8 @@ mod values {
         CssFontFamilyValue(~[LwcString])
     }
 
-    pub impl CssFontFamilyValue {
-        fn new(type_: css_font_family_e, names: **lwc_string) -> CssFontFamilyValue {
+    impl CssFontFamilyValue {
+        pub fn new(type_: css_font_family_e, names: **lwc_string) -> CssFontFamilyValue {
             if names.is_not_null() {
                 CssFontFamilyValue(lwc_string_buf_to_hl_vec(names))
             } else if type_ == CSS_FONT_FAMILY_INHERIT {
@@ -1664,8 +1670,8 @@ mod values {
         CssFontSizeDimension(CssUnit)
     }
 
-    pub impl CssFontSizeValue {
-        fn new(type_: css_font_size_e, length: css_fixed, unit: css_unit) -> CssFontSizeValue {
+    impl CssFontSizeValue {
+        pub fn new(type_: css_font_size_e, length: css_fixed, unit: css_unit) -> CssFontSizeValue {
             match type_ {
                 x if x == CSS_FONT_SIZE_INHERIT => CssFontSizeInherit,
                 x if x == CSS_FONT_SIZE_XX_SMALL => CssFontSizeXXSmall,
@@ -1690,8 +1696,8 @@ mod values {
         CssFontStyleOblique = 0x3
     }
 
-    pub impl CssFontStyleValue {
-        fn new(type_: css_font_style_e) -> CssFontStyleValue {
+    impl CssFontStyleValue {
+        pub fn new(type_: css_font_style_e) -> CssFontStyleValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1713,8 +1719,8 @@ mod values {
         CssFontWeight900 = 0xd
     }
 
-    pub impl CssFontWeightValue {
-        fn new(type_: css_font_weight_e) -> CssFontWeightValue {
+    impl CssFontWeightValue {
+        pub fn new(type_: css_font_weight_e) -> CssFontWeightValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1732,8 +1738,8 @@ mod values {
 	CssTextAlignLibcssRight	= 0x9
     }
 
-    pub impl CssTextAlignValue {
-        fn new(type_: css_text_align_e) -> CssTextAlignValue {
+    impl CssTextAlignValue {
+        pub fn new(type_: css_text_align_e) -> CssTextAlignValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1747,8 +1753,8 @@ mod values {
     CssTextDecorationUnderline = (1<<0),
     }
 
-    pub impl CssTextDecorationValue {
-        fn new(type_: css_text_decoration_e) -> CssTextDecorationValue {
+    impl CssTextDecorationValue {
+        pub fn new(type_: css_text_decoration_e) -> CssTextDecorationValue {
             c_enum_to_rust_enum(type_)
         }
     }
@@ -1760,8 +1766,8 @@ mod values {
         CssLineHeightNormal
     }
 
-    pub impl CssLineHeightValue {
-        fn new(type_: css_line_height_e, length: css_fixed, unit: css_unit) -> CssLineHeightValue {
+    impl CssLineHeightValue {
+        pub fn new(type_: css_line_height_e, length: css_fixed, unit: css_unit) -> CssLineHeightValue {
             if type_ == CSS_LINE_HEIGHT_INHERIT {
                 CssLineHeightInherit
             } else if type_ == CSS_LINE_HEIGHT_NUMBER {

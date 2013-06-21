@@ -9,7 +9,7 @@
 
 use ll::stylesheet::css_fixed;
 use types::CssQName;
-use core::libc::c_void;
+use std::libc::c_void;
 use lwcstr_from_rust_str = wapcaplet::from_rust_string;
 
 pub fn css_fixed_to_float(f: css_fixed) -> float {

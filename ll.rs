@@ -14,17 +14,17 @@ include files
 
 */
 
-use core::libc::types::common::c99::uint32_t;
+use std::libc::types::common::c99::uint32_t;
 
 #[cfg(target_os = "macos")]
 #[nolink]
 #[link_args="-L../../netsurfcss/libcss -lcss -L../../libparserutils/libparserutils -lparserutils -L../../wapcaplet/libwapcaplet -lwapcaplet -liconv"]
-extern mod linking { }
+extern { }
 
 #[cfg(target_os = "linux")]
 #[nolink]
 #[link_args="-L../../netsurfcss/libcss -lcss -L../../libparserutils/libparserutils -lparserutils -L../../wapcaplet/libwapcaplet -lwapcaplet"]
-extern mod linking { }
+extern { }
 
 // Generally true
 pub type c_enum = uint32_t;
@@ -36,8 +36,8 @@ pub mod functypes {
 }
 
 pub mod types {
-    use core::libc::c_void;
-    use core::libc::types::common::c99::{uint32_t, uint64_t};
+    use std::libc::c_void;
+    use std::libc::types::common::c99::{uint32_t, uint64_t};
     use wapcaplet::ll::lwc_string;
     use ll::c_enum;
 
@@ -119,7 +119,7 @@ pub mod errors {
 }
 
 pub mod hint {
-    use core::libc::c_void;
+    use std::libc::c_void;
     use ll::types::css_unit;
     use ll::stylesheet::css_fixed;
 
@@ -413,8 +413,8 @@ pub mod properties {
 
 pub mod stylesheet {
 
-    use core::libc::{c_char, c_void, size_t};
-    use core::libc::types::common::c99::{uint32_t, int32_t, uint8_t};
+    use std::libc::{c_char, c_void, size_t};
+    use std::libc::types::common::c99::{uint32_t, int32_t, uint8_t};
     use wapcaplet::ll::lwc_string;
     use ll::types::{css_language_level, css_unit};
     use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
@@ -478,8 +478,8 @@ pub mod stylesheet {
 }
 
 pub mod select {
-    use core::libc::c_void;
-    use core::libc::types::common::c99::{uint32_t, uint64_t};
+    use std::libc::c_void;
+    use std::libc::types::common::c99::{uint32_t, uint64_t};
     use ll::c_enum;
     use ll::functypes::css_allocator_fn;
     use ll::errors::css_error;
@@ -558,8 +558,8 @@ pub mod select {
 }
 
 pub mod computed {
-    use core::libc::c_void;
-    use core::libc::types::common::c99::uint8_t;
+    use std::libc::c_void;
+    use std::libc::types::common::c99::uint8_t;
     use ll::types::css_color;
     use super::errors::css_error;
     use super::stylesheet::css_fixed;
