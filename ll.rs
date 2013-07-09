@@ -18,12 +18,12 @@ use std::libc::types::common::c99::uint32_t;
 
 #[cfg(target_os = "macos")]
 #[nolink]
-#[link_args="-L../../netsurfcss/libcss -lcss -L../../libparserutils/libparserutils -lparserutils -L../../wapcaplet/libwapcaplet -lwapcaplet -liconv"]
+#[link_args="-lcss -lparserutils -lwapcaplet -liconv"]
 extern { }
 
 #[cfg(target_os = "linux")]
 #[nolink]
-#[link_args="-L../../netsurfcss/libcss -lcss -L../../libparserutils/libparserutils -lparserutils -L../../wapcaplet/libwapcaplet -lwapcaplet"]
+#[link_args="-lcss -lparserutils -lwapcaplet"]
 extern { }
 
 // Generally true
