@@ -28,7 +28,6 @@ use stylesheet::{CssStylesheetParams};
 use ll::select::{css_pseudo_element};
 use select::{CssPseudoElement};
 use std::sys;
-use std::str;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -170,9 +169,9 @@ pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
 
 impl AsLl<css_stylesheet_params> for CssStylesheetParams {
     pub fn as_ll<U>(&self, f: &fn(&css_stylesheet_params) -> U) -> U {
-        do str::as_c_str(self.charset) |charset| {
-            do str::as_c_str(self.url) |url| {
-                do str::as_c_str(self.title) |title| {
+        do self.charset.as_c_str |charset| {
+            do self.url.as_c_str |url| {
+                do self.title.as_c_str |title| {
                     let params = css_stylesheet_params {
                         params_version: self.params_version as uint32_t,
                         level: self.level.to_ll(),

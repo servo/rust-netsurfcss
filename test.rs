@@ -86,7 +86,7 @@ mod example1 {
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert!(select_ctx.count_sheets() == 1);
 
-        for ::std::uint::range(1, 7) |hh| {
+        for hh in range(1, 7) {
             let element = fmt!("h%u", hh);
             let element_name: @LwcString = @from_rust_string(element);
             let node = MyDomNode { name: element_name };
