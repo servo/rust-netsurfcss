@@ -346,6 +346,14 @@ pub mod properties {
     pub static CSS_FLOAT_RIGHT: css_float_e = 0x2;
     pub static CSS_FLOAT_NONE: css_float_e = 0x3;
 
+    pub type css_clear_e = c_enum;
+
+    pub static CSS_CLEAR_INHERIT: css_clear_e = 0x0;
+    pub static CSS_CLEAR_NONE: css_clear_e = 0x1;
+    pub static CSS_CLEAR_LEFT: css_clear_e = 0x2;
+    pub static CSS_CLEAR_RIGHT: css_clear_e = 0x3;
+    pub static CSS_CLEAR_BOTH: css_clear_e = 0x4;
+
     pub type css_position_e = c_enum;
 
     pub static CSS_POSITION_INHERIT: css_position_e = 0x0;
@@ -597,6 +605,7 @@ pub mod computed {
         fn css_computed_padding_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
         fn css_computed_float(style: *css_computed_style) -> uint8_t;
+        fn css_computed_clear(style: *css_computed_style) -> uint8_t;
         fn css_computed_position(style: *css_computed_style) -> uint8_t;
         fn css_computed_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         fn css_computed_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;

@@ -1105,7 +1105,7 @@ pub mod computed {
     use hint::CssHint;
     use select::CssSelectResults;
     use values::{CssColorValue, CssMarginValue, CssPaddingValue, CssBorderWidthValue, CssDisplayValue};
-    use values::{CssFloatValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
+    use values::{CssFloatValue, CssClearValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
     use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue, CssTextDecorationValue};
     use values::{CssLineHeightValue};
     use ll::properties::*;
@@ -1345,6 +1345,13 @@ pub mod computed {
             let type_ = type_ as css_float_e;
 
             CssFloatValue::new(type_)
+        }
+
+        pub fn clear(&self) -> CssClearValue {
+            let type_ = unsafe { css_computed_clear(self.computed_style) };
+            let type_ = type_ as css_clear_e;
+
+            CssClearValue::new(type_)
         }
 
         pub fn font_family(&self) -> CssFontFamilyValue {
@@ -1625,6 +1632,20 @@ mod values {
 
     impl CssFloatValue {
         pub fn new(type_: css_float_e) -> CssFloatValue {
+            c_enum_to_rust_enum(type_)
+        }
+    }
+
+    pub enum CssClearValue {
+        CssClearInherit = 0x0,
+        CssClearNone = 0x1,
+        CssClearLeft = 0x2,
+        CssClearRight = 0x3,
+        CssClearBoth = 0x4
+    }
+
+    impl CssClearValue {
+        pub fn new(type_: css_clear_e) -> CssClearValue {
             c_enum_to_rust_enum(type_)
         }
     }
