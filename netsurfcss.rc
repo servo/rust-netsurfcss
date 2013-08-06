@@ -659,15 +659,19 @@ pub mod select {
         }
 
         pub fn select_style<N: VoidPtrLike, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
-                                                            _inline_style: Option<&CssStylesheet>,
+                                                            inline_style: Option<&CssStylesheet>,
                                                             handler: &H) -> CssSelectResults {
             do with_untyped_handler(handler) |untyped_handler| {
                 let raw_handler = build_raw_handler();
                 let mut results: *css_select_results = null();
+                let inline_sheet = match inline_style {
+                    None => null(),
+                    Some(sheet) => sheet.ll_sheet(),
+                };
                 let code = unsafe { css_select_style(self.select_ctx,
                                                      node.to_void_ptr(),
                                                      media,
-                                                     null(), // FIXME,
+                                                     inline_sheet,
                                                      to_unsafe_ptr(&raw_handler),
                                                      transmute(to_unsafe_ptr(untyped_handler)),
                                                      to_mut_unsafe_ptr(&mut results)) };
