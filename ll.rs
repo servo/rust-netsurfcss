@@ -22,6 +22,7 @@ use std::libc::types::common::c99::uint32_t;
 extern { }
 
 #[cfg(target_os = "linux")]
+#[cfg(target_os = "android")]
 #[nolink]
 #[link_args="-lcss -lparserutils -lwapcaplet"]
 extern { }
