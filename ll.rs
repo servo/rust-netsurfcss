@@ -474,15 +474,15 @@ pub mod stylesheet {
 
     pub type css_fixed = int32_t;
 
-    pub extern {
-        fn css_stylesheet_create(params: *css_stylesheet_params,
-                                 alloc: css_allocator_fn,
-                                 alloc_pw: *c_void,
-                                 stylesheet: *mut *css_stylesheet) -> css_error;
-        fn css_stylesheet_destroy(sheet: *css_stylesheet) -> css_error;
-        fn css_stylesheet_size(sheet: *css_stylesheet, size: *mut size_t) -> css_error;
-        fn css_stylesheet_append_data(sheet: *css_stylesheet, data: *uint8_t, len: size_t) -> css_error;
-        fn css_stylesheet_data_done(sheet: *css_stylesheet) -> css_error;
+    extern {
+        pub fn css_stylesheet_create(params: *css_stylesheet_params,
+                                     alloc: css_allocator_fn,
+                                     alloc_pw: *c_void,
+                                     stylesheet: *mut *css_stylesheet) -> css_error;
+        pub fn css_stylesheet_destroy(sheet: *css_stylesheet) -> css_error;
+        pub fn css_stylesheet_size(sheet: *css_stylesheet, size: *mut size_t) -> css_error;
+        pub fn css_stylesheet_append_data(sheet: *css_stylesheet, data: *uint8_t, len: size_t) -> css_error;
+        pub fn css_stylesheet_data_done(sheet: *css_stylesheet) -> css_error;
     }
 }
 
@@ -556,13 +556,13 @@ pub mod select {
         compute_font_size: opaque_callback
     }
 
-    pub extern {
-        fn css_select_ctx_create(alloc: css_allocator_fn, pw: *c_void, result: *mut *css_select_ctx) -> css_error;
-        fn css_select_ctx_destroy(ctx: *css_select_ctx) -> css_error;
-        fn css_select_ctx_append_sheet(ctx: *css_select_ctx, sheet: *css_stylesheet, origin: css_origin, media: uint64_t) -> css_error;
-        fn css_select_ctx_count_sheets(ctx: *css_select_ctx, count: *mut uint32_t) -> css_error;
-        fn css_select_style(ctx: *css_select_ctx, node: *c_void, media: uint64_t, inline_style: *css_stylesheet, handler: *css_select_handler, pw: *c_void, result: *mut *css_select_results) -> css_error;
-        fn css_select_results_destroy(results: *css_select_results) -> css_error;
+    extern {
+        pub fn css_select_ctx_create(alloc: css_allocator_fn, pw: *c_void, result: *mut *css_select_ctx) -> css_error;
+        pub fn css_select_ctx_destroy(ctx: *css_select_ctx) -> css_error;
+        pub fn css_select_ctx_append_sheet(ctx: *css_select_ctx, sheet: *css_stylesheet, origin: css_origin, media: uint64_t) -> css_error;
+        pub fn css_select_ctx_count_sheets(ctx: *css_select_ctx, count: *mut uint32_t) -> css_error;
+        pub fn css_select_style(ctx: *css_select_ctx, node: *c_void, media: uint64_t, inline_style: *css_stylesheet, handler: *css_select_handler, pw: *c_void, result: *mut *css_select_results) -> css_error;
+        pub fn css_select_results_destroy(results: *css_select_results) -> css_error;
     }
 }
 
@@ -579,43 +579,43 @@ pub mod computed {
 
     pub type compute_font_size_cb = *u8; // (pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error
 
-    pub extern {
-        fn css_computed_style_compose(parent: *css_computed_style,
-                                      child: *css_computed_style,
-                                      compute_font_size: compute_font_size_cb,
-                                      pw: *c_void,
-                                      result: *mut css_computed_style) -> css_error;
+    extern {
+        pub fn css_computed_style_compose(parent: *css_computed_style,
+                                          child: *css_computed_style,
+                                          compute_font_size: compute_font_size_cb,
+                                          pw: *c_void,
+                                          result: *mut css_computed_style) -> css_error;
 
-        fn css_computed_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        fn css_computed_background_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        fn css_computed_border_top_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_border_right_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_border_bottom_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_border_left_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_border_top_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        fn css_computed_border_right_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        fn css_computed_border_bottom_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        fn css_computed_border_left_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        fn css_computed_margin_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_margin_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_padding_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_padding_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_padding_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_padding_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
-        fn css_computed_float(style: *css_computed_style) -> uint8_t;
-        fn css_computed_clear(style: *css_computed_style) -> uint8_t;
-        fn css_computed_position(style: *css_computed_style) -> uint8_t;
-        fn css_computed_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_font_family(style: *css_computed_style, names: *mut **lwc_string) -> uint8_t;
-        fn css_computed_font_size(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        fn css_computed_font_style(style: *css_computed_style) -> uint8_t;
-        fn css_computed_font_weight(style: *css_computed_style) -> uint8_t;
-        fn css_computed_text_align(style: *css_computed_style) -> uint8_t;
-        fn css_computed_text_decoration(style: *css_computed_style) -> uint8_t;
-        fn css_computed_line_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_background_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_border_top_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_border_right_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_border_bottom_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_border_left_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_border_top_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_border_right_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_border_bottom_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_border_left_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_margin_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_margin_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_padding_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_padding_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_padding_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_padding_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
+        pub fn css_computed_float(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_clear(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_position(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_font_family(style: *css_computed_style, names: *mut **lwc_string) -> uint8_t;
+        pub fn css_computed_font_size(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_font_style(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_font_weight(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_text_align(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_text_decoration(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_line_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
     }
 }
