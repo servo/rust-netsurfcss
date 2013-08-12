@@ -566,11 +566,11 @@ pub mod hint {
     #[cfg(target_arch = "arm")]
     fn status_field_offset() -> int { 16 }
 
-    priv fn hint_data_field<T>(llhint: *mut css_hint) -> &mut T {
+    fn hint_data_field<T>(llhint: *mut css_hint) -> &mut T {
         unsafe { transmute(llhint) }
     }
 
-    priv fn hint_imm_data_field<T>(llhint: *css_hint) -> &T {
+    fn hint_imm_data_field<T>(llhint: *css_hint) -> &T {
         unsafe { transmute(llhint) }
     }
 }
@@ -683,7 +683,7 @@ pub mod select {
         }
     }
 
-    priv fn build_raw_handler() -> css_select_handler {
+    fn build_raw_handler() -> css_select_handler {
         css_select_handler {
             handler_version: CSS_SELECT_HANDLER_VERSION_1,
             node_name: raw_handler::node_name,
@@ -724,7 +724,7 @@ pub mod select {
         }
     }
 
-    priv mod raw_handler {
+    mod raw_handler {
         use std::libc::types::common::c99::{uint32_t, int32_t};
         use wapcaplet::ll::lwc_string;
         use ll::types::css_qname;
@@ -738,16 +738,16 @@ pub mod select {
         use hint::CssHint;
         use super::UntypedHandler;
 
-        priv fn unimpl(n: &str) -> ! {
+        fn unimpl(n: &str) -> ! {
             fail!(fmt!("unimplemented css callback handler: %s", n))
         }
         fn unimpl_warn(what: &str) {
             warn!("unimplemented css value: %?", what);
         }
-        priv fn enter(n: &str) {
+        fn enter(n: &str) {
             debug!("entering raw handler: %s", n);
         }
-        priv fn ph<'a>(pw: *c_void) -> &'a UntypedHandler<'a> {
+        fn ph<'a>(pw: *c_void) -> &'a UntypedHandler<'a> {
             unsafe { transmute(pw) }
         }
         pub extern fn node_name(pw: *c_void, node: *c_void, qname: *mut css_qname) -> css_error {
@@ -956,7 +956,7 @@ pub mod select {
         ua_default_for_property: &'self fn(property: uint32_t, hint: *mut css_hint) -> css_error,
     }
 
-    priv fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: &fn(&UntypedHandler) -> R) -> R {
+    fn with_untyped_handler<N: VoidPtrLike, H: CssSelectHandler<N>, R>(handler: &H, f: &fn(&UntypedHandler) -> R) -> R {
         unsafe {
             let untyped_handler = UntypedHandler {
                 node_name: |node: *c_void, qname: *mut css_qname| -> css_error {

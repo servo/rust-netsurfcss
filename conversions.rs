@@ -169,9 +169,9 @@ pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
 
 impl AsLl<css_stylesheet_params> for CssStylesheetParams {
     pub fn as_ll<U>(&self, f: &fn(&css_stylesheet_params) -> U) -> U {
-        do self.charset.as_c_str |charset| {
-            do self.url.as_c_str |url| {
-                do self.title.as_c_str |title| {
+        do self.charset.to_c_str().with_ref |charset| {
+            do self.url.to_c_str().with_ref |url| {
+                do self.title.to_c_str().with_ref |title| {
                     let params = css_stylesheet_params {
                         params_version: self.params_version as uint32_t,
                         level: self.level.to_ll(),
