@@ -38,7 +38,7 @@ pub trait AsLl<T> {
 }
 
 impl ToLl<css_language_level> for CssLanguageLevel {
-    pub fn to_ll(&self) -> css_language_level {
+    fn to_ll(&self) -> css_language_level {
         match *self {
             CssLevel1 => CSS_LEVEL_1,
             CssLevel2 => CSS_LEVEL_2,
@@ -51,19 +51,19 @@ impl ToLl<css_language_level> for CssLanguageLevel {
 }
 
 impl ToLl<css_error> for CssError {
-    pub fn to_ll(&self) -> css_error {
+    fn to_ll(&self) -> css_error {
         *self as css_error
     }
 }
 
 impl ToLl<css_font_family_e> for CssFontFamily {
-    pub fn to_ll(&self) -> css_font_family_e {
+    fn to_ll(&self) -> css_font_family_e {
         *self as css_font_family_e
     }
 }
 
 impl ToLl<css_color> for CssColor {
-    pub fn to_ll(&self) -> css_color {
+    fn to_ll(&self) -> css_color {
         assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
         unsafe { transmute(*self) }
     }
@@ -75,7 +75,7 @@ pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
 }
 
 impl ToLl<(css_unit, css_fixed)> for CssUnit {
-    pub fn to_ll(&self) -> (css_unit, css_fixed) {
+    fn to_ll(&self) -> (css_unit, css_fixed) {
         use ll::types::*;
         use types::*;
         match *self {
@@ -156,7 +156,7 @@ pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
 }
 
 impl ToLl<css_pseudo_element> for CssPseudoElement {
-    pub fn to_ll(&self) -> css_pseudo_element {
+    fn to_ll(&self) -> css_pseudo_element {
         *self as css_pseudo_element
     }
 }
@@ -168,7 +168,7 @@ pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
 }
 
 impl AsLl<css_stylesheet_params> for CssStylesheetParams {
-    pub fn as_ll<U>(&self, f: &fn(&css_stylesheet_params) -> U) -> U {
+    fn as_ll<U>(&self, f: &fn(&css_stylesheet_params) -> U) -> U {
         do self.charset.to_c_str().with_ref |charset| {
             do self.url.to_c_str().with_ref |url| {
                 do self.title.to_c_str().with_ref |title| {
