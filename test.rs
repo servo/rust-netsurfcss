@@ -86,7 +86,7 @@ mod example1 {
         debug!("count sheets: %?", select_ctx.count_sheets());
         assert!(select_ctx.count_sheets() == 1);
 
-        for hh in range(1, 7) {
+        for hh in range(1u, 7u) {
             let element = fmt!("h%u", hh);
             let element_name: @LwcString = @from_rust_string(element);
             let node = MyDomNode { name: element_name };
@@ -164,7 +164,7 @@ mod example1 {
 
 #[test]
 fn test_arc() {
-    use extra::arc::ARC;
+    use extra::arc::Arc;
     use stylesheet::*;
     use types::CssLevel21;
     use wapcaplet::LwcString;
@@ -186,7 +186,7 @@ fn test_arc() {
     };
 
     let sheet: CssStylesheet = css_stylesheet_create(&params);
-    let _arc = ARC(sheet);
+    let _arc = Arc::new(sheet);
 
     fn resolve_url(_base: &str, _rel: &LwcString) -> CssResult<LwcString> {
         fail!(~"resolving url");
