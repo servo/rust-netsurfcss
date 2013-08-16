@@ -17,11 +17,11 @@ all:	libnetsurfcss.dummy
 	$(CC) $< -o $@ -c $(CFLAGS)
 
 libnetsurfcss.dummy: netsurfcss.rc $(RUST_SRC)
-	$(RUSTC) $(RUSTFLAGS) $< -o $@
+	$(RUSTC) $(RUSTFLAGS) $< --out-dir .
 	touch $@
 
 netsurfcss-test: netsurfcss.rc $(RUST_SRC)
-	$(RUSTC) $(RUSTFLAGS) $< -o $@ --test
+	$(RUSTC) $(RUSTFLAGS) $< --out-dir . --test
 
 .PHONY: check
 check: netsurfcss-test
