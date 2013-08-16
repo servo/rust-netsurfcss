@@ -21,7 +21,7 @@ libnetsurfcss.dummy: netsurfcss.rc $(RUST_SRC)
 	touch $@
 
 netsurfcss-test: netsurfcss.rc $(RUST_SRC)
-	$(RUSTC) $(RUSTFLAGS) $< --out-dir . --test
+	$(RUSTC) $(RUSTFLAGS) $< -o $@ --test
 
 .PHONY: check
 check: netsurfcss-test
