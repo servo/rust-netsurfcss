@@ -418,6 +418,18 @@ pub mod properties {
     pub static CSS_LINE_HEIGHT_DIMENSION: css_line_height_e = 0x2;
     pub static CSS_LINE_HEIGHT_NORMAL: css_line_height_e = 0x3;
 
+    pub type css_vertical_align_e = c_enum;
+
+    pub static CSS_VERTICAL_ALIGN_INHERIT: css_vertical_align_e = 0x0;
+    pub static CSS_VERTICAL_ALIGN_BASELINE: css_vertical_align_e = 0x1;
+    pub static CSS_VERTICAL_ALIGN_SUB: css_vertical_align_e = 0x2;
+    pub static CSS_VERTICAL_ALIGN_SUPER: css_vertical_align_e = 0x3;
+    pub static CSS_VERTICAL_ALIGN_TOP: css_vertical_align_e = 0x4;
+    pub static CSS_VERTICAL_ALIGN_TEXTTOP: css_vertical_align_e = 0x5;
+    pub static CSS_VERTICAL_ALIGN_MIDDLE: css_vertical_align_e = 0x6;
+    pub static CSS_VERTICAL_ALIGN_BOTTOM: css_vertical_align_e = 0x7;
+    pub static CSS_VERTICAL_ALIGN_TEXTBOTTOM: css_vertical_align_e = 0x8;
+    pub static CSS_VERTICAL_ALIGN_DIMENSION: css_vertical_align_e = 0x9;
 }
 
 pub mod stylesheet {
@@ -617,5 +629,6 @@ pub mod computed {
         pub fn css_computed_text_align(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_text_decoration(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_line_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
+        pub fn css_computed_vertical_align(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
     }
 }

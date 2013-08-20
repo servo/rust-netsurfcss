@@ -1110,7 +1110,7 @@ pub mod computed {
     use values::{CssColorValue, CssMarginValue, CssPaddingValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssClearValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
     use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue, CssTextDecorationValue};
-    use values::{CssLineHeightValue};
+    use values::{CssLineHeightValue, CssVerticalAlignValue};
     use ll::properties::*;
     use ll::computed::*;
     use std::ptr::{to_mut_unsafe_ptr, null};
@@ -1418,6 +1418,16 @@ pub mod computed {
             CssLineHeightValue::new(type_, length, unit)
         }
 
+        pub fn vertical_align(&self) -> CssVerticalAlignValue {
+            let mut length = 0;
+            let mut unit = 0;
+            let type_ = unsafe { css_computed_vertical_align(self.computed_style,
+                                                          to_mut_unsafe_ptr(&mut length),
+                                                          to_mut_unsafe_ptr(&mut unit)) };
+            let type_ = type_ as css_vertical_align_e;
+
+            CssVerticalAlignValue::new(type_, length, unit)
+        }
     }
 
     pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>, child: &CssHint) -> CssHint;
@@ -1807,6 +1817,37 @@ mod values {
                 CssLineHeightNormal
             } else {
                 unimpl("line-height")
+            }
+        }
+    }
+
+    pub enum CssVerticalAlignValue {
+        CssVerticalAlignInherit,
+        CssVerticalAlignBaseline,
+        CssVerticalAlignSub,
+        CssVerticalAlignSuper,
+        CssVerticalAlignTop,
+        CssVerticalAlignTextTop,
+        CssVerticalAlignMiddle,
+        CssVerticalAlignBottom,
+        CssVerticalAlignTextBottom,
+        CssVerticalAlignDimension(CssUnit),
+    }
+
+    impl CssVerticalAlignValue {
+        pub fn new(type_: css_vertical_align_e, length: css_fixed, unit: css_unit) -> CssVerticalAlignValue {
+            match type_ {
+                CSS_VERTICAL_ALIGN_INHERIT => CssVerticalAlignInherit,
+                CSS_VERTICAL_ALIGN_BASELINE => CssVerticalAlignBaseline,
+                CSS_VERTICAL_ALIGN_SUB => CssVerticalAlignSub,
+                CSS_VERTICAL_ALIGN_SUPER => CssVerticalAlignSuper,
+                CSS_VERTICAL_ALIGN_TOP => CssVerticalAlignTop,
+                CSS_VERTICAL_ALIGN_TEXTTOP => CssVerticalAlignTextTop,
+                CSS_VERTICAL_ALIGN_MIDDLE => CssVerticalAlignMiddle,
+                CSS_VERTICAL_ALIGN_BOTTOM => CssVerticalAlignBottom,
+                CSS_VERTICAL_ALIGN_TEXTBOTTOM => CssVerticalAlignTextBottom,
+                CSS_VERTICAL_ALIGN_DIMENSION => CssVerticalAlignDimension(ll_unit_to_hl_unit(unit, length)),
+                _ => { unimpl("vertical-align") }
             }
         }
     }
