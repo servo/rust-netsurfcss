@@ -1144,7 +1144,6 @@ pub mod computed {
         }
 
         pub fn border_top_style(&self) -> CssBorderStyleValue {
-            let mut length = 0;
             let type_ = unsafe { css_computed_border_top_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
 
@@ -1152,7 +1151,6 @@ pub mod computed {
         }
 
         pub fn border_right_style(&self) -> CssBorderStyleValue {
-            let mut length = 0;
             let type_ = unsafe { css_computed_border_right_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
 
@@ -1160,7 +1158,6 @@ pub mod computed {
         }
 
        pub fn border_bottom_style(&self) -> CssBorderStyleValue {
-            let mut length = 0;
             let type_ = unsafe { css_computed_border_bottom_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
 
@@ -1168,7 +1165,6 @@ pub mod computed {
         }
 
         pub fn border_left_style(&self) -> CssBorderStyleValue {
-            let mut length = 0;
             let type_ = unsafe { css_computed_border_left_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
 
