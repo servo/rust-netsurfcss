@@ -301,6 +301,20 @@ pub mod properties {
     pub static CSS_COLOR_INHERIT: css_color_e = 0x0;
     pub static CSS_COLOR_COLOR: css_color_e = 0x1;
 
+    pub type css_border_style_e = c_enum;
+
+    pub static CSS_BORDER_STYLE_INHERIT: css_border_style_e = 0x0;
+    pub static CSS_BORDER_STYLE_NONE: css_border_style_e = 0x1;
+    pub static CSS_BORDER_STYLE_HIDDEN: css_border_style_e = 0x2;
+    pub static CSS_BORDER_STYLE_DOTTED: css_border_style_e = 0x3;
+    pub static CSS_BORDER_STYLE_DASHED: css_border_style_e = 0x4;
+    pub static CSS_BORDER_STYLE_SOLID: css_border_style_e = 0x5;
+    pub static CSS_BORDER_STYLE_DOUBLE: css_border_style_e = 0x6;
+    pub static CSS_BORDER_STYLE_GROOVE: css_border_style_e = 0x7;
+    pub static CSS_BORDER_STYLE_RIDGE: css_border_style_e = 0x8;
+    pub static CSS_BORDER_STYLE_INSET: css_border_style_e = 0x9;
+    pub static CSS_BORDER_STYLE_OUTSET: css_border_style_e = 0xa;
+
     pub type css_border_width_e = c_enum;
 
     pub static CSS_BORDER_WIDTH_INHERIT: css_border_width_e = 0x0;
@@ -600,6 +614,10 @@ pub mod computed {
 
         pub fn css_computed_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         pub fn css_computed_background_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
+        pub fn css_computed_border_top_style(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_border_right_style(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_border_bottom_style(style: *css_computed_style) -> uint8_t;
+        pub fn css_computed_border_left_style(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_border_top_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         pub fn css_computed_border_right_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         pub fn css_computed_border_bottom_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;

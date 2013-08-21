@@ -1107,7 +1107,7 @@ pub mod computed {
     use properties::CssPropFontSize;
     use hint::CssHint;
     use select::CssSelectResults;
-    use values::{CssColorValue, CssMarginValue, CssPaddingValue, CssBorderWidthValue, CssDisplayValue};
+    use values::{CssColorValue, CssMarginValue, CssPaddingValue, CssBorderStyleValue, CssBorderWidthValue, CssDisplayValue};
     use values::{CssFloatValue, CssClearValue, CssPositionValue, CssWidthValue, CssHeightValue, CssFontFamilyValue};
     use values::{CssFontSizeValue, CssFontStyleValue, CssFontWeightValue, CssTextAlignValue, CssTextDecorationValue};
     use values::{CssLineHeightValue, CssVerticalAlignValue};
@@ -1141,6 +1141,38 @@ pub mod computed {
             let type_ = type_ as css_color_e;
 
             CssColorValue::new(type_, color)
+        }
+
+        pub fn border_top_style(&self) -> CssBorderStyleValue {
+            let mut length = 0;
+            let type_ = unsafe { css_computed_border_top_style(self.computed_style) };
+            let type_ = type_ as css_border_style_e;
+
+            CssBorderStyleValue::new(type_)
+        }
+
+        pub fn border_right_style(&self) -> CssBorderStyleValue {
+            let mut length = 0;
+            let type_ = unsafe { css_computed_border_right_style(self.computed_style) };
+            let type_ = type_ as css_border_style_e;
+
+            CssBorderStyleValue::new(type_)
+        }
+
+       pub fn border_bottom_style(&self) -> CssBorderStyleValue {
+            let mut length = 0;
+            let type_ = unsafe { css_computed_border_bottom_style(self.computed_style) };
+            let type_ = type_ as css_border_style_e;
+
+            CssBorderStyleValue::new(type_)
+        }
+
+        pub fn border_left_style(&self) -> CssBorderStyleValue {
+            let mut length = 0;
+            let type_ = unsafe { css_computed_border_left_style(self.computed_style) };
+            let type_ = type_ as css_border_style_e;
+
+            CssBorderStyleValue::new(type_)
         }
 
         pub fn border_top_width(&self) -> CssBorderWidthValue {
@@ -1526,6 +1558,39 @@ mod values {
                 CssPaddingSet(ll_unit_to_hl_unit(unit, length))
             } else {
                 unimpl("padding")
+            }
+        }
+    }
+
+    pub enum CssBorderStyleValue {
+        CssBorderStyleInherit,
+        CssBorderStyleNone,
+        CssBorderStyleHidden,
+        CssBorderStyleDotted,
+        CssBorderStyleDashed,
+        CssBorderStyleSolid,
+        CssBorderStyleDouble,
+        CssBorderStyleGroove,
+        CssBorderStyleRidge,
+        CssBorderStyleInset,
+        CssBorderStyleOutset
+    }
+
+    impl CssBorderStyleValue {
+        pub fn new(type_: css_border_style_e) -> CssBorderStyleValue {
+            match type_ {
+                CSS_BORDER_STYLE_INHERIT => CssBorderStyleInherit,
+                CSS_BORDER_STYLE_NONE => CssBorderStyleNone,
+                CSS_BORDER_STYLE_HIDDEN => CssBorderStyleHidden,
+                CSS_BORDER_STYLE_DOTTED => CssBorderStyleDotted,
+                CSS_BORDER_STYLE_DASHED => CssBorderStyleDashed,
+                CSS_BORDER_STYLE_SOLID => CssBorderStyleSolid,
+                CSS_BORDER_STYLE_DOUBLE => CssBorderStyleDouble,
+                CSS_BORDER_STYLE_GROOVE => CssBorderStyleGroove,
+                CSS_BORDER_STYLE_RIDGE => CssBorderStyleRidge,
+                CSS_BORDER_STYLE_INSET => CssBorderStyleInset,
+                CSS_BORDER_STYLE_OUTSET => CssBorderStyleOutset,
+                _ => unimpl("border style")
             }
         }
     }
