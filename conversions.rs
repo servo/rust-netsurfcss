@@ -182,11 +182,11 @@ impl AsLl<css_stylesheet_params> for CssStylesheetParams {
                         inline_style: self.inline_style,
                         resolve: resolve,
                         resolve_pw: unsafe { transmute(&self.resolve) },
-                        import: null(),
+                        import: unsafe { transmute(0) },
                         import_pw: null(),
-                        color: null(),
+                        color: unsafe { transmute(0) },
                         color_pw: null(),
-                        font: null(),
+                        font: unsafe { transmute(0) },
                         font_pw: null()
                     };
                     f(&params)
