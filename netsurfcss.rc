@@ -50,6 +50,7 @@ pub fn require_ok(code: css_error, what: &str) {
     }
 }
 
+#[fixed_stack_segment]
 pub fn realloc(ptr: *mut c_void, len: size_t, _pw: *c_void) -> *mut c_void {
     unsafe {
         if len == 0 {
@@ -232,6 +233,7 @@ pub mod stylesheet {
     }
 
     impl Drop for CssStylesheet {
+	    #[fixed_stack_segment]
         fn drop(&self) {
             assert!(self.sheet.is_not_null());
             let code = unsafe { css_stylesheet_destroy(self.sheet) };
@@ -239,6 +241,7 @@ pub mod stylesheet {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn css_stylesheet_create(params: &CssStylesheetParams) -> CssStylesheet {
         let sheet = do params.as_ll |ll_params| {
             unsafe {
@@ -257,6 +260,7 @@ pub mod stylesheet {
     }
 
     impl CssStylesheet {
+	    #[fixed_stack_segment]
         pub fn size(&self) -> uint {
             unsafe {
                 let mut size = 0;
@@ -266,6 +270,7 @@ pub mod stylesheet {
             }
         }
 
+	    #[fixed_stack_segment]
         pub fn append_data(&mut self, data: &[u8]) {
             // FIXME: For some reason to_const_ptr isn't accessible
             let code = unsafe {
@@ -277,6 +282,7 @@ pub mod stylesheet {
             }
         }
 
+	    #[fixed_stack_segment]
         pub fn data_done(&mut self) {
             let _code = unsafe { css_stylesheet_data_done(self.sheet) };
             //require_ok(code, "finishing parsing");
@@ -623,6 +629,7 @@ pub mod select {
     }
 
     impl Drop for CssSelectCtx {
+	    #[fixed_stack_segment]
         fn drop(&self) {
             assert!(self.select_ctx.is_not_null());
             let code = unsafe { css_select_ctx_destroy(self.select_ctx) };
@@ -630,6 +637,7 @@ pub mod select {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn css_select_ctx_create() -> CssSelectCtx {
         let mut select_ctx: *css_select_ctx = null();
         let code = unsafe { ll_css_select_ctx_create(realloc_ext, null(), to_mut_unsafe_ptr(&mut select_ctx)) };
@@ -643,6 +651,7 @@ pub mod select {
     }
 
     impl CssSelectCtx {
+	    #[fixed_stack_segment]
         pub fn append_sheet(&mut self, sheet: CssStylesheet, origin: css_origin, media: uint64_t) {
             let code = unsafe { css_select_ctx_append_sheet(self.select_ctx, sheet.ll_sheet(), origin, media) };
             require_ok(code, "adding sheet to select ctx");
@@ -650,6 +659,7 @@ pub mod select {
             self.sheets.push(sheet);
         }
 
+	    #[fixed_stack_segment]
         pub fn count_sheets(&self) -> uint {
             let mut count = 0;
             let code = unsafe { css_select_ctx_count_sheets(self.select_ctx, to_mut_unsafe_ptr(&mut count)) };
@@ -657,6 +667,7 @@ pub mod select {
             return count as uint;
         }
 
+	    #[fixed_stack_segment]
         pub fn select_style<N: VoidPtrLike, H: CssSelectHandler<N>>(&self, node: &N, media: uint64_t,
                                                             inline_style: Option<&CssStylesheet>,
                                                             handler: &H) -> CssSelectResults {
@@ -1080,6 +1091,7 @@ pub mod select {
     }
 
     impl Drop for CssSelectResults {
+	    #[fixed_stack_segment]
         fn drop(&self) {
             assert!(self.results.is_not_null());
             let code = unsafe { css_select_results_destroy(self.results) };
@@ -1127,6 +1139,7 @@ pub mod computed {
     }
 
     impl<'self> CssComputedStyle<'self> {
+	    #[fixed_stack_segment]
         pub fn color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe {css_computed_color(self.computed_style, to_mut_unsafe_ptr(&mut color)) };
@@ -1135,6 +1148,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
+	    #[fixed_stack_segment]
         pub fn background_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_background_color(self.computed_style, to_mut_unsafe_ptr(&mut color)) };
@@ -1143,6 +1157,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_top_style(&self) -> CssBorderStyleValue {
             let type_ = unsafe { css_computed_border_top_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
@@ -1150,6 +1165,7 @@ pub mod computed {
             CssBorderStyleValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_right_style(&self) -> CssBorderStyleValue {
             let type_ = unsafe { css_computed_border_right_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
@@ -1157,6 +1173,7 @@ pub mod computed {
             CssBorderStyleValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
        pub fn border_bottom_style(&self) -> CssBorderStyleValue {
             let type_ = unsafe { css_computed_border_bottom_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
@@ -1164,6 +1181,7 @@ pub mod computed {
             CssBorderStyleValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_left_style(&self) -> CssBorderStyleValue {
             let type_ = unsafe { css_computed_border_left_style(self.computed_style) };
             let type_ = type_ as css_border_style_e;
@@ -1171,6 +1189,7 @@ pub mod computed {
             CssBorderStyleValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_top_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1182,6 +1201,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_right_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1193,6 +1213,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_bottom_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1204,6 +1225,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_left_width(&self) -> CssBorderWidthValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1215,6 +1237,7 @@ pub mod computed {
             CssBorderWidthValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_top_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_top_color(self.computed_style,
@@ -1223,6 +1246,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_right_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_right_color(self.computed_style,
@@ -1231,6 +1255,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_bottom_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_bottom_color(self.computed_style,
@@ -1239,6 +1264,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
+	    #[fixed_stack_segment]
         pub fn border_left_color(&self) -> CssColorValue {
             let mut color = 0;
             let type_ = unsafe { css_computed_border_left_color(self.computed_style,
@@ -1247,6 +1273,7 @@ pub mod computed {
             CssColorValue::new(type_, color)
         }
 
+	    #[fixed_stack_segment]
         pub fn margin_top(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1258,6 +1285,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn margin_right(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1269,6 +1297,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn margin_bottom(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1280,6 +1309,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn margin_left(&self) -> CssMarginValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1291,6 +1321,7 @@ pub mod computed {
             CssMarginValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn padding_top(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1302,6 +1333,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn padding_right(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1313,6 +1345,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn padding_bottom(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1324,6 +1357,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn padding_left(&self) -> CssPaddingValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1335,6 +1369,7 @@ pub mod computed {
             CssPaddingValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn display(&self, root: bool) -> CssDisplayValue {
             let type_ = unsafe { css_computed_display(self.computed_style, root) };
             let type_ = type_ as css_display_e;
@@ -1342,6 +1377,7 @@ pub mod computed {
             CssDisplayValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn position(&self) -> CssPositionValue {
             let type_ = unsafe { css_computed_position(self.computed_style) };
             let type_ = type_ as css_position_e;
@@ -1349,6 +1385,7 @@ pub mod computed {
             CssPositionValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn width(&self) -> CssWidthValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1360,6 +1397,7 @@ pub mod computed {
             CssWidthValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn height(&self) -> CssHeightValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1371,6 +1409,7 @@ pub mod computed {
             CssHeightValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn float(&self) -> CssFloatValue {
             let type_ = unsafe { css_computed_float(self.computed_style) };
             let type_ = type_ as css_float_e;
@@ -1378,6 +1417,7 @@ pub mod computed {
             CssFloatValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn clear(&self) -> CssClearValue {
             let type_ = unsafe { css_computed_clear(self.computed_style) };
             let type_ = type_ as css_clear_e;
@@ -1385,6 +1425,7 @@ pub mod computed {
             CssClearValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn font_family(&self) -> CssFontFamilyValue {
             let mut names: **lwc_string = null();
             let type_ = unsafe { css_computed_font_family(self.computed_style,
@@ -1394,6 +1435,7 @@ pub mod computed {
             CssFontFamilyValue::new(type_, names)
         }
 
+	    #[fixed_stack_segment]
         pub fn font_size(&self) -> CssFontSizeValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1405,6 +1447,7 @@ pub mod computed {
             CssFontSizeValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn font_style(&self) -> CssFontStyleValue {
             let type_ = unsafe { css_computed_font_style(self.computed_style) };
             let type_ = type_ as css_font_style_e;
@@ -1412,6 +1455,7 @@ pub mod computed {
             CssFontStyleValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn font_weight(&self) -> CssFontWeightValue {
             let type_ = unsafe { css_computed_font_weight(self.computed_style) };
             let type_ = type_ as css_font_weight_e;
@@ -1419,6 +1463,7 @@ pub mod computed {
             CssFontWeightValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn text_align(&self) -> CssTextAlignValue {
             let type_ = unsafe { css_computed_text_align(self.computed_style) };
             let type_ = type_ as css_text_align_e;
@@ -1426,6 +1471,7 @@ pub mod computed {
             CssTextAlignValue::new(type_)
         }
 
+	    #[fixed_stack_segment]
         pub fn text_decoration(&self) -> CssTextDecorationValue {
             let type_ = unsafe { css_computed_text_decoration(self.computed_style) };
             let type_ = type_ as css_text_decoration_e;
@@ -1435,6 +1481,7 @@ pub mod computed {
         }
 
 
+	    #[fixed_stack_segment]
         pub fn line_height(&self) -> CssLineHeightValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1446,6 +1493,7 @@ pub mod computed {
             CssLineHeightValue::new(type_, length, unit)
         }
 
+	    #[fixed_stack_segment]
         pub fn vertical_align(&self) -> CssVerticalAlignValue {
             let mut length = 0;
             let mut unit = 0;
@@ -1463,6 +1511,7 @@ pub mod computed {
     // Merge parent and child styles into another style. The result
     // pointer may point to the child style, in which case the child
     // style is overwritten
+	#[fixed_stack_segment]
     pub fn compose(parent: &CssComputedStyle, child: &mut CssComputedStyle,
                    compute_font_size: ComputeFontSizeCb,
                    result: &mut CssComputedStyle) {

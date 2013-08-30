@@ -32,8 +32,9 @@ pub type c_enum = uint32_t;
 pub type rust_enum = uint;
 
 pub mod functypes {
-    // (ptr: *c_void, size: size_t, pw: *c_void)
-    pub type css_allocator_fn = *u8;
+    use std::libc::{c_void, size_t};
+
+    pub type css_allocator_fn = extern "C" fn(ptr: *mut c_void, size: size_t, pw: *c_void) -> *mut c_void;
 }
 
 pub mod types {
@@ -449,9 +450,9 @@ pub mod properties {
 pub mod stylesheet {
 
     use std::libc::{c_char, c_void, size_t};
-    use std::libc::types::common::c99::{uint32_t, int32_t, uint8_t};
+    use std::libc::types::common::c99::{uint32_t, int32_t, uint8_t, uint64_t};
     use wapcaplet::ll::lwc_string;
-    use ll::types::{css_language_level, css_unit};
+    use ll::types::{css_language_level, css_unit, css_color};
     use ll::properties::{css_font_style_e, css_font_variant_e, css_font_weight_e};
     use ll::functypes::css_allocator_fn;
     use ll::errors::css_error;
@@ -476,10 +477,10 @@ pub mod stylesheet {
 
     pub static CSS_STYLESHEET_PARAMS_VERSION_1: uint32_t = 1;
 
-    pub type css_url_resolution_fn = *u8; //extern fn(pw: *c_void, base: *c_char, rel: *lwc_string, abs: **lwc_string) -> css_error;
-    pub type css_import_notification_fn = *u8; //extern fn(pw: *c_void, parent: *css_stylesheet, url: *lwc_string, media: *uint64_t) -> css_error;
-    pub type css_color_resolution_fn = *u8; //extern fn(pw: *c_void, name: *lwc_string, color: *css_color) -> css_error;
-    pub type css_font_resolution_fn = *u8; //extern fn(pw: *c_void, name: *lwc_string, system_font: *css_system_font) -> css_error;
+    pub type css_url_resolution_fn = extern "C" fn(pw: *c_void, base: *c_char, rel: *lwc_string, abs: *mut *lwc_string) -> css_error;
+    pub type css_import_notification_fn = extern "C" fn(pw: *c_void, parent: *css_stylesheet, url: *lwc_string, media: *uint64_t) -> css_error;
+    pub type css_color_resolution_fn = extern "C" fn(pw: *c_void, name: *lwc_string, color: *css_color) -> css_error;
+    pub type css_font_resolution_fn = extern "C" fn(pw: *c_void, name: *lwc_string, system_font: *css_system_font) -> css_error;
 
     pub type css_stylesheet = c_void;
 
@@ -514,12 +515,14 @@ pub mod stylesheet {
 
 pub mod select {
     use std::libc::c_void;
-    use std::libc::types::common::c99::{uint32_t, uint64_t};
+    use std::libc::types::common::c99::{uint32_t, uint64_t, int32_t};
     use ll::c_enum;
     use ll::functypes::css_allocator_fn;
     use ll::errors::css_error;
     use ll::stylesheet::css_stylesheet;
-    use ll::types::{css_origin, css_computed_style};
+    use ll::types::{css_origin, css_computed_style, css_qname};
+    use ll::hint::css_hint;
+    use wapcaplet::ll::lwc_string;
 
     pub type css_select_ctx = c_void;
 
@@ -538,48 +541,46 @@ pub mod select {
         styles: [*css_computed_style, ..5] // 5 == CSS_PSEUDO_ELEMENT_COUNT
     }
 
-    pub type opaque_callback = *u8;
-
     pub static CSS_SELECT_HANDLER_VERSION_1: uint32_t = 1;
 
     // See select.h for actual callback signatures
     pub struct css_select_handler {
         handler_version: uint32_t,
-        node_name: opaque_callback,
-        node_classes: opaque_callback,
-        node_id: opaque_callback,
-        named_ancestor_node: opaque_callback,
-        named_parent_node: opaque_callback,
-        named_sibling_node: opaque_callback,
-        named_generic_sibling_node: opaque_callback,
-        parent_node: opaque_callback,
-        sibling_node: opaque_callback,
-        node_has_name: opaque_callback,
-        node_has_class: opaque_callback,
-        node_has_id: opaque_callback,
-        node_has_attribute: opaque_callback,
-        node_has_attribute_equal: opaque_callback,
-        node_has_attribute_dashmatch: opaque_callback,
-        node_has_attribute_includes: opaque_callback,
-        node_has_attribute_prefix: opaque_callback,
-        node_has_attribute_suffix: opaque_callback,
-        node_has_attribute_substring: opaque_callback,
-        node_is_root: opaque_callback,
-        node_count_siblings: opaque_callback,
-        node_is_empty: opaque_callback,
-        node_is_link: opaque_callback,
-        node_is_visited: opaque_callback,
-        node_is_hover: opaque_callback,
-        node_is_active: opaque_callback,
-        node_is_focus: opaque_callback,
-        node_is_enabled: opaque_callback,
-        node_is_disabled: opaque_callback,
-        node_is_checked: opaque_callback,
-        node_is_target: opaque_callback,
-        node_is_lang: opaque_callback,
-        node_presentational_hint: opaque_callback,
-        ua_default_for_property: opaque_callback,
-        compute_font_size: opaque_callback
+        node_name: extern "C" fn(*c_void, *c_void, *mut css_qname) -> css_error,
+        node_classes: extern "C" fn(*c_void, *c_void, *mut **lwc_string, *mut uint32_t) -> css_error,
+        node_id: extern "C" fn(*c_void, *c_void, *mut *lwc_string) -> css_error,
+        named_ancestor_node: extern "C" fn(*c_void, *c_void, *css_qname, *mut *c_void) -> css_error,
+        named_parent_node: extern "C" fn(*c_void, *c_void, *css_qname, *mut *c_void) -> css_error,
+        named_sibling_node: extern "C" fn(*c_void, *c_void, *css_qname, *mut *c_void) -> css_error,
+        named_generic_sibling_node: extern "C" fn(*c_void, *c_void, *css_qname, **c_void) -> css_error,
+        parent_node: extern "C" fn(*c_void, *c_void, *mut *c_void) -> css_error,
+        sibling_node: extern "C" fn(*c_void, *c_void, *mut *c_void) -> css_error,
+        node_has_name: extern "C" fn(*c_void, *c_void, *css_qname, *bool) -> css_error,
+        node_has_class: extern "C" fn(*c_void, *c_void, *lwc_string, *mut bool) -> css_error,
+        node_has_id: extern "C" fn(*c_void, *c_void, *lwc_string, *mut bool) -> css_error,
+        node_has_attribute: extern "C" fn(*c_void, *c_void, *css_qname, *mut bool) -> css_error,
+        node_has_attribute_equal: extern "C" fn(*c_void, *c_void, *css_qname, *lwc_string, *mut bool) -> css_error,
+        node_has_attribute_dashmatch: extern "C" fn(*c_void, *c_void, *css_qname, *lwc_string, *bool) -> css_error,
+        node_has_attribute_includes: extern "C" fn(*c_void, *c_void, *css_qname, *lwc_string, *mut bool) -> css_error,
+        node_has_attribute_prefix: extern "C" fn(*c_void, *c_void, *css_qname, *lwc_string, *mut bool) -> css_error,
+        node_has_attribute_suffix: extern "C" fn(*c_void, *c_void, *css_qname, *lwc_string, *mut bool) -> css_error,
+        node_has_attribute_substring: extern "C" fn(*c_void, *c_void, *css_qname, *lwc_string, *mut bool) -> css_error,
+        node_is_root: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_count_siblings: extern "C" fn(*c_void, *c_void, bool, bool, *mut int32_t) -> css_error,
+        node_is_empty: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_is_link: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_is_visited: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_is_hover: extern "C" fn(*c_void, *c_void, *bool) -> css_error,
+        node_is_active: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_is_focus: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_is_enabled: extern "C" fn(*c_void, *c_void, *bool) -> css_error,
+        node_is_disabled: extern "C" fn(*c_void, *c_void, *bool) -> css_error,
+        node_is_checked: extern "C" fn(*c_void, *c_void, *bool) -> css_error,
+        node_is_target: extern "C" fn(*c_void, *c_void, *mut bool) -> css_error,
+        node_is_lang: extern "C" fn(*c_void, *c_void, *lwc_string, *mut bool) -> css_error,
+        node_presentational_hint: extern "C" fn(*c_void, *c_void, uint32_t, *css_hint) -> css_error,
+        ua_default_for_property: extern "C" fn(*c_void, uint32_t, *mut css_hint) -> css_error,
+        compute_font_size: extern "C" fn(*c_void, *css_hint, *mut css_hint) -> css_error
     }
 
     extern {
@@ -595,6 +596,7 @@ pub mod select {
 pub mod computed {
     use std::libc::c_void;
     use std::libc::types::common::c99::uint8_t;
+    use ll::hint::css_hint;
     use ll::types::css_color;
     use super::errors::css_error;
     use super::stylesheet::css_fixed;
@@ -603,7 +605,7 @@ pub mod computed {
 
     pub type css_computed_style = c_void;
 
-    pub type compute_font_size_cb = *u8; // (pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error
+    pub type compute_font_size_cb = extern "C" fn(pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error;
 
     extern {
         pub fn css_computed_style_compose(parent: *css_computed_style,
