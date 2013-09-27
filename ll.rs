@@ -599,11 +599,288 @@ pub mod computed {
     use ll::hint::css_hint;
     use ll::types::css_color;
     use super::errors::css_error;
+    use super::properties::{CSS_BORDER_WIDTH_WIDTH, CSS_FONT_SIZE_DIMENSION, CSS_HEIGHT_SET};
+    use super::properties::{CSS_MARGIN_SET, CSS_PADDING_SET, CSS_WIDTH_SET};
     use super::stylesheet::css_fixed;
     use super::types::css_unit;
     use wapcaplet::ll::lwc_string;
 
-    pub type css_computed_style = c_void;
+    pub struct css_computed_style {
+        bits: [u8, ..34],
+        unused: [u8, ..2],
+
+        background_color: css_color,
+        background_image: *lwc_string,
+        background_position: [css_fixed, ..2],
+
+        border_color: [css_color, ..4],
+        border_width: [css_fixed, ..4],
+
+        top: css_fixed,
+        right: css_fixed,
+        bottom: css_fixed,
+        left: css_fixed,
+
+        color: css_color,
+
+        font_size: css_fixed,
+
+        height: css_fixed,
+
+        line_height: css_fixed,
+
+        list_style_image: *lwc_string,
+
+        margin: [css_fixed, ..4],
+
+        max_height: css_fixed,
+        max_width: css_fixed,
+
+        min_height: css_fixed,
+        min_width: css_fixed,
+
+        opacity: css_fixed,
+
+        padding: [css_fixed, ..4],
+
+        text_indent: css_fixed,
+
+        vertical_align: css_fixed,
+
+        width: css_fixed,
+
+        // ... other stuff here ...
+    }
+
+    static CSS_WIDTH_INDEX: uint = 18;
+    static CSS_WIDTH_SHIFT: u8 = 2;
+    static CSS_WIDTH_MASK: u8 = 0xfc;
+    #[inline(always)]
+    pub unsafe fn css_computed_width(style: *css_computed_style,
+                                     length: &mut css_fixed,
+                                     unit: &mut css_unit)
+                                     -> u8 {
+        let mut bits = (*style).bits[CSS_WIDTH_INDEX];
+        bits &= CSS_WIDTH_MASK;
+        bits >>= CSS_WIDTH_SHIFT;
+
+        if (bits & 0x3) == (CSS_WIDTH_SET as u8) {
+            *length = (*style).width;
+            *unit = (bits >> 2) as css_unit;
+        }
+
+        bits & 0x3
+    }
+
+    static CSS_HEIGHT_INDEX: uint = 10;
+    static CSS_HEIGHT_SHIFT: u8 = 2;
+    static CSS_HEIGHT_MASK: u8 = 0xfc;
+    #[inline(always)]
+    pub unsafe fn css_computed_height(style: *css_computed_style,
+                                      length: &mut css_fixed,
+                                      unit: &mut css_unit)
+                                      -> u8 {
+        let mut bits = (*style).bits[CSS_HEIGHT_INDEX];
+        bits &= CSS_HEIGHT_MASK;
+        bits >>= CSS_HEIGHT_SHIFT;
+
+        if (bits & 0x3) == (CSS_HEIGHT_SET as u8) {
+            *length = (*style).height;
+            *unit = (bits >> 2) as css_unit;
+        }
+
+        bits & 0x3
+    }
+
+    static CSS_CLEAR_INDEX: uint = 20;
+    static CSS_CLEAR_SHIFT: u8 = 0;
+    static CSS_CLEAR_MASK: u8 = 0x7;
+    #[inline(always)]
+    pub unsafe fn css_computed_clear(style: *css_computed_style) -> u8 {
+        let mut bits = (*style).bits[CSS_CLEAR_INDEX];
+        bits &= CSS_CLEAR_MASK;
+        bits >>= CSS_CLEAR_SHIFT;
+        bits
+    }
+
+    static CSS_FONT_SIZE_INDEX: uint = 1;
+    static CSS_FONT_SIZE_SHIFT: u8 = 0;
+    static CSS_FONT_SIZE_MASK: u8 = 0xff;
+    #[inline(always)]
+    pub unsafe fn css_computed_font_size(style: *css_computed_style,
+                                         length: &mut css_fixed,
+                                         unit: &mut css_unit)
+                                         -> u8 {
+        let mut bits = (*style).bits[CSS_FONT_SIZE_INDEX];
+        bits &= CSS_FONT_SIZE_MASK;
+        bits >>= CSS_FONT_SIZE_SHIFT;
+
+        if (bits & 0xf) == (CSS_FONT_SIZE_DIMENSION as u8) {
+            *length = (*style).font_size;
+            *unit = (bits >> 4) as css_unit;
+        }
+
+        bits & 0xf
+    }
+
+    #[inline(always)]
+    unsafe fn css_computed_margin(style: *css_computed_style,
+                                  length: &mut css_fixed,
+                                  unit: &mut css_unit,
+                                  index: uint,
+                                  shift: u8,
+                                  mask: u8,
+                                  which: uint)
+                                  -> u8 {
+        let mut bits = (*style).bits[index];
+        bits &= mask;
+        bits >>= shift;
+
+        if (bits & 0x3) == (CSS_MARGIN_SET as u8) {
+            *length = (*style).margin[which];
+            *unit = (bits >> 2) as css_unit;
+        }
+
+        bits & 0x3
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_margin_top(style: *css_computed_style,
+                                          length: &mut css_fixed,
+                                          unit: &mut css_unit)
+                                          -> u8 {
+        css_computed_margin(style, length, unit, 12, 2, 0xfc, 0)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_margin_right(style: *css_computed_style,
+                                            length: &mut css_fixed,
+                                            unit: &mut css_unit)
+                                            -> u8 {
+        css_computed_margin(style, length, unit, 13, 2, 0xfc, 1)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_margin_bottom(style: *css_computed_style,
+                                             length: &mut css_fixed,
+                                             unit: &mut css_unit)
+                                             -> u8 {
+        css_computed_margin(style, length, unit, 14, 2, 0xfc, 2)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_margin_left(style: *css_computed_style,
+                                           length: &mut css_fixed,
+                                           unit: &mut css_unit)
+                                           -> u8 {
+        css_computed_margin(style, length, unit, 15, 2, 0xfc, 3)
+    }
+
+    #[inline(always)]
+    unsafe fn css_computed_padding(style: *css_computed_style,
+                                   length: &mut css_fixed,
+                                   unit: &mut css_unit,
+                                   index: uint,
+                                   shift: u8,
+                                   mask: u8,
+                                   which: uint)
+                                   -> u8 {
+        let mut bits = (*style).bits[index];
+        bits &= mask;
+        bits >>= shift;
+
+        if (bits & 0x3) == (CSS_PADDING_SET as u8) {
+            *length = (*style).padding[which];
+            *unit = (bits >> 1) as css_unit;
+        }
+
+        bits & 0x3
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_padding_top(style: *css_computed_style,
+                                           length: &mut css_fixed,
+                                           unit: &mut css_unit)
+                                           -> u8 {
+        css_computed_padding(style, length, unit, 21, 3, 0xf8, 0)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_padding_right(style: *css_computed_style,
+                                             length: &mut css_fixed,
+                                             unit: &mut css_unit)
+                                             -> u8 {
+        css_computed_padding(style, length, unit, 22, 3, 0xf8, 1)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_padding_bottom(style: *css_computed_style,
+                                              length: &mut css_fixed,
+                                              unit: &mut css_unit)
+                                              -> u8 {
+        css_computed_padding(style, length, unit, 23, 3, 0xf8, 2)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_padding_left(style: *css_computed_style,
+                                            length: &mut css_fixed,
+                                            unit: &mut css_unit)
+                                            -> u8 {
+        css_computed_padding(style, length, unit, 24, 3, 0xf8, 3)
+    }
+
+    #[inline(always)]
+    unsafe fn css_computed_border_width(style: *css_computed_style,
+                                        length: &mut css_fixed,
+                                        unit: &mut css_unit,
+                                        index: uint,
+                                        shift: u8,
+                                        mask: u8,
+                                        which: uint)
+                                        -> u8 {
+        let mut bits = (*style).bits[index];
+        bits &= mask;
+        bits >>= shift;
+
+        if (bits & 0x7) == (CSS_BORDER_WIDTH_WIDTH as u8) {
+            *length = (*style).border_width[which];
+            *unit = (bits >> 3) as css_unit;
+        }
+
+        bits & 0x7
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_border_top_width(style: *css_computed_style,
+                                                length: &mut css_fixed,
+                                                unit: &mut css_unit)
+                                                -> u8 {
+        css_computed_border_width(style, length, unit, 2, 1, 0xfe, 0)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_border_right_width(style: *css_computed_style,
+                                                  length: &mut css_fixed,
+                                                  unit: &mut css_unit)
+                                                  -> u8 {
+        css_computed_border_width(style, length, unit, 3, 1, 0xfe, 1)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_border_bottom_width(style: *css_computed_style,
+                                                   length: &mut css_fixed,
+                                                   unit: &mut css_unit)
+                                                   -> u8 {
+        css_computed_border_width(style, length, unit, 4, 1, 0xfe, 2)
+    }
+
+    #[inline(always)]
+    pub unsafe fn css_computed_border_left_width(style: *css_computed_style,
+                                                 length: &mut css_fixed,
+                                                 unit: &mut css_unit)
+                                                 -> u8 {
+        css_computed_border_width(style, length, unit, 5, 1, 0xfe, 3)
+    }
 
     pub type compute_font_size_cb = extern "C" fn(pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error;
 
@@ -620,30 +897,14 @@ pub mod computed {
         pub fn css_computed_border_right_style(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_border_bottom_style(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_border_left_style(style: *css_computed_style) -> uint8_t;
-        pub fn css_computed_border_top_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_border_right_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_border_bottom_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_border_left_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         pub fn css_computed_border_top_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         pub fn css_computed_border_right_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         pub fn css_computed_border_bottom_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
         pub fn css_computed_border_left_color(style: *css_computed_style, color: *mut css_color) -> uint8_t;
-        pub fn css_computed_margin_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_margin_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_margin_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_margin_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_padding_top(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_padding_right(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_padding_bottom(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_padding_left(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         pub fn css_computed_display(style: *css_computed_style, root: bool) -> uint8_t;
         pub fn css_computed_float(style: *css_computed_style) -> uint8_t;
-        pub fn css_computed_clear(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_position(style: *css_computed_style) -> uint8_t;
-        pub fn css_computed_width(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
-        pub fn css_computed_height(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         pub fn css_computed_font_family(style: *css_computed_style, names: *mut **lwc_string) -> uint8_t;
-        pub fn css_computed_font_size(style: *css_computed_style, length: *mut css_fixed, unit: *mut css_unit) -> uint8_t;
         pub fn css_computed_font_style(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_font_weight(style: *css_computed_style) -> uint8_t;
         pub fn css_computed_text_align(style: *css_computed_style) -> uint8_t;

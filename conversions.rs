@@ -38,6 +38,7 @@ pub trait AsLl<T> {
 }
 
 impl ToLl<css_language_level> for CssLanguageLevel {
+    #[inline]
     fn to_ll(&self) -> css_language_level {
         match *self {
             CssLevel1 => CSS_LEVEL_1,
@@ -51,30 +52,35 @@ impl ToLl<css_language_level> for CssLanguageLevel {
 }
 
 impl ToLl<css_error> for CssError {
+    #[inline]
     fn to_ll(&self) -> css_error {
         *self as css_error
     }
 }
 
 impl ToLl<css_font_family_e> for CssFontFamily {
+    #[inline]
     fn to_ll(&self) -> css_font_family_e {
         *self as css_font_family_e
     }
 }
 
 impl ToLl<css_color> for CssColor {
+    #[inline]
     fn to_ll(&self) -> css_color {
         assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
         unsafe { transmute(*self) }
     }
 }
 
+#[inline]
 pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
     assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
     unsafe { transmute(color) }
 }
 
 impl ToLl<(css_unit, css_fixed)> for CssUnit {
+    #[inline]
     fn to_ll(&self) -> (css_unit, css_fixed) {
         use ll::types::*;
         use types::*;
@@ -99,6 +105,7 @@ impl ToLl<(css_unit, css_fixed)> for CssUnit {
     }
 }
 
+#[inline]
 pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
     use ll::types::*;
     use types::*;
@@ -139,6 +146,7 @@ pub fn ll_unit_to_hl_unit(unit: css_unit, value: css_fixed) -> CssUnit {
     }
 }
 
+#[inline]
 pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
     unsafe {
         CssQName {
@@ -156,11 +164,13 @@ pub fn ll_qname_to_hl_qname(qname: *css_qname) -> CssQName {
 }
 
 impl ToLl<css_pseudo_element> for CssPseudoElement {
+    #[inline]
     fn to_ll(&self) -> css_pseudo_element {
         *self as css_pseudo_element
     }
 }
 
+#[inline]
 pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
     // Sanity check that this is actually a 'c-like' (har) enum
     assert!(sys::size_of::<T>() == sys::size_of::<rust_enum>());
