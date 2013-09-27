@@ -1542,14 +1542,16 @@ pub mod computed {
         }
     }
 
-    pub type ComputeFontSizeCb = @fn(parent: &Option<CssHint>, child: &CssHint) -> CssHint;
+    pub trait ComputeFontSize {
+        fn compute_font_size(&self, parent: &Option<CssHint>, child: &CssHint) -> CssHint;
+    }
 
     // Merge parent and child styles into another style. The result
     // pointer may point to the child style, in which case the child
     // style is overwritten
 	#[fixed_stack_segment]
     pub fn compose(parent: &CssComputedStyle, child: &mut CssComputedStyle,
-                   compute_font_size: ComputeFontSizeCb,
+                   compute_font_size: @ComputeFontSize,
                    result: &mut CssComputedStyle) {
         let llparent = parent.computed_style;
         let llchild = child.computed_style;
@@ -1562,14 +1564,14 @@ pub mod computed {
     }
 
     extern fn compute_font_size_cb(pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error {
-        let hlcbptr: *ComputeFontSizeCb = unsafe { transmute(pw) };
+        let hlcbptr: *@ComputeFontSize = unsafe { transmute(pw) };
         let hlparent = if parent.is_null() {
             None
         } else {
             Some(CssHint::new(CssPropFontSize, parent))
         };
         let hlchild = CssHint::new(CssPropFontSize, unsafe { transmute(size) });
-        let new_hint = unsafe { *hlcbptr }(&hlparent, &hlchild);
+        let new_hint = unsafe { *hlcbptr }.compute_font_size(&hlparent, &hlchild);
         new_hint.write_to_ll(CssPropFontSize, size);
 
         CSS_OK
@@ -1577,7 +1579,7 @@ pub mod computed {
 }
 
 // Types returned as calculated styles. Maps to properties
-mod values {
+pub mod values {
     use types::{CssColor, CssUnit};
     use conversions::{ll_color_to_hl_color, ll_unit_to_hl_unit};
     use ll::properties::*;
@@ -1925,7 +1927,7 @@ mod values {
         }
     }
 
-    enum CssTextAlignValue {
+    pub enum CssTextAlignValue {
 	CssTextAlignInherit = 0x0,
 	CssTextAlignInheritIfNonMagic = 0x1,
 	CssTextAlignLeft = 0x2,
@@ -1945,7 +1947,7 @@ mod values {
         }
     }
 
-    enum CssTextDecorationValue{
+    pub enum CssTextDecorationValue{
     CssTextDecorationInherit = 0x00,
     CssTextDecorationNone = 0x10,
     CssTextDecorationBlink = (1<<3),
