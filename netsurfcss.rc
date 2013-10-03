@@ -1542,7 +1542,7 @@ pub mod computed {
         }
     }
 
-    pub trait ComputeFontSize {
+    pub trait FontSizeComputer {
         fn compute_font_size(&self, parent: &Option<CssHint>, child: &CssHint) -> CssHint;
     }
 
@@ -1550,8 +1550,9 @@ pub mod computed {
     // pointer may point to the child style, in which case the child
     // style is overwritten
 	#[fixed_stack_segment]
-    pub fn compose(parent: &CssComputedStyle, child: &mut CssComputedStyle,
-                   compute_font_size: @ComputeFontSize,
+    pub fn compose(parent: &CssComputedStyle,
+                   child: &mut CssComputedStyle,
+                   compute_font_size: @FontSizeComputer,
                    result: &mut CssComputedStyle) {
         let llparent = parent.computed_style;
         let llchild = child.computed_style;
@@ -1564,14 +1565,16 @@ pub mod computed {
     }
 
     extern fn compute_font_size_cb(pw: *c_void, parent: *css_hint, size: *mut css_hint) -> css_error {
-        let hlcbptr: *@ComputeFontSize = unsafe { transmute(pw) };
+        let hlcbptr: *@FontSizeComputer = unsafe { transmute(pw) };
         let hlparent = if parent.is_null() {
             None
         } else {
             Some(CssHint::new(CssPropFontSize, parent))
         };
         let hlchild = CssHint::new(CssPropFontSize, unsafe { transmute(size) });
-        let new_hint = unsafe { *hlcbptr }.compute_font_size(&hlparent, &hlchild);
+        let new_hint = unsafe { 
+            (*hlcbptr).compute_font_size(&hlparent, &hlchild)
+        };
         new_hint.write_to_ll(CssPropFontSize, size);
 
         CSS_OK

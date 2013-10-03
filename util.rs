@@ -13,15 +13,15 @@ use std::libc::c_void;
 use lwcstr_from_rust_str = wapcaplet::from_rust_string;
 
 #[inline]
-pub fn css_fixed_to_float(f: css_fixed) -> float {
+pub fn css_fixed_to_float(f: css_fixed) -> f64 {
     static BEFORE: i32 = 10;
-    f as float * 1.0f / ((1i32 << BEFORE) as float)
+    f as f64 * 1.0 / ((1i32 << BEFORE) as f64)
 }
 
 #[inline]
-pub fn float_to_css_fixed(f: float) -> css_fixed {
+pub fn float_to_css_fixed(f: f64) -> css_fixed {
     static BEFORE: i32 = 10;
-    (f * ((1 << BEFORE) as float)) as css_fixed
+    (f * ((1 << BEFORE) as f64)) as css_fixed
 }
 
 pub fn rust_str_to_net_qname(s: &str) -> CssQName {
