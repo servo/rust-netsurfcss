@@ -589,7 +589,7 @@ pub mod select {
     use std::libc::c_void;
     use std::libc::types::common::c99::{uint64_t, uint32_t};
     use std::vec;
-    use std::sys;
+    use std::mem;
     use std::ptr;
     use ll::types::{css_origin, css_qname};
     use types::CssQName;
@@ -985,7 +985,7 @@ pub mod select {
                         Some(classes) => {
                             let class = classes.map(|e| e.raw_reffed());
                             let len = classes.len();
-                            let size = (len * sys::size_of::<libc::intptr_t>());
+                            let size = (len * mem::size_of::<libc::intptr_t>());
                             let mem = realloc(ptr::mut_null(), size as libc::size_t, null()) as *mut u8;
                             ptr::copy_memory(mem, vec::raw::to_ptr(class) as *u8, size);
                             (mem as **lwc_string, len as u32)

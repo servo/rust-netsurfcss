@@ -27,7 +27,7 @@ use ll::stylesheet::{css_fixed, css_stylesheet_params};
 use stylesheet::{CssStylesheetParams};
 use ll::select::{css_pseudo_element};
 use select::{CssPseudoElement};
-use std::sys;
+use std::mem;
 
 pub trait ToLl<T> {
     fn to_ll(&self) -> T;
@@ -68,14 +68,14 @@ impl ToLl<css_font_family_e> for CssFontFamily {
 impl ToLl<css_color> for CssColor {
     #[inline]
     fn to_ll(&self) -> css_color {
-        assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
+        assert!(mem::size_of::<CssColor>() == mem::size_of::<css_color>());
         unsafe { transmute(*self) }
     }
 }
 
 #[inline]
 pub fn ll_color_to_hl_color(color: css_color) -> CssColor {
-    assert!(sys::size_of::<CssColor>() == sys::size_of::<css_color>());
+    assert!(mem::size_of::<CssColor>() == mem::size_of::<css_color>());
     unsafe { transmute(color) }
 }
 
@@ -173,7 +173,7 @@ impl ToLl<css_pseudo_element> for CssPseudoElement {
 #[inline]
 pub fn c_enum_to_rust_enum<T>(val: c_enum) -> T {
     // Sanity check that this is actually a 'c-like' (har) enum
-    assert!(sys::size_of::<T>() == sys::size_of::<rust_enum>());
+    assert!(mem::size_of::<T>() == mem::size_of::<rust_enum>());
     unsafe { transmute(val as rust_enum) }
 }
 
